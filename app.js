@@ -1,4 +1,4 @@
-﻿// State
+// State
 let userProfile = JSON.parse(localStorage.getItem('fitness_profile')) || {
     gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
 };
@@ -19,40 +19,13 @@ if (!dailyData[todayDateStr]) {
     dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || '' };
 }
 
-// Categories
-const dbCategories = [
-    { id: 'common', name: '常吃' },
-    { id: 'staple', name: '主食' },
-    { id: 'meat', name: '肉蛋海鮮' },
-    { id: 'veg', name: '蔬菜' },
-    { id: 'snack', name: '點心飲料' }
-];
+// // Food database is loaded from food_db.js (foodDatabase)
 
-// Extended Food DB
-const commonFoodsDB = [
-    { id: 'rice', name: '白飯', cal: 130, pro: 2.5, carb: 28, fat: 0.3, icon: '🍚', category: 'staple' },
-    { id: 'noodle', name: '麵條 (煮熟)', cal: 110, pro: 3.5, carb: 23, fat: 0.5, icon: '🍜', category: 'staple' },
-    { id: 'chicken_breast', name: '清蒸雞胸肉', cal: 115, pro: 24, carb: 0, fat: 1.5, icon: '🍗', category: 'meat' },
-    { id: 'beef_steak', name: '牛排 (煎熟)', cal: 250, pro: 26, carb: 0, fat: 15, icon: '🥩', category: 'meat' },
-    { id: 'pork', name: '豬肉 (瘦)', cal: 143, pro: 26, carb: 0, fat: 4, icon: '🥓', category: 'meat' },
-    { id: 'salmon', name: '鮭魚 (煎)', cal: 208, pro: 20, carb: 0, fat: 13, icon: '🐟', category: 'meat' },
-    { id: 'egg', name: '水煮蛋', cal: 78, pro: 6, carb: 0.5, fat: 5, icon: '🥚', category: 'meat' },
-    { id: 'cabbage', name: '高麗菜 (炒)', cal: 50, pro: 1.5, carb: 6, fat: 2, icon: '🥬', category: 'veg' },
-    { id: 'broccoli', name: '花椰菜', cal: 34, pro: 2.8, carb: 7, fat: 0.4, icon: '🥦', category: 'veg' },
-    { id: 'sweet_potato', name: '地瓜', cal: 84, pro: 1.6, carb: 27, fat: 0.1, icon: '🍠', category: 'staple' },
-    { id: 'oats', name: '燕麥片', cal: 389, pro: 16.9, carb: 66, fat: 6.9, icon: '🥣', category: 'staple' },
-    { id: 'milk', name: '全脂牛奶', cal: 61, pro: 3.2, carb: 4.8, fat: 3.3, icon: '🥛', category: 'meat' },
-    { id: 'soy_milk', name: '無糖豆漿', cal: 33, pro: 3.3, carb: 1.6, fat: 1.6, icon: '🥛', category: 'snack' },
-    { id: 'apple', name: '蘋果', cal: 52, pro: 0.3, carb: 14, fat: 0.2, icon: '🍎', category: 'veg' },
-    { id: 'banana', name: '香蕉', cal: 89, pro: 1.1, carb: 23, fat: 0.3, icon: '🍌', category: 'veg' },
-    { id: 'latte', name: '拿鐵咖啡 (無糖)', cal: 40, pro: 2, carb: 3, fat: 2, icon: '☕', category: 'snack' }
-];
-
-// Add 'common' category to first 6 items for the '常�?' tab
-commonFoodsDB.slice(0, 6).forEach(f => {
-    // We duplicate for UI simplicity in rendering
-    commonFoodsDB.push({...f, id: f.id+'_c', category: 'common'});
-});
+// Initialize 'common' category dynamically
+foodDatabase.categories.unshift({ id: 'common', name: '常吃', icon: 'fa-star' });
+// Add first 6 items to common for quick access
+const first6 = foodDatabase.foods.slice(0, 6).map(f => ({...f, categoryId: 'common', id: f.id + '_common'}));
+foodDatabase.foods = [...first6, ...foodDatabase.foods];
 
 // Mock Scanner DB
 const mockFoods = [
@@ -93,9 +66,8 @@ function init() {
     setupDailyTracking();
     setupScanner();
     
-    renderDateStrip();
     updateDashboard();
-    renderLogs();
+    selectLogDate(todayDateStr);
 }
 
 function calculateTargets() {
@@ -225,7 +197,7 @@ function changeAddingMeal(meal) {
 
 function renderDBSidebar() {
     const sidebar = document.getElementById('db-sidebar');
-    sidebar.innerHTML = dbCategories.map(cat => `
+    sidebar.innerHTML = foodDatabase.categories.map(cat => `
         <div class="sidebar-item ${cat.id === activeCategory ? 'active' : ''}" onclick="switchCategory('${cat.id}')">
             ${cat.name}
         </div>
@@ -234,24 +206,44 @@ function renderDBSidebar() {
 
 function switchCategory(catId) {
     activeCategory = catId;
+    document.getElementById('food-search-input').value = '';
     renderDBSidebar();
     renderDBContent();
 }
 
-function renderDBContent() {
-    const title = dbCategories.find(c => c.id === activeCategory).name;
-    document.getElementById('db-category-title').innerText = title + '食物';
-    
+document.getElementById('food-search-input').addEventListener('input', (e) => {
+    renderDBContent(e.target.value);
+});
+
+function renderDBContent(searchQuery = '') {
     const list = document.getElementById('db-food-list');
-    const filteredFoods = commonFoodsDB.filter(f => f.category === activeCategory);
+    let filteredFoods = [];
+    
+    if (searchQuery.trim() !== '') {
+        document.getElementById('db-category-title').innerText = '搜尋結果';
+        filteredFoods = foodDatabase.foods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        // Remove duplicates if searching (because 'common' category duplicates items)
+        const seenIds = new Set();
+        filteredFoods = filteredFoods.filter(f => {
+            const rawId = f.id.replace('_common', '');
+            if (seenIds.has(rawId)) return false;
+            seenIds.add(rawId);
+            return true;
+        });
+    } else {
+        const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
+        document.getElementById('db-category-title').innerText = title + '類';
+        filteredFoods = foodDatabase.foods.filter(f => f.categoryId === activeCategory);
+    }
     
     list.innerHTML = filteredFoods.map(food => `
         <div class="food-db-item" onclick="selectFood('${food.id}')">
             <div style="display:flex; align-items:center;">
-                <div style="font-size: 32px; margin-right: 12px; width: 48px; height: 48px; background: var(--bg-main); border-radius: 8px; display: flex; align-items: center; justify-content: center;">${food.icon}</div>
+                <div style="font-size: 32px; margin-right: 12px; width: 48px; height: 48px; background: var(--bg-main); border-radius: 8px; display: flex; align-items: center; justify-content: center;">${food.icon || '🍽️'}</div>
                 <div>
                     <h4>${food.name}</h4>
-                    <p><span style="color: #ff6b6b; font-weight: 600;">${food.cal}</span> kcal/100g</p>
+                    <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -267,7 +259,7 @@ function closeFoodDB() {
 }
 
 function selectFood(foodId) {
-    selectedFood = commonFoodsDB.find(f => f.id === foodId);
+    selectedFood = foodDatabase.foods.find(f => f.id === foodId);
     document.getElementById('setup-food-name').innerText = selectedFood.name;
     document.getElementById('setup-grams').value = 100;
     updateFoodSetup();
@@ -279,16 +271,27 @@ function closeFoodSetup() {
     selectedFood = null;
 }
 
+// Close setup modal when clicking outside of it
+document.addEventListener('click', (e) => {
+    const setupModal = document.getElementById('food-setup-modal');
+    if (setupModal.classList.contains('open')) {
+        // Only close if clicking outside the modal, and not clicking a food item that opens it
+        if (!setupModal.contains(e.target) && !e.target.closest('.food-db-item')) {
+            closeFoodSetup();
+        }
+    }
+});
+
 document.getElementById('setup-grams').addEventListener('input', updateFoodSetup);
 
 function updateFoodSetup() {
     if(!selectedFood) return;
     const grams = parseFloat(document.getElementById('setup-grams').value) || 0;
     const multi = grams / 100;
-    document.getElementById('setup-cal').innerText = Math.round(selectedFood.cal * multi);
-    document.getElementById('setup-pro').innerText = Math.round(selectedFood.pro * multi);
-    document.getElementById('setup-carb').innerText = Math.round(selectedFood.carb * multi);
-    document.getElementById('setup-fat').innerText = Math.round(selectedFood.fat * multi);
+    document.getElementById('setup-cal').innerText = Math.round(selectedFood.cals * multi);
+    document.getElementById('setup-pro').innerText = Math.round(selectedFood.macros.p * multi);
+    document.getElementById('setup-carb').innerText = Math.round(selectedFood.macros.c * multi);
+    document.getElementById('setup-fat').innerText = Math.round(selectedFood.macros.f * multi);
 }
 
 document.getElementById('btn-add-food').addEventListener('click', () => {
@@ -303,10 +306,10 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         date: todayDateStr,
         meal: currentAddingMeal,
         name: `${selectedFood.name} (${grams}g)`,
-        cal: Math.round(selectedFood.cal * multi),
-        pro: Math.round(selectedFood.pro * multi),
-        carb: Math.round(selectedFood.carb * multi),
-        fat: Math.round(selectedFood.fat * multi)
+        cal: Math.round(selectedFood.cals * multi),
+        pro: Math.round(selectedFood.macros.p * multi),
+        carb: Math.round(selectedFood.macros.c * multi),
+        fat: Math.round(selectedFood.macros.f * multi),
     };
 
     currentCart.push(newLog);
@@ -437,7 +440,7 @@ function showInfo(type) {
             </div>
             <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 建議分次小口飲用，若流汗多可適度增加。</p>
         `;
-    } else if (type === 'macros') {
+    } else if (type === 'cals') {
         let bmr = 0;
         let bmrFormula = '';
         if (userProfile.gender === 'male') {
@@ -460,7 +463,7 @@ function showInfo(type) {
             targetCalText = `${Math.round(tdee)} + 300 = <strong>${TARGET_CALS} kcal</strong>`;
         }
 
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素計算邏輯';
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標熱量說明';
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
@@ -480,9 +483,14 @@ function showInfo(type) {
                     <p style="color: var(--text-muted); margin-bottom: 4px;">根據目標調整總熱量：${goalText}</p>
                     <p>${targetCalText}</p>
                 </div>
-                
+            </div>
+        `;
+    } else if (type === 'macros') {
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明';
+        content.innerHTML = `
+            <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 4: 三大營養素分配</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
                     <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準，並用碳水填滿剩餘熱量。</p>
                     
                     <p style="margin-bottom: 4px;"><strong>蛋白 (體重 * 1.8)</strong> ${userProfile.weight} * 1.8</p>
@@ -509,19 +517,26 @@ function closeInfoModal() {
 // Logs Rendering
 function renderDateStrip() {
     const strip = document.getElementById('date-strip');
-    const baseDate = new Date();
+    const baseDate = new Date(selectedLogDate || todayDateStr);
+    const currentDayOfWeek = baseDate.getDay();
     const days = ['日', '一', '二', '三', '四', '五', '六'];
     
     let html = '';
-    for(let i=6; i>=0; i--) {
+    for(let i=0; i<7; i++) {
         const d = new Date(baseDate);
-        d.setDate(baseDate.getDate() - i);
+        d.setDate(baseDate.getDate() - currentDayOfWeek + i);
         
         const dateStr = d.toLocaleDateString('en-CA');
-        const dayName = i === 0 ? '今' : days[d.getDay()];
+        const dayName = (dateStr === todayDateStr) ? '今' : days[i];
+        const dateNum = d.getDate();
         
         const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
-        html += `<div class="date-item ${activeClass}" onclick="selectLogDate('${dateStr}')">${dayName}</div>`;
+        html += `
+            <div class="date-item ${activeClass}" onclick="selectLogDate('${dateStr}')" style="height: 48px;">
+                <span style="font-size: 11px;">${dayName}</span>
+                <span style="font-size: 16px; font-weight: 600; margin-top: 2px;">${dateNum}</span>
+            </div>
+        `;
     }
     strip.innerHTML = html;
 }
@@ -531,12 +546,10 @@ function selectLogDate(dateStr) {
     renderDateStrip();
     renderLogs();
     
-    if (dateStr === todayDateStr) {
-        document.getElementById('log-view-title').innerText = '飲食紀錄 (今天)';
-    } else {
-        const d = new Date(dateStr);
-        document.getElementById('log-view-title').innerText = `飲食紀錄 (${d.getMonth()+1}/${d.getDate()})`;
-    }
+    const d = new Date(dateStr);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dt = String(d.getDate()).padStart(2, '0');
+    document.getElementById('log-view-title').innerText = `飲食紀錄 (${m}/${dt})`;
 }
 
 function renderLogs() {
@@ -942,4 +955,6 @@ function renderCalendar() {
 window.openCalendarModal = openCalendarModal;
 window.closeCalendarModal = closeCalendarModal;
 window.changeCalendarMonth = changeCalendarMonth;
+
+
 

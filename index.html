@@ -23,10 +23,15 @@
                         <circle class="progress-ring-fill" id="cal-ring" cx="80" cy="80" r="70"></circle>
                     </svg>
                     <div class="progress-content">
-                        <p>還可以吃 (kcal)</p>
-                        <h2 id="cal-remaining">0</h2>
-                        <p style="font-size: 10px; margin-top: 4px;">推薦預算 <span id="cal-target">2000</span></p>
+                        <p style="display: flex; align-items: center; justify-content: center;">剩餘</p>
+                        <h2 style="display: flex; align-items: baseline; justify-content: center; gap: 4px; margin: 4px 0;"><span id="cal-remaining">0</span> <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">kcal</span></h2>
                     </div>
+                </div>
+                
+                <!-- Target Calories and Info -->
+                <div style="text-align: center; margin-top: 4px; margin-bottom: 48px; font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    目標 <span id="cal-target">2000</span> kcal 
+                    <button class="btn-icon" style="border:none; background:transparent; color:var(--text-muted); font-size:14px; padding:0;" onclick="showInfo('cals')"><i class="fa-solid fa-circle-info"></i></button>
                 </div>
             </header>
 
@@ -163,11 +168,11 @@
                 
                 <label style="font-size: 12px; color: var(--text-muted);">活動量</label>
                 <select id="activity" class="input-field">
-                    <option value="1.2">久坐 (無運動)</option>
-                    <option value="1.375">輕度活動 (每週運動1-3天)</option>
-                    <option value="1.55">中度活動 (每週運動3-5天)</option>
-                    <option value="1.725">高度活動 (每週運動6-7天)</option>
-                    <option value="1.9">極度活動 (勞力密集＋天天訓練)</option>
+                    <option value="1.2">久坐 (無運動) x 1.2</option>
+                    <option value="1.375">輕度活動 (每週運動1-3天) x 1.375</option>
+                    <option value="1.55">中度活動 (每週運動3-5天) x 1.55</option>
+                    <option value="1.725">高度活動 (每週運動6-7天) x 1.725</option>
+                    <option value="1.9">極度活動 (勞力密集＋天天訓練) x 1.9</option>
                 </select>
 
                 <label style="font-size: 12px; color: var(--text-muted);">目標</label>
@@ -213,7 +218,7 @@
             <div style="padding: 12px 16px;">
                 <div style="position: relative; margin-bottom: 12px;">
                     <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--accent-primary);"></i>
-                    <input type="text" class="input-field" placeholder="請輸入食物名稱" style="padding-left: 40px; border-radius: 24px; margin-bottom: 0; border: 1px solid var(--accent-primary);">
+                    <input type="text" id="food-search-input" class="input-field" placeholder="搜尋食物名稱..." style="padding-left: 40px; border-radius: 24px; margin-bottom: 0; border: 1px solid var(--accent-primary);">
                 </div>
                 <div style="display: flex; gap: 8px; justify-content: space-between;">
                     <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 8px;" onclick="copyYesterdayMeal()"><i class="fa-regular fa-copy"></i> 複製昨日紀錄</button>
@@ -275,10 +280,13 @@
             <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
                 <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">熱量</div><strong id="setup-cal">0</strong> kcal</div>
                 <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">碳水</div><strong id="setup-carb">0</strong> g</div>
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">蛋白</div><strong id="setup-pro">0</strong> g</div>
+                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">蛋白質</div><strong id="setup-pro">0</strong> g</div>
                 <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">脂肪</div><strong id="setup-fat">0</strong> g</div>
             </div>
-            <button id="btn-add-food" class="btn-primary">確認加入</button>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-secondary" style="flex: 1; padding: 16px; border-radius: 12px;" onclick="closeFoodSetup()">取消</button>
+                <button id="btn-add-food" class="btn-primary" style="flex: 1;">確認加入</button>
+            </div>
         </div>
 
         <!-- Scanner View -->
@@ -382,6 +390,7 @@
         </div>
 
     </div>
+    <script src="food_db.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
