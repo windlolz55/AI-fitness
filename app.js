@@ -1593,21 +1593,27 @@ async function syncToGitHub() {
 }
 
 async function syncFromGitHub() {
-    const pat = document.getElementById('github-pat').value.trim();
-    const gistId = document.getElementById('github-gist-id').value.trim();
+    const pat = localStorage.getItem('github_pat') || document.getElementById('github-pat').value.trim();
+    const gistId = localStorage.getItem('github_gist_id') || document.getElementById('github-gist-id').value.trim();
     const statusEl = document.getElementById('sync-status');
     
     if (!pat || !gistId) {
-        statusEl.textContent = "請輸入 PAT 與 Gist ID";
-        statusEl.style.color = "#ff4757";
+        showGlobalToast("❌ 請先設定 PAT 與 Gist ID", true);
+        if (statusEl) {
+            statusEl.textContent = "請輸入 PAT 與 Gist ID";
+            statusEl.style.color = "#ff4757";
+        }
         return;
     }
     
     localStorage.setItem('github_pat', pat);
     localStorage.setItem('github_gist_id', gistId);
     
-    statusEl.textContent = "還原中...";
-    statusEl.style.color = "var(--text-main)";
+    showGlobalToast("🔄 同步資料中...", false);
+    if (statusEl) {
+        statusEl.textContent = "還原中...";
+        statusEl.style.color = "var(--text-main)";
+    }
     
     try {
         const response = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
@@ -1631,15 +1637,21 @@ async function syncFromGitHub() {
             if (value) localStorage.setItem(key, value);
         }
         
-        statusEl.textContent = "✅ 還原成功！即將重新載入頁面...";
-        statusEl.style.color = "var(--accent-secondary)";
+        showGlobalToast("✅ 同步成功！重新載入...", true);
+        if (statusEl) {
+            statusEl.textContent = "✅ 還原成功！即將重新載入頁面...";
+            statusEl.style.color = "var(--accent-secondary)";
+        }
         
         setTimeout(() => location.reload(), 1500);
         
     } catch (error) {
         console.error(error);
-        statusEl.textContent = "❌ 還原失敗，請檢查設定";
-        statusEl.style.color = "#ff4757";
+        showGlobalToast("❌ 同步失敗", true);
+        if (statusEl) {
+            statusEl.textContent = "❌ 還原失敗，請檢查設定";
+            statusEl.style.color = "#ff4757";
+        }
     }
 }
 
