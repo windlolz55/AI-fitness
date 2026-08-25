@@ -458,14 +458,17 @@ function updateDashboard() {
     });
 
     let remaining = TARGET_CALS - todayEaten;
+    if (remaining < 0) remaining = 0;
 
     document.getElementById('cal-eaten').innerText = Math.round(todayEaten);
     document.getElementById('cal-remaining').innerText = Math.round(remaining);
     
-    // Ring Math (circumference = 440)
-    const ringFill = document.getElementById('cal-ring');
-    let percent = Math.min(todayEaten / TARGET_CALS, 1);
-    ringFill.style.strokeDashoffset = 440 - (440 * percent);
+    // Arc Math (half-circle circumference = 188.5)
+    const arcFill = document.getElementById('cal-arc');
+    if (arcFill) {
+        let percent = Math.min(todayEaten / TARGET_CALS, 1);
+        arcFill.style.strokeDashoffset = 188.5 - (188.5 * percent);
+    }
 
     // Macros Text
     document.getElementById('val-carb').innerText = Math.round(todayCarb * 10) / 10;
