@@ -1,4 +1,4 @@
-// State
+﻿// State
 let isApplyingCloudData = false;
 const originalSetItem = localStorage.setItem;
 localStorage.setItem = function(key, value) {
@@ -39,7 +39,7 @@ if (!dailyData[todayDateStr]) {
 // // Food database is loaded from food_db.js (foodDatabase)
 
 // Initialize 'custom' category dynamically
-foodDatabase.categories.unshift({ id: 'custom', name: '我的最愛', icon: 'fa-heart' });
+foodDatabase.categories.unshift({ id: 'custom', name: '?????, icon: 'fa-heart' });
 
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
@@ -50,9 +50,9 @@ let favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
 
 // Mock Scanner DB
 const mockFoods = [
-    { name: "香煎鮭魚沙拉", cal: 450, pro: 35, carb: 12, fat: 28 },
-    { name: "健康糙米飯", cal: 180, pro: 4, carb: 38, fat: 1 },
-    { name: "烤雞腿便當", cal: 680, pro: 32, carb: 85, fat: 22 }
+    { name: "擐?擙剝?瘝?", cal: 450, pro: 35, carb: 12, fat: 28 },
+    { name: "?亙熒蝟掖憌?, cal: 180, pro: 4, carb: 38, fat: 1 },
+    { name: "?日??蹂噶??, cal: 680, pro: 32, carb: 85, fat: 22 }
 ];
 
 // DOM Elements
@@ -199,10 +199,10 @@ function saveGeminiKey() {
     const key = document.getElementById('gemini-api-key').value.trim();
     if (key) {
         localStorage.setItem('gemini_api_key', key);
-        alert("API Key 已儲存！");
+        alert("API Key 撌脣摮?");
         openScanner(); // refresh UI
     } else {
-        alert("請輸入有效的 API Key！");
+        alert("隢撓?交??? API Key嚗?);
     }
 }
 
@@ -265,7 +265,7 @@ async function callGeminiVisionAPI(input) {
                         body: JSON.stringify({
                             contents: [{
                                 parts: [
-                                    { text: "你是一位專業營養師。請分析這張照片中的所有食物，估算克數(grams)。\n\n⚠️重要指示：\n1. 台灣常見食物請盡量使用標準名稱 (如：白飯、高麗菜、排骨、雞腿、煎蛋)。\n2. 請根據「台灣衛福部食品營養成分資料庫」的真實熱量來計算營養素，絕對禁止低估！\n3. 請幫這整頓飯想一個2-5個字的總名稱 (例如: 排骨便當)。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。格式：{ \"meal_name\": \"字串\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
+                                    { text: "雿銝雿?璆剔?擗葦?????撐?抒?銝剔?????抬?隡啁??(grams)?n\n?????內嚗n1. ?啁撣貉?憌隢?蝙?冽?皞?蝔?(憒??賡ㄞ??暻???撉具??踴????n2. 隢????蝳憌?????鞈?摨怒??祕?梢?靘?蝞?擗?嚗?撠?甇Ｖ?隡堆?\n3. 隢鼠??ㄞ?喃???-5???蜇?迂 (靘?: ?爸靘輻)?n\n隞亙?潛? JSON ?拐辣?澆??嚗?閬?markdown 隤??撘?{ \"meal_name\": \"摮葡\", \"items\": [ { \"name\": \"璅?憌?", \"grams\": ?詨?, \"cal\": ?詨?, \"pro\": ?詨?, \"carb\": ?詨?, \"fat\": ?詨? } ] }" },
                                     { inline_data: { mime_type: file.type, data: base64String } }
                                 ]
                             }]
@@ -301,7 +301,7 @@ async function callGeminiVisionAPI(input) {
                 
                 const aiResults = JSON.parse(jsonText);
                 
-                document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 智慧組合餐';
+                document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI ?箸蝯?擗?;
                 
                 const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
                 currentScanItems = itemsArray.map(item => {
@@ -346,7 +346,7 @@ async function callGeminiVisionAPI(input) {
             } catch (err) {
                 clearInterval(progressInterval);
                 progContainer.style.display = 'none';
-                alert('API 呼叫失敗，請檢查 API Key 或照片格式：\\n' + err.message);
+                alert('API ?澆憭望?嚗?瑼Ｘ API Key ??撘?\\n' + err.message);
                 document.getElementById('btn-camera').style.display = 'block';
             }
             };
@@ -364,7 +364,7 @@ function renderScanChecklist() {
                 <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
                 <div>
                     <div style="font-weight: 600;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">約 ${item.grams}g</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">蝝?${item.grams}g</div>
                 </div>
             </div>
             <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} kcal</div>
@@ -394,14 +394,14 @@ function confirmScanResults() {
     try {
         const selectedItems = currentScanItems.filter(item => item.checked);
         if(selectedItems.length === 0) {
-            alert("請至少勾選一項食物！");
+            alert("隢撠?訾????抬?");
             return;
         }
         
         const mealType = document.getElementById('scan-meal-type').value;
         const now = new Date();
         const mealNameInput = document.getElementById('scan-meal-name').value.trim();
-        const groupName = mealNameInput || 'AI 智慧組合餐';
+        const groupName = mealNameInput || 'AI ?箸蝯?擗?;
 
         const totalCal = selectedItems.reduce((sum, item) => sum + item.cal, 0);
         const totalPro = selectedItems.reduce((sum, item) => sum + (item.pro || 0), 0);
@@ -422,13 +422,13 @@ function confirmScanResults() {
         };
         
         logs.unshift(newLog);
-        localStorage.setItem('fitness_logs', JSON.stringify(logs));
+        localStorage.setItem('fitness_logs', JSON.stringify(logs)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
         
         // Update UI and close
         renderLogs();
         if (typeof updateDashboard === 'function') updateDashboard();
         
-        alert(`成功將 ${selectedItems.length} 項食物打包加入紀錄！`);
+        alert(`??撠?${selectedItems.length} ???拇????亦???`);
         
         closeScanner();
         
@@ -439,7 +439,7 @@ function confirmScanResults() {
         resetScanner();
         
     } catch (e) {
-        alert("確認時發生錯誤: " + e.message);
+        alert("蝣箄???隤? " + e.message);
         console.error(e);
     }
 }
@@ -492,7 +492,7 @@ function openFoodDB(meal) {
     currentCart = [];
     updateCartUI();
     
-    const dateStr = new Date().toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }).replace('/', '月') + '日';
+    const dateStr = new Date().toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }).replace('/', '??) + '??;
     document.getElementById('db-date-title').innerText = dateStr;
     document.getElementById('db-meal-selector').value = meal;
     changeAddingMeal(meal);
@@ -506,7 +506,7 @@ function openFoodDB(meal) {
 
 function changeAddingMeal(meal) {
     currentAddingMeal = meal;
-    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
+    const mealMap = { breakfast: '?拚?', lunch: '??', dinner: '??', snack: '??' };
     document.getElementById('cart-meal-label').innerHTML = `${mealMap[meal]} <i class="fa-solid fa-caret-up" style="font-size: 10px; margin-left: 2px;"></i>`;
 }
 
@@ -535,11 +535,11 @@ function renderDBContent(searchQuery = '') {
     let filteredFoods = [];
     
     if (searchQuery.trim() !== '') {
-        document.getElementById('db-category-title').innerText = '搜尋結果';
+        document.getElementById('db-category-title').innerText = '??蝯?';
         filteredFoods = foodDatabase.foods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
     } else {
         const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
-        document.getElementById('db-category-title').innerText = title + '類';
+        document.getElementById('db-category-title').innerText = title + '憿?;
         
         if (activeCategory === 'custom') {
             filteredFoods = foodDatabase.foods.filter(f => f.categoryId === 'custom' || favoriteFoodIds.includes(f.id));
@@ -553,7 +553,7 @@ function renderDBContent(searchQuery = '') {
         return `
         <div class="food-db-item" onclick="selectFood('${food.id}')">
             <div style="display:flex; align-items:center;">
-                <div style="font-size: 32px; margin-right: 12px; width: 48px; height: 48px; background: var(--bg-main); border-radius: 8px; display: flex; align-items: center; justify-content: center;">${food.icon || '🍽️'}</div>
+                <div style="font-size: 32px; margin-right: 12px; width: 48px; height: 48px; background: var(--bg-main); border-radius: 8px; display: flex; align-items: center; justify-content: center;">${food.icon || '?儭?}</div>
                 <div>
                     <h4>${food.name}</h4>
                     <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
@@ -587,7 +587,7 @@ function toggleFavorite(e, id) {
     // Cannot unfavorite a purely custom food unless we delete it entirely
     const food = foodDatabase.foods.find(f => f.id === id);
     if(food && food.categoryId === 'custom') {
-        alert('這是您建立的自訂食物，預設會在我的最愛中喔！');
+        alert('??典遣蝡??芾?憌嚗?閮剜??冽????葉??');
         return;
     }
     
@@ -596,7 +596,7 @@ function toggleFavorite(e, id) {
     } else {
         favoriteFoodIds.push(id);
     }
-    localStorage.setItem('favoriteFoodIds', JSON.stringify(favoriteFoodIds));
+    localStorage.setItem('favoriteFoodIds', JSON.stringify(favoriteFoodIds)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
     renderDBContent(document.getElementById('food-search-input').value);
 }
 
@@ -672,7 +672,7 @@ function openCartModal() {
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border);">
                 <div>
                     <div style="font-size: 15px; font-weight: 500;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">${item.cal} ?�卡</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">${item.cal} ?嚙賢</div>
                 </div>
                 <button class="btn-icon" style="color: #ff4757; border:none; width:32px; height:32px;" onclick="removeCartItem(${index})"><i class="fa-solid fa-minus-circle" style="font-size:20px;"></i></button>
             </div>
@@ -697,7 +697,7 @@ function removeCartItem(index) {
 function commitCart() {
     if(currentCart.length > 0) {
         logs.unshift(...currentCart.reverse());
-        localStorage.setItem('fitness_logs', JSON.stringify(logs));
+        localStorage.setItem('fitness_logs', JSON.stringify(logs)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
         renderLogs();
         updateDashboard();
     }
@@ -722,10 +722,10 @@ function copyYesterdayMeal() {
         });
         updateCartUI();
         
-        const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
-        alert(`已將昨日的 ${mealMap[currentAddingMeal]} 共 ${yestLogs.length} 項食物加入待選餐盤中！請點擊左下角「待選餐盤」確認送出。`);
+        const mealMap = { breakfast: '?拚?', lunch: '??', dinner: '??', snack: '??' };
+        alert(`撌脣??冽??${mealMap[currentAddingMeal]} ??${yestLogs.length} ???拙??亙??賊??支葉嚗?暺?撌虫?閫??賊??扎Ⅱ隤?);
     } else {
-        alert('昨日此餐無任何紀錄。');
+        alert('?冽甇日??∩遙雿???);
     }
 }
 
@@ -756,7 +756,7 @@ function setupDailyTracking() {
 
 function updateDailyData() {
     document.getElementById('water-val').innerText = dailyData[todayDateStr].water;
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    localStorage.setItem('fitness_daily', JSON.stringify(dailyData)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
 }
 
 // Info Modals
@@ -765,76 +765,76 @@ function showInfo(type) {
     const content = document.getElementById('info-modal-content');
     
     if (type === 'water') {
-        title.innerHTML = '<i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>飲水建議';
+        title.innerHTML = '<i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>憌脫偌撱箄降';
         content.innerHTML = `
-            <p>每日建議飲水量 <strong style="color: var(--accent-secondary); font-size: 16px;">${TARGET_WATER} ml</strong></p>
+            <p>瘥撱箄降憌脫偌??<strong style="color: var(--accent-secondary); font-size: 16px;">${TARGET_WATER} ml</strong></p>
             <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px;">
-                <p style="margin-bottom: 4px;"><strong>計算公式：</strong></p>
-                <p>體重 ${userProfile.weight} kg * 35 ml = <strong>${TARGET_WATER} ml</strong></p>
+                <p style="margin-bottom: 4px;"><strong>閮??砍?嚗?/strong></p>
+                <p>擃? ${userProfile.weight} kg * 35 ml = <strong>${TARGET_WATER} ml</strong></p>
             </div>
-            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 建議分次小口飲用，若流汗多可適度增加。</p>
+            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 撱箄降?活撠憌脩嚗瘚?憭?拙漲憓???/p>
         `;
     } else if (type === 'cals') {
         let bmr = 0;
         let bmrFormula = '';
         if (userProfile.gender === 'male') {
             bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) + 5;
-            bmrFormula = `10 * ${userProfile.weight}kg + 6.25 * ${userProfile.height}cm - 5 * ${userProfile.age}歲 + 5 = <strong>${Math.round(bmr)}</strong>`;
+            bmrFormula = `10 * ${userProfile.weight}kg + 6.25 * ${userProfile.height}cm - 5 * ${userProfile.age}甇?+ 5 = <strong>${Math.round(bmr)}</strong>`;
         } else {
             bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
-            bmrFormula = `10 * ${userProfile.weight}kg + 6.25 * ${userProfile.height}cm - 5 * ${userProfile.age}歲 - 161 = <strong>${Math.round(bmr)}</strong>`;
+            bmrFormula = `10 * ${userProfile.weight}kg + 6.25 * ${userProfile.height}cm - 5 * ${userProfile.age}甇?- 161 = <strong>${Math.round(bmr)}</strong>`;
         }
 
         let tdee = bmr * parseFloat(userProfile.activity);
         
-        let goalText = '維持體重 (無調整)';
+        let goalText = '蝬剜?擃? (?∟矽??';
         let targetCalText = `${Math.round(tdee)} kcal`;
         if(userProfile.goal === 'lose') {
-            goalText = '減脂 (-300 kcal)';
+            goalText = '皜? (-300 kcal)';
             targetCalText = `${Math.round(tdee)} - 300 = <strong>${TARGET_CALS} kcal</strong>`;
         } else if (userProfile.goal === 'gain') {
-            goalText = '增肌 (+300 kcal)';
+            goalText = '憓? (+300 kcal)';
             targetCalText = `${Math.round(tdee)} + 300 = <strong>${TARGET_CALS} kcal</strong>`;
         }
 
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標熱量說明';
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?格??梢?隤芣?';
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 1: 基礎代謝率 (BMR)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">維持生命所需的最低熱量消耗。使用 Mifflin-St Jeor 公式：</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 1: ?箇?隞????(BMR)</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">蝬剜??????雿???蝙??Mifflin-St Jeor ?砍?嚗?/p>
                     <p>${bmrFormula}</p>
                 </div>
                 
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 2: 每日總消耗熱量 (TDEE)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">BMR 乘上活動係數得出每日總消耗熱量。</p>
-                    <p>${Math.round(bmr)} * ${userProfile.activity} (活動係數) = <strong>${Math.round(tdee)} kcal</strong></p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 2: 瘥蝮賣????(TDEE)</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">BMR 銋?瘣餃?靽敺瘥蝮賣????/p>
+                    <p>${Math.round(bmr)} * ${userProfile.activity} (瘣餃?靽) = <strong>${Math.round(tdee)} kcal</strong></p>
                 </div>
 
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: 目標熱量</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">根據目標調整總熱量：${goalText}</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: ?格??梢?</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">?寞??格?隤踵蝮賜??${goalText}</p>
                     <p>${targetCalText}</p>
                 </div>
             </div>
         `;
     } else if (type === 'macros') {
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明';
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?格???蝝牧??;
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
-                    <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準，並用碳水填滿剩餘熱量。</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">銝之??蝝???/p>
+                    <p style="color: var(--text-muted); margin-bottom: 8px;">隞仿???箸?嚗蒂?函４瘞游‵皛踹擗??/p>
                     
-                    <p style="margin-bottom: 4px;"><strong>蛋白 (體重 * 1.8)</strong> ${userProfile.weight} * 1.8</p>
+                    <p style="margin-bottom: 4px;"><strong>? (擃? * 1.8)</strong> ${userProfile.weight} * 1.8</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${TARGET_PRO} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_PRO * 4} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>脂肪 (體重 * 0.9)</strong> ${userProfile.weight} * 0.9</p>
+                    <p style="margin-bottom: 4px;"><strong>? (擃? * 0.9)</strong> ${userProfile.weight} * 0.9</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${TARGET_FAT} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_FAT * 9} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong></p>
-                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - ${TARGET_PRO * 4} - ${TARGET_FAT * 9}) ÷ 4</p>
+                    <p style="margin-bottom: 4px;"><strong>蝣單偌 (?梢?憛急遛)</strong></p>
+                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - ${TARGET_PRO * 4} - ${TARGET_FAT * 9}) 繩 4</p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
                 </div>
             </div>
@@ -853,7 +853,7 @@ function renderDateStrip() {
     const strip = document.getElementById('date-strip');
     const baseDate = new Date(selectedLogDate || todayDateStr);
     const currentDayOfWeek = baseDate.getDay();
-    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    const days = ['??, '銝', '鈭?, '銝?, '??, '鈭?, '??];
     
     let html = '';
     for(let i=0; i<7; i++) {
@@ -861,7 +861,7 @@ function renderDateStrip() {
         d.setDate(baseDate.getDate() - currentDayOfWeek + i);
         
         const dateStr = formatDate(d);
-        const dayName = (dateStr === todayDateStr) ? '今' : days[i];
+        const dayName = (dateStr === todayDateStr) ? '隞? : days[i];
         const dateNum = d.getDate();
         
         const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
@@ -883,12 +883,12 @@ function selectLogDate(dateStr) {
     const d = new Date(dateStr);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
-    document.getElementById('log-view-title').innerText = `飲食紀錄 (${m}/${dt})`;
+    document.getElementById('log-view-title').innerText = `憌脤?蝝??(${m}/${dt})`;
 }
 
 function renderLogs() {
     const container = document.getElementById('all-logs');
-    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
+    const mealMap = { breakfast: '?拚?', lunch: '??', dinner: '??', snack: '??' };
     
     let html = '';
 
@@ -900,7 +900,7 @@ function renderLogs() {
         <div class="meal-group-card" style="margin-bottom: 16px;">
             <div class="meal-group-header" style="margin-bottom: 12px; align-items: center;">
                 <div style="display:flex; align-items:baseline;">
-                    <h3><i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>飲水</h3>
+                    <h3><i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>憌脫偌</h3>
                 </div>
                 <div style="display:flex; align-items:center; gap: 8px;">
                     <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWater(-250)">-</button>
@@ -937,7 +937,7 @@ function renderLogs() {
                     if (item.subItems && item.subItems.length > 0) {
                         let subHTML = '';
                         item.subItems.forEach(sub => {
-                            let sIcon = '🍽️';
+                            let sIcon = '?儭?;
                             const sBaseName = sub.name.split(' (')[0];
                             const sDbFood = foodDatabase.foods.find(f => f.name.includes(sBaseName));
                             if(sDbFood) sIcon = sDbFood.icon;
@@ -948,7 +948,7 @@ function renderLogs() {
                                         <div style="font-size:16px;">${sIcon}</div>
                                         <div>
                                             <div style="font-size:13px; font-weight:500;">${sBaseName}</div>
-                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • 碳${Math.round(sub.carb*10)/10} 蛋${Math.round(sub.pro*10)/10} 脂${Math.round(sub.fat*10)/10}</div>
+                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g ??蝣?{Math.round(sub.carb*10)/10} ??{Math.round(sub.pro*10)/10} ??{Math.round(sub.fat*10)/10}</div>
                                         </div>
                                     </div>
                                     <div style="font-size:13px; font-weight:600; color:var(--text-main);">${sub.cal}kcal</div>
@@ -984,8 +984,8 @@ function renderLogs() {
                             </div>
                         `;
                     } else {
-                        let icon = '🍽️';
-                        let desc = '1項';
+                        let icon = '?儭?;
+                        let desc = '1??;
                         if(item.name.includes('(')) {
                             let match = item.name.match(/\(([^)]+)\)/);
                             if(match) desc = match[1];
@@ -1022,9 +1022,9 @@ function renderLogs() {
                 
             let suggestStr = '';
             if(meal === 'breakfast' || meal === 'dinner') {
-                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.25)} - ${Math.round(TARGET_CALS * 0.35)} kcal`;
+                suggestStr = `撱箄降 ${Math.round(TARGET_CALS * 0.25)} - ${Math.round(TARGET_CALS * 0.35)} kcal`;
             } else if(meal === 'lunch') {
-                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.35)} - ${Math.round(TARGET_CALS * 0.45)} kcal`;
+                suggestStr = `撱箄降 ${Math.round(TARGET_CALS * 0.35)} - ${Math.round(TARGET_CALS * 0.45)} kcal`;
             }
             
             html += `
@@ -1045,7 +1045,7 @@ function renderLogs() {
 }
 
 document.getElementById('btn-clear').addEventListener('click', () => {
-    if(confirm('確定要清空今天的飲食紀錄嗎？')) {
+    if(confirm('蝣箏?閬?蝛箔?憭拍?憌脤?蝝??嚗?)) {
         logs = [];
         localStorage.removeItem('fitness_logs');
         renderLogs();
@@ -1079,11 +1079,11 @@ function setupProfile() {
             activity: parseFloat(act.value),
             goal: goal.value
         };
-        localStorage.setItem('fitness_profile', JSON.stringify(userProfile));
+        localStorage.setItem('fitness_profile', JSON.stringify(userProfile)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
         calculateTargets();
         updateDashboard();
         document.getElementById('profile-analysis').style.display = 'block';
-        alert('儲存成功！已重新計算目標熱量。');
+        alert('?脣???嚗歇?閮??格??梢???);
     });
 }
 
@@ -1122,11 +1122,11 @@ function saveCustomFood() {
     const f = parseFloat(document.getElementById('cf-fat').value) || 0;
 
     if (!name) {
-        alert("請填寫食物名稱！");
+        alert("隢‵撖恍??拙?蝔梧?");
         return;
     }
     if (isNaN(cals) || cals < 0) {
-        alert("請填寫正確的熱量數值！");
+        alert("隢‵撖急迤蝣箇??梢??詨潘?");
         return;
     }
 
@@ -1136,12 +1136,12 @@ function saveCustomFood() {
         name: name,
         cals: cals,
         macros: { p, c, f },
-        icon: '❤️'
+        icon: '?歹?'
     };
 
     // Save to local custom foods
     customFoods.push(newFood);
-    localStorage.setItem('customFoods', JSON.stringify(customFoods));
+    localStorage.setItem('customFoods', JSON.stringify(customFoods)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
     
     // Inject into runtime database at the top
     foodDatabase.foods.unshift(newFood);
@@ -1187,9 +1187,9 @@ window.toggleSubItems = function(id) {
 };
 
 window.deleteLogItem = function(id) {
-    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
+    if (!confirm("蝣箏?閬?日?蝝??嚗?)) return;
     logs = logs.filter(log => log.id !== id);
-    localStorage.setItem('fitness_logs', JSON.stringify(logs));
+    localStorage.setItem('fitness_logs', JSON.stringify(logs)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
     updateDashboard();
     renderLogs();
 };
@@ -1203,13 +1203,13 @@ window.updateLogWeight = function(delta) {
     currentWeight = Math.round((currentWeight + delta) * 10) / 10;
     
     dailyData[selectedLogDate].weight = currentWeight;
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    localStorage.setItem('fitness_daily', JSON.stringify(dailyData)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
     
     // If modifying today's weight, sync it back to profile and dashboard
     if (selectedLogDate === todayDateStr) {
         document.getElementById('weight-val').innerText = currentWeight.toFixed(1);
         userProfile.weight = currentWeight;
-        localStorage.setItem('fitness_profile', JSON.stringify(userProfile));
+        localStorage.setItem('fitness_profile', JSON.stringify(userProfile)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
         calculateTargets();
     }
     
@@ -1225,7 +1225,7 @@ window.updateLogWater = function(delta) {
     currentWater = Math.max(0, currentWater + delta);
     
     dailyData[selectedLogDate].water = currentWater;
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    localStorage.setItem('fitness_daily', JSON.stringify(dailyData)); if(typeof triggerAutoSync === 'function') triggerAutoSync();
     
     if (selectedLogDate === todayDateStr) {
         document.getElementById('water-val').innerText = currentWater;
@@ -1257,12 +1257,12 @@ function renderOverview() {
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     
-    const formatRange = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
+    const formatRange = (d) => `${d.getMonth()+1}??{d.getDate()}?匝;
     const rangeText = `${formatRange(startOfWeek)} - ${formatRange(endOfWeek)}`;
     document.getElementById('overview-weight-date-range').innerText = rangeText;
     document.getElementById('overview-cal-date-range').innerText = rangeText;
     
-    const labels = ['一', '二', '三', '四', '五', '六', '日'];
+    const labels = ['銝', '鈭?, '銝?, '??, '鈭?, '??, '??];
     const subLabels = [];
     const weightData = [];
     const calorieData = [];
@@ -1311,7 +1311,7 @@ function renderOverview() {
     
     document.getElementById('overview-current-weight').innerText = `${lastValidWeight} kg`;
     const avgCal = daysWithCal > 0 ? Math.round(sumCal / daysWithCal) : 0;
-    document.getElementById('overview-avg-cal').innerText = `${avgCal} 大卡`;
+    document.getElementById('overview-avg-cal').innerText = `${avgCal} 憭批`;
     
     const commonOptions = {
         responsive: true,
@@ -1456,7 +1456,7 @@ function renderCalendar() {
         
         const titleEl = document.getElementById('calendar-month-title');
         if (titleEl) {
-            titleEl.innerText = year + '年 ' + String(month + 1).padStart(2, '0') + '月';
+            titleEl.innerText = year + '撟?' + String(month + 1).padStart(2, '0') + '??;
         }
         
         const firstDay = new Date(year, month, 1).getDay();
@@ -1516,7 +1516,7 @@ async function syncToGitHub() {
     const statusEl = document.getElementById('sync-status');
     
     if (!pat) {
-        statusEl.textContent = "請輸入 GitHub PAT";
+        statusEl.textContent = "隢撓??GitHub PAT";
         statusEl.style.color = "#ff4757";
         return;
     }
@@ -1525,7 +1525,7 @@ async function syncToGitHub() {
     localStorage.setItem('github_pat', pat);
     if (gistId) localStorage.setItem('github_gist_id', gistId);
     
-    statusEl.textContent = "備份中...";
+    statusEl.textContent = "?遢銝?..";
     statusEl.style.color = "var(--text-main)";
     
     const dataToSync = {
@@ -1576,11 +1576,11 @@ async function syncToGitHub() {
             localStorage.setItem('github_gist_id', gistId);
         }
         
-        statusEl.textContent = "✅ 備份成功！";
+        statusEl.textContent = "???遢??嚗?;
         statusEl.style.color = "var(--accent-secondary)";
     } catch (error) {
         console.error(error);
-        statusEl.textContent = "❌ 備份失敗，請檢查權限或網路";
+        statusEl.textContent = "???遢憭望?嚗?瑼Ｘ甈??雯頝?;
         statusEl.style.color = "#ff4757";
     }
 }
@@ -1591,7 +1591,7 @@ async function syncFromGitHub() {
     const statusEl = document.getElementById('sync-status');
     
     if (!pat || !gistId) {
-        statusEl.textContent = "請輸入 PAT 與 Gist ID";
+        statusEl.textContent = "隢撓??PAT ??Gist ID";
         statusEl.style.color = "#ff4757";
         return;
     }
@@ -1599,7 +1599,7 @@ async function syncFromGitHub() {
     localStorage.setItem('github_pat', pat);
     localStorage.setItem('github_gist_id', gistId);
     
-    statusEl.textContent = "還原中...";
+    statusEl.textContent = "??銝?..";
     statusEl.style.color = "var(--text-main)";
     
     try {
@@ -1624,14 +1624,14 @@ async function syncFromGitHub() {
             if (value) localStorage.setItem(key, value);
         }
         
-        statusEl.textContent = "✅ 還原成功！即將重新載入頁面...";
+        statusEl.textContent = "??????嚗撠??啗??仿???..";
         statusEl.style.color = "var(--accent-secondary)";
         
         setTimeout(() => location.reload(), 1500);
         
     } catch (error) {
         console.error(error);
-        statusEl.textContent = "❌ 還原失敗，請檢查設定";
+        statusEl.textContent = "????憭望?嚗?瑼Ｘ閮剖?";
         statusEl.style.color = "#ff4757";
     }
 }
@@ -1656,7 +1656,7 @@ async function autoSyncToGitHub() {
     if (!pat || !gistId) return;
     
     if (statusEl) {
-        statusEl.textContent = "自動備份中...";
+        statusEl.textContent = "?芸??遢銝?..";
         statusEl.style.color = "var(--text-muted)";
     }
     
@@ -1696,13 +1696,13 @@ async function autoSyncToGitHub() {
         if (!response.ok) throw new Error("Auto-sync failed");
         
         if (statusEl) {
-            statusEl.textContent = `✅ 已自動同步至雲端 (${new Date().toLocaleTimeString()})`;
+            statusEl.textContent = `??撌脰??甇亥?脩垢 (${new Date().toLocaleTimeString()})`;
             statusEl.style.color = "var(--accent-secondary)";
         }
     } catch (error) {
         console.error("Auto-sync error:", error);
         if (statusEl) {
-            statusEl.textContent = "❌ 自動備份失敗";
+            statusEl.textContent = "???芸??遢憭望?";
             statusEl.style.color = "#ff4757";
         }
     }
@@ -1763,3 +1763,4 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("focus", () => {
     if (typeof autoPullFromGitHub === 'function') autoPullFromGitHub();
 });
+
