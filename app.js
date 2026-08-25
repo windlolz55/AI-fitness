@@ -1656,12 +1656,44 @@ function triggerAutoSync() {
     }, 2000); // 2 seconds debounce
 }
 
+function showGlobalToast(msg, isSuccess = false) {
+    const toast = document.getElementById('global-toast');
+    const icon = document.getElementById('toast-icon');
+    const text = document.getElementById('toast-text');
+    if (!toast) return;
+    
+    text.textContent = msg;
+    if (isSuccess) {
+        if (msg.includes('❌')) {
+            icon.className = "fa-solid fa-circle-exclamation";
+            icon.style.color = "#ff4757";
+        } else {
+            icon.className = "fa-solid fa-check-circle";
+            icon.style.color = "var(--accent-secondary)";
+        }
+    } else {
+        icon.className = "fa-solid fa-cloud-arrow-up";
+        icon.style.color = "white";
+    }
+    
+    toast.style.display = 'flex';
+    toast.style.opacity = '1';
+    
+    if (isSuccess) {
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 3000);
+    }
+}
+
 async function autoSyncToGitHub() {
     const pat = localStorage.getItem('github_pat');
     const gistId = localStorage.getItem('github_gist_id');
     const statusEl = document.getElementById('sync-status');
     if (!pat || !gistId) return;
     
+    showGlobalToast("自動備份中...", false);
     if (statusEl) {
         statusEl.textContent = "自動備份中...";
         statusEl.style.color = "var(--text-muted)";
@@ -1702,12 +1734,15 @@ async function autoSyncToGitHub() {
         
         if (!response.ok) throw new Error("Auto-sync failed");
         
+        const successMsg = `✅ 已自動同步至雲端 (${new Date().toLocaleTimeString()})`;
+        showGlobalToast(successMsg, true);
         if (statusEl) {
-            statusEl.textContent = `✅ 已自動同步至雲端 (${new Date().toLocaleTimeString()})`;
+            statusEl.textContent = successMsg;
             statusEl.style.color = "var(--accent-secondary)";
         }
     } catch (error) {
         console.error("Auto-sync error:", error);
+        showGlobalToast("❌ 自動備份失敗", true);
         if (statusEl) {
             statusEl.textContent = "❌ 自動備份失敗";
             statusEl.style.color = "#ff4757";
