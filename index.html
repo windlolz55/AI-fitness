@@ -511,6 +511,22 @@
             </div>
         </div>
 
+        <!-- Water Edit Modal -->
+        <div id="water-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
+                <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeWaterModal()"><i class="fa-solid fa-xmark"></i></button>
+                <h2 style="margin-bottom: 8px;">編輯總水量</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">請輸入今天的總喝水量 (ml)</p>
+                
+                <input type="number" id="water-input-val" class="input-field" placeholder="例如: 1500" style="font-size: 24px; font-weight: bold; text-align: center; height: 60px;">
+                
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button class="btn-secondary" style="flex: 1;" onclick="closeWaterModal()">取消</button>
+                    <button class="btn-primary" style="flex: 1;" onclick="confirmWaterEdit()">確認</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Global Toast Notification -->
         <div id="global-toast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; display: none; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); align-items: center; gap: 8px; white-space: nowrap; transition: opacity 0.3s;">
             <i id="toast-icon" class="fa-solid fa-cloud-arrow-up"></i>

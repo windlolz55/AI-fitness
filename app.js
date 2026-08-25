@@ -767,12 +767,22 @@ window.promptEditWater = function() {
         dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || 70 };
     }
     const current = dailyData[todayDateStr].water || 0;
-    const val = prompt("請手動輸入目前的「總喝水量」 (ml)：", current);
+    document.getElementById('water-input-val').value = current;
+    document.getElementById('water-setup-modal').style.display = 'flex';
+};
+
+window.closeWaterModal = function() {
+    document.getElementById('water-setup-modal').style.display = 'none';
+};
+
+window.confirmWaterEdit = function() {
+    const val = document.getElementById('water-input-val').value;
     if (val !== null && val.trim() !== '' && !isNaN(val)) {
         dailyData[todayDateStr].water = Math.max(0, parseInt(val) || 0);
         updateDailyData();
         renderLogs();
     }
+    closeWaterModal();
 };
 
 // Info Modals
