@@ -71,6 +71,12 @@ function init() {
 
     document.getElementById('date-display').innerText = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
     
+    // Load GitHub Sync fields
+    const ghPat = localStorage.getItem('github_pat');
+    const ghGistId = localStorage.getItem('github_gist_id');
+    if (ghPat) document.getElementById('github-pat').value = ghPat;
+    if (ghGistId) document.getElementById('github-gist-id').value = ghGistId;
+    
     calculateTargets();
     setupNavigation();
     setupProfile();
@@ -1490,5 +1496,131 @@ try {
     alert("Startup error: " + e.message + "\\n" + e.stack);
 }
 
+// GitHub Sync Logic
+async function syncToGitHub() {
+    const pat = document.getElementById('github-pat').value.trim();
+    let gistId = document.getElementById('github-gist-id').value.trim();
+    const statusEl = document.getElementById('sync-status');
+    
+    if (!pat) {
+        statusEl.textContent = "請輸入 GitHub PAT";
+        statusEl.style.color = "#ff4757";
+        return;
+    }
+    
+    // Save credentials locally
+    localStorage.setItem('github_pat', pat);
+    if (gistId) localStorage.setItem('github_gist_id', gistId);
+    
+    statusEl.textContent = "備份中...";
+    statusEl.style.color = "var(--text-main)";
+    
+    const dataToSync = {
+        'fitness_profile': localStorage.getItem('fitness_profile') || '{}',
+        'fitness_logs': localStorage.getItem('fitness_logs') || '[]',
+        'fitness_daily': localStorage.getItem('fitness_daily') || '{}',
+        'customFoods': localStorage.getItem('customFoods') || '[]',
+        'favoriteFoodIds': localStorage.getItem('favoriteFoodIds') || '[]',
+        'fitness_theme': localStorage.getItem('fitness_theme') || 'light'
+    };
+    
+    const gistData = {
+        description: "AI Fitness App Backup",
+        public: false,
+        files: {
+            "ai_fitness_backup.json": {
+                content: JSON.stringify(dataToSync)
+            }
+        }
+    };
+    
+    try {
+        let url = 'https://api.github.com/gists';
+        let method = 'POST';
+        
+        if (gistId) {
+            url += '/' + gistId;
+            method = 'PATCH';
+        }
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': `token ${pat}`
+            },
+            body: JSON.stringify(gistData)
+        });
+        
+        if (!response.ok) throw new Error("Sync failed: " + response.statusText);
+        
+        const result = await response.json();
+        
+        if (!gistId) {
+            gistId = result.id;
+            document.getElementById('github-gist-id').value = gistId;
+            localStorage.setItem('github_gist_id', gistId);
+        }
+        
+        statusEl.textContent = "✅ 備份成功！";
+        statusEl.style.color = "var(--accent-secondary)";
+    } catch (error) {
+        console.error(error);
+        statusEl.textContent = "❌ 備份失敗，請檢查權限或網路";
+        statusEl.style.color = "#ff4757";
+    }
+}
 
+async function syncFromGitHub() {
+    const pat = document.getElementById('github-pat').value.trim();
+    const gistId = document.getElementById('github-gist-id').value.trim();
+    const statusEl = document.getElementById('sync-status');
+    
+    if (!pat || !gistId) {
+        statusEl.textContent = "請輸入 PAT 與 Gist ID";
+        statusEl.style.color = "#ff4757";
+        return;
+    }
+    
+    localStorage.setItem('github_pat', pat);
+    localStorage.setItem('github_gist_id', gistId);
+    
+    statusEl.textContent = "還原中...";
+    statusEl.style.color = "var(--text-main)";
+    
+    try {
+        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': `token ${pat}`
+            }
+        });
+        
+        if (!response.ok) throw new Error("Sync failed");
+        
+        const result = await response.json();
+        const fileContent = result.files['ai_fitness_backup.json']?.content;
+        
+        if (!fileContent) throw new Error("Backup file not found in Gist");
+        
+        const data = JSON.parse(fileContent);
+        
+        for (const [key, value] of Object.entries(data)) {
+            if (value) localStorage.setItem(key, value);
+        }
+        
+        statusEl.textContent = "✅ 還原成功！即將重新載入頁面...";
+        statusEl.style.color = "var(--accent-secondary)";
+        
+        setTimeout(() => location.reload(), 1500);
+        
+    } catch (error) {
+        console.error(error);
+        statusEl.textContent = "❌ 還原失敗，請檢查設定";
+        statusEl.style.color = "#ff4757";
+    }
+}
 
+window.syncToGitHub = syncToGitHub;
+window.syncFromGitHub = syncFromGitHub;
