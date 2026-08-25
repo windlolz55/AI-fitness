@@ -105,8 +105,8 @@
                     </div>
                 </div>
                 <div class="card track-card" style="position: relative;">
-                    <h3 style="color: #ffb86c; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=&quot;view-log&quot;]').click()"><i class="fa-solid fa-weight-scale" style="margin-right: 6px;"></i> 體重紀錄 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
-                    <button class="btn-icon" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border: none; font-size: 14px; color: #ffb86c;" onclick="openWeightTrend()"><i class="fa-solid fa-chart-line"></i></button>
+                    <h3 style="color: #ffb86c; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-weight-scale" style="margin-right: 6px;"></i> 體重 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
+                    <button class="btn-icon" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border: none; font-size: 14px; color: #ffb86c;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-chart-line"></i></button>
                     <input type="number" step="0.1" id="daily-weight" class="input-field" placeholder="輸入" style="text-align: center; font-weight: 700; font-size: 24px; margin-top: 12px; background: transparent; border: none; border-bottom: 2px solid var(--card-border); border-radius: 0; padding: 4px;">
                     <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">kg</p>
                 </div>
@@ -130,6 +130,48 @@
 
             <div id="all-logs">
                 <!-- Grouped logs will be injected here -->
+            </div>
+        </div>
+
+        <!-- Overview View -->
+        <div id="view-overview" class="view">
+            <header style="margin-bottom: 24px;">
+                <h2 style="font-size: 24px; font-weight: 700; color: var(--text-main); margin: 0;">概覽</h2>
+                <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">取得您的飲食與運動分析</p>
+            </header>
+
+            <div class="card" style="margin-bottom: 16px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
+                    <h3 style="font-size: 16px;">體重</h3>
+                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-current-weight" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- kg</span> <span style="opacity: 0.6;">/ 目前體重</span></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-muted); font-size: 13px;">
+                    <button class="btn-icon" style="background: var(--bg-main); width: 28px; height: 28px; border-radius: 50%; border: none; color: var(--text-main);" onclick="overviewChangeWeek(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="overview-weight-date-range" style="font-weight: bold;">--</span>
+                    <button class="btn-icon" style="background: var(--bg-main); width: 28px; height: 28px; border-radius: 50%; border: none; color: var(--text-main);" onclick="overviewChangeWeek(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                
+                <div style="position: relative; height: 180px; width: 100%;">
+                    <canvas id="overviewWeightChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 16px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
+                    <h3 style="font-size: 16px;">卡路里</h3>
+                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-avg-cal" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- 大卡</span> <span style="opacity: 0.6;">/ 每日平均</span></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-muted); font-size: 13px;">
+                    <button class="btn-icon" style="background: var(--bg-main); width: 28px; height: 28px; border-radius: 50%; border: none; color: var(--text-main);" onclick="overviewChangeWeek(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="overview-cal-date-range" style="font-weight: bold;">--</span>
+                    <button class="btn-icon" style="background: var(--bg-main); width: 28px; height: 28px; border-radius: 50%; border: none; color: var(--text-main);" onclick="overviewChangeWeek(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                
+                <div style="position: relative; height: 180px; width: 100%;">
+                    <canvas id="overviewCalorieChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -343,8 +385,16 @@
                     <div style="width: 100%; height: 250px; background: var(--card-border); border-radius: 12px; margin-bottom: 16px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                         <i id="camera-icon" class="fa-solid fa-camera" style="font-size: 48px; color: var(--text-muted);"></i>
                         <img id="image-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                        <div id="scan-line" style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent-primary); box-shadow: 0 0 10px var(--accent-primary); display: none;"></div>
-                        <div id="scan-status" style="position: absolute; bottom: 16px; width: 100%; text-align: center; color: white; font-weight: bold; font-size: 16px; text-shadow: 0px 0px 8px rgba(0,0,0,0.8); display: none; z-index: 10;">🤖 AI 正在辨識...</div>
+                    </div>
+                    
+                    <div id="scan-progress-container" style="display: none; margin-bottom: 16px; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-primary); margin-bottom: 4px; font-weight: bold;">
+                            <span><i class="fa-solid fa-spinner fa-spin" style="margin-right: 4px;"></i> AI 辨識中...</span>
+                            <span id="scan-progress-text">0%</span>
+                        </div>
+                        <div style="height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden;">
+                            <div id="scan-progress-bar" style="height: 100%; background: var(--accent-primary); width: 0%; transition: width 0.2s linear;"></div>
+                        </div>
                     </div>
                     
                     <input type="file" id="file-input" accept="image/*" capture="environment" style="display: none;" onchange="callGeminiVisionAPI(this)" onclick="this.value=null;">
@@ -353,8 +403,14 @@
             </div>
 
             <div id="scan-result" class="card hidden" style="padding: 24px; margin-top: 16px;">
-                <h3 style="text-align: center; margin-bottom: 16px; color: var(--accent-primary); font-size: 18px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 辨識結果</h3>
-                <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">請核對 AI 辨識的食物與預估份量，確認無誤後即可加入日記。</p>
+                <h3 style="text-align: center; margin-bottom: 16px; color: var(--accent-primary); font-size: 18px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 分析結果</h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: left;">幫這個組合取個名字 (例如：排骨便當)</label>
+                    <input type="text" id="scan-meal-name" class="input-field" placeholder="預設：AI 智慧組合餐">
+                </div>
+                
+                <p style="text-align: left; font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">取消勾選你不想要的項目：</p>
                 
                 <div id="scan-checklist" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
                     <!-- Checkbox items injected here by JS -->
@@ -366,7 +422,10 @@
                     <option value="dinner">🍽️ 晚餐</option>
                     <option value="snack">🍎 加餐</option>
                 </select>
-                <button id="btn-confirm-scan" class="btn-primary" onclick="confirmScanResults()">確認並加入</button>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-secondary" style="flex: 1; border: 1px solid var(--card-border); color: var(--text-muted); background: var(--bg-main); padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="resetScanner()">取消</button>
+                    <button id="btn-confirm-scan" class="btn-primary" style="flex: 2;" onclick="confirmScanResults()">確認並加入</button>
+                </div>
             </div>
         </div>
 
@@ -379,6 +438,9 @@
             <a href="#" class="nav-item" data-target="view-log">
                 <i class="fa-solid fa-list-ul"></i>
                 <span>紀錄</span>
+            <a href="#" class="nav-item" data-target="view-overview">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>概覽</span>
             </a>
             <a href="#" class="nav-item" data-target="view-profile">
                 <i class="fa-solid fa-user"></i>
@@ -394,20 +456,7 @@
                 <div id="info-modal-content" style="font-size: 14px; line-height: 1.6; color: var(--text-main);">--</div>
             </div>
         </div>
-        
-        <!-- Weight Trend Modal -->
-        <div id="weight-trend-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-            <div class="card" style="width: 90%; max-width: 400px; padding: 24px; position: relative;">
-                <button class="btn-icon" onclick="closeWeightTrend()" style="position: absolute; top: 12px; right: 12px; border:none; background: var(--bg-main); width: 28px; height: 28px;"><i class="fa-solid fa-xmark"></i></button>
-                <h3 style="margin-bottom: 16px; font-size: 18px; color: var(--text-main);"><i class="fa-solid fa-chart-line" style="color: #ffb86c; margin-right: 8px;"></i>體重趨勢 (近14天)</h3>
-                <div style="width: 100%; height: 250px;">
-                    <canvas id="weightChart"></canvas>
-                </div>
-                <div style="padding: 16px; text-align: center;">
-                <button class="btn-primary" onclick="closeWeightTrend()" style="width: 100%;">關閉</button>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Calendar Modal -->
         <div id="calendar-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999;">

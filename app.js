@@ -140,6 +140,7 @@ function setupNavigation() {
             });
             
             if (targetId === 'view-dashboard') updateDashboard();
+            if (targetId === 'view-overview') renderOverview();
         });
     });
 }
@@ -198,18 +199,42 @@ async function callGeminiVisionAPI(input) {
             imgPreview.style.display = 'block';
             
             document.getElementById('btn-camera').style.display = 'none';
-            const scanLine = document.getElementById('scan-line');
-            const scanStatus = document.getElementById('scan-status');
+            const progContainer = document.getElementById('scan-progress-container');
+            const progBar = document.getElementById('scan-progress-bar');
+            const progText = document.getElementById('scan-progress-text');
             
-            scanLine.style.display = 'block';
-            scanLine.style.animation = 'scan 2s linear infinite';
-            scanStatus.style.display = 'block';
+            progContainer.style.display = 'block';
+            progBar.style.width = '0%';
+            progText.innerText = '0%';
             
-            const base64String = e.target.result.split(',')[1];
-            const apiKey = localStorage.getItem('gemini_api_key');
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 8 + 4; // Add 4-12%
+                if (progress > 95) progress = 95;
+                progText.innerText = Math.floor(progress) + '%';
+                progBar.style.width = progress + '%';
+            }, 500);
             
-            const modelsToTry = ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-pro'];
-            let data = null;
+            const img = new Image();
+            img.onload = async function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX = 800;
+                if (width > height) {
+                    if (width > MAX) { height *= MAX / width; width = MAX; }
+                } else {
+                    if (height > MAX) { width *= MAX / height; height = MAX; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                
+                const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                const apiKey = localStorage.getItem('gemini_api_key');
+                
+                const modelsToTry = ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-pro'];
+                let data = null;
             let success = false;
             let lastError = null;
             
@@ -221,7 +246,7 @@ async function callGeminiVisionAPI(input) {
                         body: JSON.stringify({
                             contents: [{
                                 parts: [
-                                    { text: "你是一位專業營養師。請分析這張照片中的所有食物，估算常見的一人份重量，並以嚴格的 JSON 陣列格式回傳。不要回傳任何 markdown 語法 (例如 ```json)，只要純 JSON 字串。陣列中的每個物件必須包含：name (食物名稱, 字串), grams (預估克數, 數字), cal (總熱量, 數字), pro (蛋白質, 數字), carb (碳水, 數字), fat (脂肪, 數字)。" },
+                                    { text: "你是一位專業營養師。請分析這張照片中的所有食物，估算克數(grams)。\n\n⚠️重要指示：\n1. 台灣常見食物請盡量使用標準名稱 (如：白飯、高麗菜、排骨、雞腿、煎蛋)。\n2. 請根據「台灣衛福部食品營養成分資料庫」的真實熱量來計算營養素，絕對禁止低估！\n3. 請幫這整頓飯想一個2-5個字的總名稱 (例如: 排骨便當)。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。格式：{ \"meal_name\": \"字串\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
                                     { inline_data: { mime_type: file.type, data: base64String } }
                                 ]
                             }]
@@ -248,8 +273,7 @@ async function callGeminiVisionAPI(input) {
                 }
                 
                 let jsonText = data.candidates[0].content.parts[0].text;
-                // Use regex to strictly find the first [ ... ] block
-                const match = jsonText.match(/\[[\s\S]*\]/);
+                const match = jsonText.match(/\{[\s\S]*\}/);
                 if (match) {
                     jsonText = match[0];
                 } else {
@@ -257,29 +281,57 @@ async function callGeminiVisionAPI(input) {
                 }
                 
                 const aiResults = JSON.parse(jsonText);
-                currentScanItems = aiResults.map(item => ({
-                    id: 'ai_' + Date.now() + Math.random(),
-                    name: item.name,
-                    grams: item.grams,
-                    cal: item.cal,
-                    pro: item.pro,
-                    carb: item.carb,
-                    fat: item.fat,
-                    checked: true
-                }));
+                
+                document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 智慧組合餐';
+                
+                const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
+                currentScanItems = itemsArray.map(item => {
+                    // Grounding: Use local food database for 100% accurate macro calculations if matched
+                    const dbMatch = foodDatabase.foods.find(f => f.name.includes(item.name) || item.name.includes(f.name.split(' (')[0]));
+                    if (dbMatch && item.grams) {
+                        const matchGrams = dbMatch.name.match(/\b(\d+)g\)/);
+                        if (matchGrams && matchGrams[1]) {
+                            const stdGrams = parseInt(matchGrams[1]);
+                            const ratio = item.grams / stdGrams;
+                            item.cal = Math.round(dbMatch.cals * ratio);
+                            item.pro = Math.round(dbMatch.macros.p * ratio * 10) / 10;
+                            item.carb = Math.round(dbMatch.macros.c * ratio * 10) / 10;
+                            item.fat = Math.round(dbMatch.macros.f * ratio * 10) / 10;
+                        }
+                    }
+
+                    return {
+                        id: 'ai_' + Date.now() + Math.random(),
+                        name: item.name,
+                        grams: item.grams,
+                        cal: item.cal,
+                        pro: item.pro,
+                        carb: item.carb,
+                        fat: item.fat,
+                        checked: true
+                    };
+                });
                 
                 renderScanChecklist();
-                scanLine.style.display = 'none';
-                scanStatus.style.display = 'none';
-                document.getElementById('scan-result').classList.remove('hidden');
-                document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
+                
+                clearInterval(progressInterval);
+                progText.innerText = '100%';
+                progBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    progContainer.style.display = 'none';
+                    document.getElementById('scan-result').classList.remove('hidden');
+                    document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
+                }, 400);
                 
             } catch (err) {
-                scanLine.style.display = 'none';
-                scanStatus.style.display = 'none';
+                clearInterval(progressInterval);
+                progContainer.style.display = 'none';
                 alert('API 呼叫失敗，請檢查 API Key 或照片格式：\\n' + err.message);
                 document.getElementById('btn-camera').style.display = 'block';
             }
+            };
+            img.src = e.target.result;
         }
         reader.readAsDataURL(file);
     }
@@ -305,6 +357,20 @@ function toggleScanItem(index) {
     currentScanItems[index].checked = !currentScanItems[index].checked;
 }
 
+function resetScanner() {
+    const fileInput = document.getElementById('file-input');
+    if(fileInput) fileInput.value = '';
+    
+    document.getElementById('image-preview').src = '';
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('camera-icon').style.display = 'block';
+    document.getElementById('scan-result').classList.add('hidden');
+    document.getElementById('btn-camera').style.display = 'block';
+    
+    const mealNameInput = document.getElementById('scan-meal-name');
+    if(mealNameInput) mealNameInput.value = '';
+}
+
 function confirmScanResults() {
     try {
         const selectedItems = currentScanItems.filter(item => item.checked);
@@ -315,35 +381,43 @@ function confirmScanResults() {
         
         const mealType = document.getElementById('scan-meal-type').value;
         const now = new Date();
+        const mealNameInput = document.getElementById('scan-meal-name').value.trim();
+        const groupName = mealNameInput || 'AI 智慧組合餐';
+
+        const totalCal = selectedItems.reduce((sum, item) => sum + item.cal, 0);
+        const totalPro = selectedItems.reduce((sum, item) => sum + (item.pro || 0), 0);
+        const totalCarb = selectedItems.reduce((sum, item) => sum + (item.carb || 0), 0);
+        const totalFat = selectedItems.reduce((sum, item) => sum + (item.fat || 0), 0);
         
-        // Convert to log format and unshift to logs
-        const newLogs = selectedItems.map(item => ({
+        const newLog = {
             id: Date.now() + Math.floor(Math.random() * 1000),
             date: todayDateStr,
             time: now.toTimeString().substring(0,5),
             meal: mealType,
-            name: item.name,
-            grams: item.grams,
-            cal: item.cal,
-            pro: item.pro,
-            carb: item.carb,
-            fat: item.fat
-        }));
+            name: groupName,
+            cal: Math.round(totalCal),
+            pro: Math.round(totalPro * 10) / 10,
+            carb: Math.round(totalCarb * 10) / 10,
+            fat: Math.round(totalFat * 10) / 10,
+            subItems: selectedItems
+        };
         
-        logs.unshift(...newLogs);
+        logs.unshift(newLog);
         localStorage.setItem('fitness_logs', JSON.stringify(logs));
         
         // Update UI and close
         renderLogs();
         if (typeof updateDashboard === 'function') updateDashboard();
         
-        alert(`成功加入 ${selectedItems.length} 項食物！`);
+        alert(`成功將 ${selectedItems.length} 項食物打包加入紀錄！`);
         
         closeScanner();
         
         // Ensure Dashboard is visible
         const dashboardBtn = document.querySelector('[data-target="view-dashboard"]');
         if (dashboardBtn) dashboardBtn.click();
+        
+        resetScanner();
         
     } catch (e) {
         alert("確認時發生錯誤: " + e.message);
@@ -413,7 +487,7 @@ function openFoodDB(meal) {
 
 function changeAddingMeal(meal) {
     currentAddingMeal = meal;
-    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '點心' };
+    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
     document.getElementById('cart-meal-label').innerHTML = `${mealMap[meal]} <i class="fa-solid fa-caret-up" style="font-size: 10px; margin-left: 2px;"></i>`;
 }
 
@@ -629,7 +703,7 @@ function copyYesterdayMeal() {
         });
         updateCartUI();
         
-        const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '點心' };
+        const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
         alert(`已將昨日的 ${mealMap[currentAddingMeal]} 共 ${yestLogs.length} 項食物加入待選餐盤中！請點擊左下角「待選餐盤」確認送出。`);
     } else {
         alert('昨日此餐無任何紀錄。');
@@ -795,7 +869,7 @@ function selectLogDate(dateStr) {
 
 function renderLogs() {
     const container = document.getElementById('all-logs');
-    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '點心' };
+    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
     
     let html = '';
 
@@ -821,31 +895,12 @@ function renderLogs() {
         </div>
     `;
 
-    // Weight Log Card
-    const weightAmount = (dailyData[selectedLogDate] && dailyData[selectedLogDate].weight) ? dailyData[selectedLogDate].weight : (userProfile.weight || 0);
 
-    html += `
-        <div class="meal-group-card" style="margin-bottom: 16px;">
-            <div class="meal-group-header" style="margin-bottom: 0; align-items: center;">
-                <div style="display:flex; align-items:baseline;">
-                    <h3><i class="fa-solid fa-weight-scale" style="color: var(--accent-primary); margin-right: 8px;"></i>體重</h3>
-                </div>
-                <div style="display:flex; align-items:center; gap: 8px;">
-                    <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWeight(-0.1)">-</button>
-                    <div class="total-cal" style="color: var(--accent-primary); font-weight: 600; font-size: 16px; min-width: 70px; text-align: center;">${parseFloat(weightAmount).toFixed(1)} <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">kg</span></div>
-                    <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWeight(0.1)">+</button>
-                </div>
-            </div>
-        </div>
-    `;
 
     const dayLogs = logs.filter(log => (log.date || todayDateStr) === selectedLogDate);
     
-    if (dayLogs.length === 0) {
-        html += `<p style="color: var(--text-muted); text-align: center; padding: 40px 0;">今天尚無飲食紀錄</p>`;
-        container.innerHTML = html;
-        return;
-    }
+    // Removing the early return so that empty meal categories are always rendered.
+
 
     const grouped = { breakfast: [], lunch: [], dinner: [], snack: [] };
     dayLogs.forEach(log => {
@@ -853,64 +908,118 @@ function renderLogs() {
     });
 
     ['breakfast', 'lunch', 'dinner', 'snack'].forEach(meal => {
+        let mealCal = 0;
+        let itemsHTML = '';
+        
         if(grouped[meal].length > 0) {
-            let mealCal = 0;
-            let itemsHTML = '';
             grouped[meal].forEach(item => {
                     mealCal += item.cal;
                     
-                    let icon = '🍽️';
-                    let desc = '1項';
-                    if(item.name.includes('(')) {
-                        let match = item.name.match(/\(([^)]+)\)/);
-                        if(match) desc = match[1];
-                    }
-                    const baseName = item.name.split(' (')[0];
-                    const dbFood = foodDatabase.foods.find(f => f.name.includes(baseName));
-                    if(dbFood) icon = dbFood.icon;
+                    if (item.subItems && item.subItems.length > 0) {
+                        let subHTML = '';
+                        item.subItems.forEach(sub => {
+                            let sIcon = '🍽️';
+                            const sBaseName = sub.name.split(' (')[0];
+                            const sDbFood = foodDatabase.foods.find(f => f.name.includes(sBaseName));
+                            if(sDbFood) sIcon = sDbFood.icon;
+                            
+                            subHTML += `
+                                <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px; background:var(--bg-main); margin-bottom:4px; border-radius:6px;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <div style="font-size:16px;">${sIcon}</div>
+                                        <div>
+                                            <div style="font-size:13px; font-weight:500;">${sBaseName}</div>
+                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • 碳${Math.round(sub.carb*10)/10} 蛋${Math.round(sub.pro*10)/10} 脂${Math.round(sub.fat*10)/10}</div>
+                                        </div>
+                                    </div>
+                                    <div style="font-size:13px; font-weight:600; color:var(--text-main);">${sub.cal}kcal</div>
+                                </div>
+                            `;
+                        });
 
-                    itemsHTML += `
-                        <div class="meal-item">
-                            <div class="meal-item-icon">${icon}</div>
-                            <div class="meal-item-info">
-                                <div class="meal-item-name">${baseName}</div>
-                                <div class="meal-item-desc">${desc}</div>
-                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                    <span><i class="fa-solid fa-wheat-awn" style="color: #f1fa8c; font-size: 9px;"></i> ${Math.round(item.carb*10)/10}g</span>
-                                    <span><i class="fa-solid fa-drumstick-bite" style="color: #ff79c6; font-size: 9px;"></i> ${Math.round(item.pro*10)/10}g</span>
-                                    <span><i class="fa-solid fa-droplet" style="color: #ff5555; font-size: 9px;"></i> ${Math.round(item.fat*10)/10}g</span>
+                        itemsHTML += `
+                            <div class="meal-item" style="flex-direction:column; align-items:stretch;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleSubItems('${item.id}')">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <div class="meal-item-icon" style="background: var(--accent-primary); color: var(--bg-main); font-size:16px;"><i class="fa-solid fa-layer-group"></i></div>
+                                        <div class="meal-item-info">
+                                            <div class="meal-item-name">${item.name}</div>
+                                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
+                                                <span><i class="fa-solid fa-wheat-awn" style="color: #f1fa8c; font-size: 9px;"></i> ${Math.round(item.carb*10)/10}g</span>
+                                                <span><i class="fa-solid fa-drumstick-bite" style="color: #ff79c6; font-size: 9px;"></i> ${Math.round(item.pro*10)/10}g</span>
+                                                <span><i class="fa-solid fa-droplet" style="color: #ff5555; font-size: 9px;"></i> ${Math.round(item.fat*10)/10}g</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px;">
+                                        <span>${item.cal}kcal</span>
+                                        <div style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i id="chevron-${item.id}" class="fa-solid fa-chevron-down" style="transition: transform 0.3s; font-size:12px;"></i></div>
+                                        <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="event.stopPropagation(); deleteLogItem(${item.id})">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="subitems-${item.id}" style="display:none; margin-top:12px; border-top:1px dashed var(--card-border); padding-top:12px;">
+                                    ${subHTML}
                                 </div>
                             </div>
-                            <div class="meal-item-cal" style="display:flex; align-items:center; gap:12px;">
-                                <span>${item.cal}kcal</span>
-                                <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="deleteLogItem(${item.id})">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                        `;
+                    } else {
+                        let icon = '🍽️';
+                        let desc = '1項';
+                        if(item.name.includes('(')) {
+                            let match = item.name.match(/\(([^)]+)\)/);
+                            if(match) desc = match[1];
+                        }
+                        const baseName = item.name.split(' (')[0];
+                        const dbFood = foodDatabase.foods.find(f => f.name.includes(baseName));
+                        if(dbFood) icon = dbFood.icon;
+
+                        itemsHTML += `
+                            <div class="meal-item">
+                                <div class="meal-item-icon">${icon}</div>
+                                <div class="meal-item-info">
+                                    <div class="meal-item-name">${baseName}</div>
+                                    <div class="meal-item-desc">${desc}</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
+                                        <span><i class="fa-solid fa-wheat-awn" style="color: #f1fa8c; font-size: 9px;"></i> ${Math.round(item.carb*10)/10}g</span>
+                                        <span><i class="fa-solid fa-drumstick-bite" style="color: #ff79c6; font-size: 9px;"></i> ${Math.round(item.pro*10)/10}g</span>
+                                        <span><i class="fa-solid fa-droplet" style="color: #ff5555; font-size: 9px;"></i> ${Math.round(item.fat*10)/10}g</span>
+                                    </div>
+                                </div>
+                                <div class="meal-item-cal" style="display:flex; align-items:center; gap:12px;">
+                                    <span>${item.cal}kcal</span>
+                                    <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="deleteLogItem(${item.id})">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 });
+            } else {
+                itemsHTML = '';
+            }
                 
-                let suggestStr = '';
-                if(meal === 'breakfast' || meal === 'dinner') {
-                    suggestStr = `建議 ${Math.round(TARGET_CALS * 0.25)} - ${Math.round(TARGET_CALS * 0.35)} kcal`;
-                } else if(meal === 'lunch') {
-                    suggestStr = `建議 ${Math.round(TARGET_CALS * 0.35)} - ${Math.round(TARGET_CALS * 0.45)} kcal`;
-                }
-                
-                html += `
-                    <div class="meal-group-card">
-                        <div class="meal-group-header">
-                            <div style="display:flex; align-items:baseline;">
-                                <h3>${mealMap[meal]}</h3>
-                                <span class="suggestion">${suggestStr}</span>
-                            </div>
-                            <div class="total-cal">${mealCal}kcal <i class="fa-solid fa-chevron-right" style="font-size:12px; margin-left:4px;"></i></div>
+            let suggestStr = '';
+            if(meal === 'breakfast' || meal === 'dinner') {
+                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.25)} - ${Math.round(TARGET_CALS * 0.35)} kcal`;
+            } else if(meal === 'lunch') {
+                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.35)} - ${Math.round(TARGET_CALS * 0.45)} kcal`;
+            }
+            
+            html += `
+                <div class="meal-group-card">
+                    <div class="meal-group-header">
+                        <div style="display:flex; align-items:baseline;">
+                            <h3>${mealMap[meal]}</h3>
+                            <span class="suggestion">${suggestStr}</span>
                         </div>
-                        ${itemsHTML}
+                        <div class="total-cal">${mealCal}kcal <i class="fa-solid fa-chevron-right" style="font-size:12px; margin-left:4px;"></i></div>
                     </div>
-                `;
-        }
+                    ${itemsHTML}
+                </div>
+            `;
     });
 
     container.innerHTML = html;
@@ -973,6 +1082,7 @@ window.callGeminiVisionAPI = callGeminiVisionAPI;
 window.saveGeminiKey = saveGeminiKey;
 window.toggleScanItem = toggleScanItem;
 window.confirmScanResults = confirmScanResults;
+window.resetScanner = resetScanner;
 window.switchCategory = switchCategory;
 window.toggleFavorite = toggleFavorite;
 
@@ -1043,6 +1153,20 @@ window.openCartModal = openCartModal;
 window.closeCartModal = closeCartModal;
 window.removeCartItem = removeCartItem;
 
+window.toggleSubItems = function(id) {
+    const el = document.getElementById(`subitems-${id}`);
+    const chev = document.getElementById(`chevron-${id}`);
+    if (el) {
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+            if (chev) chev.style.transform = 'rotate(180deg)';
+        } else {
+            el.style.display = 'none';
+            if (chev) chev.style.transform = 'rotate(0deg)';
+        }
+    }
+};
+
 window.deleteLogItem = function(id) {
     if (!confirm("確定要刪除這筆紀錄嗎？")) return;
     logs = logs.filter(log => log.id !== id);
@@ -1091,75 +1215,198 @@ window.updateLogWater = function(delta) {
     renderLogs();
 };
 
-let weightChartInstance = null;
+let overviewOffsetWeeks = 0;
+let overviewWeightChartInstance = null;
+let overviewCalorieChartInstance = null;
 
-function openWeightTrend() {
-    document.getElementById('weight-trend-modal').classList.remove('hidden');
-    
-    const ctx = document.getElementById('weightChart').getContext('2d');
-    const labels = [];
-    const data = [];
-    
+function overviewChangeWeek(delta) {
+    overviewOffsetWeeks += delta;
+    if (overviewOffsetWeeks > 0) overviewOffsetWeeks = 0;
+    renderOverview();
+}
+
+window.overviewChangeWeek = overviewChangeWeek;
+
+function renderOverview() {
     const today = new Date();
-    for (let i = 13; i >= 0; i--) {
-        let d = new Date(today);
-        d.setDate(d.getDate() - i);
-        let dStr = d.toLocaleDateString('en-CA');
-        labels.push(d.getDate() + '日');
-        
-        let w = dailyData[dStr] ? dailyData[dStr].weight : null;
-        data.push(w);
-    }
+    const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday
+    const distanceToMonday = currentDay === 0 ? 6 : currentDay - 1;
     
-    let lastValid = userProfile.weight || 70;
-    for (let i = 0; i < data.length; i++) {
-        if (data[i] === null) {
-            data[i] = lastValid;
-        } else {
-            lastValid = data[i];
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - distanceToMonday + (overviewOffsetWeeks * 7));
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    
+    const formatRange = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
+    const rangeText = `${formatRange(startOfWeek)} - ${formatRange(endOfWeek)}`;
+    document.getElementById('overview-weight-date-range').innerText = rangeText;
+    document.getElementById('overview-cal-date-range').innerText = rangeText;
+    
+    const labels = ['一', '二', '三', '四', '五', '六', '日'];
+    const subLabels = [];
+    const weightData = [];
+    const calorieData = [];
+    
+    let sumCal = 0;
+    let daysWithCal = 0;
+    let lastValidWeight = userProfile.weight || 70;
+    
+    for (let i = 1; i <= 30; i++) {
+        let prevD = new Date(startOfWeek);
+        prevD.setDate(startOfWeek.getDate() - i);
+        let dStr = prevD.toLocaleDateString('en-CA');
+        if (dailyData[dStr] && dailyData[dStr].weight) {
+            lastValidWeight = dailyData[dStr].weight;
+            break;
         }
     }
 
-    if (weightChartInstance) {
-        weightChartInstance.destroy();
-    }
-    
-    weightChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: '體重 (kg)',
-                data: data,
-                borderColor: '#ffb86c',
-                backgroundColor: 'rgba(255, 184, 108, 0.2)',
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: '#ffb86c'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    min: Math.floor(Math.min(...data)) - 2,
-                    max: Math.ceil(Math.max(...data)) + 2
-                }
-            },
-            plugins: {
-                legend: { display: false }
+    for (let i = 0; i < 7; i++) {
+        let d = new Date(startOfWeek);
+        d.setDate(startOfWeek.getDate() + i);
+        let dStr = d.toLocaleDateString('en-CA');
+        subLabels.push(`${d.getMonth()+1}/${d.getDate()}`);
+        
+        if (dailyData[dStr] && dailyData[dStr].weight) {
+            lastValidWeight = dailyData[dStr].weight;
+        }
+        
+        const isFuture = new Date(dStr) > new Date(todayDateStr);
+        if (isFuture) {
+            weightData.push(null);
+            calorieData.push(null);
+        } else {
+            weightData.push(lastValidWeight);
+            
+            let dayCals = 0;
+            const dayLogs = logs.filter(log => (log.date || todayDateStr) === dStr);
+            dayLogs.forEach(log => { dayCals += log.cal; });
+            calorieData.push(dayCals);
+            if(dayCals > 0) {
+                sumCal += dayCals;
+                daysWithCal++;
             }
         }
-    });
+    }
+    
+    document.getElementById('overview-current-weight').innerText = `${lastValidWeight} kg`;
+    const avgCal = daysWithCal > 0 ? Math.round(sumCal / daysWithCal) : 0;
+    document.getElementById('overview-avg-cal').innerText = `${avgCal} 大卡`;
+    
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+            padding: { bottom: 25 }
+        },
+        plugins: { legend: { display: false } },
+        scales: {
+            x: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: 'rgba(255,255,255,0.7)', font: { size: 14 } }
+            }
+        }
+    };
+
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.font.family = 'Inter, sans-serif';
+
+    const wCtx = document.getElementById('overviewWeightChart');
+    if(wCtx) {
+        if (overviewWeightChartInstance) overviewWeightChartInstance.destroy();
+        overviewWeightChartInstance = new Chart(wCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: weightData,
+                    borderColor: '#ff79c6',
+                    backgroundColor: '#ff79c6',
+                    borderWidth: 3,
+                    tension: 0.1,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#ff79c6',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    x: commonOptions.scales.x,
+                    y: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: 'rgba(255,255,255,0.5)', stepSize: 1, padding: 10 }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'customSubLabels',
+                afterDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.font = '10px sans-serif';
+                    const xAxis = chart.scales.x;
+                    const yPos = xAxis.bottom + 15;
+                    xAxis.ticks.forEach((tick, i) => {
+                        if(subLabels[i]) ctx.fillText(subLabels[i], xAxis.getPixelForTick(i), yPos);
+                    });
+                    ctx.restore();
+                }
+            }]
+        });
+    }
+
+    const cCtx = document.getElementById('overviewCalorieChart');
+    if(cCtx) {
+        if (overviewCalorieChartInstance) overviewCalorieChartInstance.destroy();
+        overviewCalorieChartInstance = new Chart(cCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: calorieData.map(v => v === null ? 0 : v),
+                    backgroundColor: calorieData.map(val => val > 0 ? '#ffb86c' : 'rgba(255,255,255,0.1)'),
+                    borderRadius: 8,
+                    barThickness: 24
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    x: commonOptions.scales.x,
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false, borderDash: [5, 5] },
+                        ticks: { color: 'rgba(255,255,255,0.5)', maxTicksLimit: 5, padding: 10 },
+                        suggestedMax: TARGET_CALS + 200
+                    }
+                }
+            },
+            plugins: [{
+                id: 'customSubLabelsCal',
+                afterDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.font = '10px sans-serif';
+                    const xAxis = chart.scales.x;
+                    const yPos = xAxis.bottom + 15;
+                    xAxis.ticks.forEach((tick, i) => {
+                        if(subLabels[i]) ctx.fillText(subLabels[i], xAxis.getPixelForTick(i), yPos);
+                    });
+                    ctx.restore();
+                }
+            }]
+        });
+    }
 }
 
-function closeWeightTrend() {
-    document.getElementById('weight-trend-modal').classList.add('hidden');
-}
-
-window.openWeightTrend = openWeightTrend;
-window.closeWeightTrend = closeWeightTrend;
+window.renderOverview = renderOverview;
 
 // Keyframes
 const style = document.createElement('style');
