@@ -1,4 +1,4 @@
-// State
+﻿// State
 let isApplyingCloudData = false;
 const originalSetItem = localStorage.setItem;
 localStorage.setItem = function(key, value) {
@@ -1603,7 +1603,7 @@ async function syncFromGitHub() {
     statusEl.style.color = "var(--text-main)";
     
     try {
-        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+        const response = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
@@ -1684,7 +1684,7 @@ async function autoSyncToGitHub() {
     };
     
     try {
-        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+        const response = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
@@ -1714,12 +1714,12 @@ async function autoPullFromGitHub() {
     if (!pat || !gistId) return;
     
     try {
-        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+        const response = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/vnd.github.v3+json',
                 'Authorization': `token ${pat}`,
-                'Cache-Control': 'no-cache'
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
             }
         });
         
@@ -1753,3 +1753,9 @@ async function autoPullFromGitHub() {
 
 window.syncToGitHub = syncToGitHub;
 window.syncFromGitHub = syncFromGitHub;
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        if (typeof autoPullFromGitHub === 'function') autoPullFromGitHub();
+    }
+});
