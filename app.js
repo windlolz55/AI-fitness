@@ -12,7 +12,14 @@ let TARGET_CARB = 200;
 let TARGET_FAT = 65;
 let TARGET_WATER = 2000;
 
-const todayDateStr = new Date().toLocaleDateString('en-CA');
+function formatDate(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+const todayDateStr = formatDate(new Date());
 let selectedLogDate = todayDateStr;
 
 if (!dailyData[todayDateStr]) {
@@ -21,11 +28,15 @@ if (!dailyData[todayDateStr]) {
 
 // // Food database is loaded from food_db.js (foodDatabase)
 
-// Initialize 'common' category dynamically
-foodDatabase.categories.unshift({ id: 'common', name: '常吃', icon: 'fa-star' });
-// Add first 6 items to common for quick access
-const first6 = foodDatabase.foods.slice(0, 6).map(f => ({...f, categoryId: 'common', id: f.id + '_common'}));
-foodDatabase.foods = [...first6, ...foodDatabase.foods];
+// Initialize 'custom' category dynamically
+foodDatabase.categories.unshift({ id: 'custom', name: '我的最愛', icon: 'fa-heart' });
+
+// Load Custom Foods
+let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
+foodDatabase.foods = [...customFoods, ...foodDatabase.foods];
+
+// Load Favorite Foods
+let favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
 
 // Mock Scanner DB
 const mockFoods = [
@@ -64,13 +75,21 @@ function init() {
     setupNavigation();
     setupProfile();
     setupDailyTracking();
-    setupScanner();
     
     updateDashboard();
     selectLogDate(todayDateStr);
 }
 
 function calculateTargets() {
+    if (!userProfile.weight || !userProfile.height || !userProfile.age || !userProfile.activity) {
+        TARGET_CALS = 2000;
+        TARGET_PRO = 120;
+        TARGET_FAT = 65;
+        TARGET_CARB = 200;
+        TARGET_WATER = 2000;
+        return; // Skip advanced calculation if profile is incomplete
+    }
+
     let bmr;
     if (userProfile.gender === 'male') {
         bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) + 5;
@@ -90,6 +109,12 @@ function calculateTargets() {
     let remainingCals = TARGET_CALS - (TARGET_PRO * 4) - (TARGET_FAT * 9);
     TARGET_CARB = Math.max(0, Math.round(remainingCals / 4));
     TARGET_WATER = userProfile.weight * 35;
+    
+    if (isNaN(TARGET_CALS) || TARGET_CALS <= 0) TARGET_CALS = 2000;
+    if (isNaN(TARGET_PRO) || TARGET_PRO <= 0) TARGET_PRO = 120;
+    if (isNaN(TARGET_FAT) || TARGET_FAT <= 0) TARGET_FAT = 65;
+    if (isNaN(TARGET_CARB) || TARGET_CARB <= 0) TARGET_CARB = 200;
+    if (isNaN(TARGET_WATER) || TARGET_WATER <= 0) TARGET_WATER = 2000;
 
     // Update Profile UI
     const bmrEl = document.getElementById('analysis-bmr');
@@ -124,9 +149,206 @@ function openScanner() {
     navItems.forEach(nav => nav.classList.remove('active'));
     views.forEach(view => view.classList.remove('active'));
     document.getElementById('view-scanner').classList.add('active');
+    
+    // Check API Key
+    let geminiApiKey = localStorage.getItem('gemini_api_key') || '';
+    if (!geminiApiKey) {
+        document.getElementById('api-key-setup').style.display = 'block';
+        document.getElementById('scanner-main-content').style.display = 'none';
+    } else {
+        document.getElementById('api-key-setup').style.display = 'none';
+        document.getElementById('scanner-main-content').style.display = 'block';
+        document.getElementById('gemini-api-key').value = geminiApiKey;
+    }
+    
+    // Reset scanner UI
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('camera-icon').style.display = 'block';
+    document.getElementById('scan-line').style.display = 'none';
+    document.getElementById('scan-result').classList.add('hidden');
+    document.getElementById('btn-camera').style.display = 'block';
 }
+
 function closeScanner() {
     document.querySelector('[data-target="view-dashboard"]').click();
+}
+
+let currentScanItems = [];
+
+function saveGeminiKey() {
+    const key = document.getElementById('gemini-api-key').value.trim();
+    if (key) {
+        localStorage.setItem('gemini_api_key', key);
+        alert("API Key 已儲存！");
+        openScanner(); // refresh UI
+    } else {
+        alert("請輸入有效的 API Key！");
+    }
+}
+
+async function callGeminiVisionAPI(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = async function(e) {
+            document.getElementById('camera-icon').style.display = 'none';
+            const imgPreview = document.getElementById('image-preview');
+            imgPreview.src = e.target.result;
+            imgPreview.style.display = 'block';
+            
+            document.getElementById('btn-camera').style.display = 'none';
+            const scanLine = document.getElementById('scan-line');
+            const scanStatus = document.getElementById('scan-status');
+            
+            scanLine.style.display = 'block';
+            scanLine.style.animation = 'scan 2s linear infinite';
+            scanStatus.style.display = 'block';
+            
+            const base64String = e.target.result.split(',')[1];
+            const apiKey = localStorage.getItem('gemini_api_key');
+            
+            const modelsToTry = ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-pro'];
+            let data = null;
+            let success = false;
+            let lastError = null;
+            
+            for (const model of modelsToTry) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    { text: "你是一位專業營養師。請分析這張照片中的所有食物，估算常見的一人份重量，並以嚴格的 JSON 陣列格式回傳。不要回傳任何 markdown 語法 (例如 ```json)，只要純 JSON 字串。陣列中的每個物件必須包含：name (食物名稱, 字串), grams (預估克數, 數字), cal (總熱量, 數字), pro (蛋白質, 數字), carb (碳水, 數字), fat (脂肪, 數字)。" },
+                                    { inline_data: { mime_type: file.type, data: base64String } }
+                                ]
+                            }]
+                        })
+                    });
+                    
+                    data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error.message);
+                    }
+                    success = true;
+                    break; // break the loop if successful
+                } catch (err) {
+                    lastError = err;
+                    console.warn(`Model ${model} failed:`, err.message);
+                    // Continue to next model if it's a server error or not found
+                }
+            }
+            
+            try {
+                if (!success) {
+                    throw lastError;
+                }
+                
+                let jsonText = data.candidates[0].content.parts[0].text;
+                // Use regex to strictly find the first [ ... ] block
+                const match = jsonText.match(/\[[\s\S]*\]/);
+                if (match) {
+                    jsonText = match[0];
+                } else {
+                    jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+                }
+                
+                const aiResults = JSON.parse(jsonText);
+                currentScanItems = aiResults.map(item => ({
+                    id: 'ai_' + Date.now() + Math.random(),
+                    name: item.name,
+                    grams: item.grams,
+                    cal: item.cal,
+                    pro: item.pro,
+                    carb: item.carb,
+                    fat: item.fat,
+                    checked: true
+                }));
+                
+                renderScanChecklist();
+                scanLine.style.display = 'none';
+                scanStatus.style.display = 'none';
+                document.getElementById('scan-result').classList.remove('hidden');
+                document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (err) {
+                scanLine.style.display = 'none';
+                scanStatus.style.display = 'none';
+                alert('API 呼叫失敗，請檢查 API Key 或照片格式：\\n' + err.message);
+                document.getElementById('btn-camera').style.display = 'block';
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function renderScanChecklist() {
+    const list = document.getElementById('scan-checklist');
+    list.innerHTML = currentScanItems.map((item, index) => `
+        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
+                <div>
+                    <div style="font-weight: 600;">${item.name}</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">約 ${item.grams}g</div>
+                </div>
+            </div>
+            <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} kcal</div>
+        </label>
+    `).join('');
+}
+
+function toggleScanItem(index) {
+    currentScanItems[index].checked = !currentScanItems[index].checked;
+}
+
+function confirmScanResults() {
+    try {
+        const selectedItems = currentScanItems.filter(item => item.checked);
+        if(selectedItems.length === 0) {
+            alert("請至少勾選一項食物！");
+            return;
+        }
+        
+        const mealType = document.getElementById('scan-meal-type').value;
+        const now = new Date();
+        
+        // Convert to log format and unshift to logs
+        const newLogs = selectedItems.map(item => ({
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            date: todayDateStr,
+            time: now.toTimeString().substring(0,5),
+            meal: mealType,
+            name: item.name,
+            grams: item.grams,
+            cal: item.cal,
+            pro: item.pro,
+            carb: item.carb,
+            fat: item.fat
+        }));
+        
+        logs.unshift(...newLogs);
+        localStorage.setItem('fitness_logs', JSON.stringify(logs));
+        
+        // Update UI and close
+        renderLogs();
+        if (typeof updateDashboard === 'function') updateDashboard();
+        
+        alert(`成功加入 ${selectedItems.length} 項食物！`);
+        
+        closeScanner();
+        
+        // Ensure Dashboard is visible
+        const dashboardBtn = document.querySelector('[data-target="view-dashboard"]');
+        if (dashboardBtn) dashboardBtn.click();
+        
+    } catch (e) {
+        alert("確認時發生錯誤: " + e.message);
+        console.error(e);
+    }
 }
 
 // Dashboard Updates
@@ -144,8 +366,8 @@ function updateDashboard() {
 
     let remaining = TARGET_CALS - todayEaten;
 
-    document.getElementById('cal-eaten').innerText = todayEaten;
-    document.getElementById('cal-remaining').innerText = remaining;
+    document.getElementById('cal-eaten').innerText = Math.round(todayEaten);
+    document.getElementById('cal-remaining').innerText = Math.round(remaining);
     
     // Ring Math (circumference = 440)
     const ringFill = document.getElementById('cal-ring');
@@ -153,11 +375,11 @@ function updateDashboard() {
     ringFill.style.strokeDashoffset = 440 - (440 * percent);
 
     // Macros Text
-    document.getElementById('val-carb').innerText = todayCarb;
+    document.getElementById('val-carb').innerText = Math.round(todayCarb * 10) / 10;
     document.getElementById('tar-carb').innerText = TARGET_CARB;
-    document.getElementById('val-pro').innerText = todayPro;
+    document.getElementById('val-pro').innerText = Math.round(todayPro * 10) / 10;
     document.getElementById('tar-pro').innerText = TARGET_PRO;
-    document.getElementById('val-fat').innerText = todayFat;
+    document.getElementById('val-fat').innerText = Math.round(todayFat * 10) / 10;
     document.getElementById('tar-fat').innerText = TARGET_FAT;
 
     // Macro Bars
@@ -170,7 +392,7 @@ function updateDashboard() {
 let currentAddingMeal = 'snack';
 let selectedFood = null;
 let currentCart = [];
-let activeCategory = 'common';
+let activeCategory = 'custom';
 
 function openFoodDB(meal) {
     currentAddingMeal = meal;
@@ -182,7 +404,7 @@ function openFoodDB(meal) {
     document.getElementById('db-meal-selector').value = meal;
     changeAddingMeal(meal);
     
-    activeCategory = 'common';
+    activeCategory = 'custom';
     renderDBSidebar();
     renderDBContent();
 
@@ -222,22 +444,20 @@ function renderDBContent(searchQuery = '') {
     if (searchQuery.trim() !== '') {
         document.getElementById('db-category-title').innerText = '搜尋結果';
         filteredFoods = foodDatabase.foods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
-        
-        // Remove duplicates if searching (because 'common' category duplicates items)
-        const seenIds = new Set();
-        filteredFoods = filteredFoods.filter(f => {
-            const rawId = f.id.replace('_common', '');
-            if (seenIds.has(rawId)) return false;
-            seenIds.add(rawId);
-            return true;
-        });
     } else {
         const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
         document.getElementById('db-category-title').innerText = title + '類';
-        filteredFoods = foodDatabase.foods.filter(f => f.categoryId === activeCategory);
+        
+        if (activeCategory === 'custom') {
+            filteredFoods = foodDatabase.foods.filter(f => f.categoryId === 'custom' || favoriteFoodIds.includes(f.id));
+        } else {
+            filteredFoods = foodDatabase.foods.filter(f => f.categoryId === activeCategory);
+        }
     }
     
-    list.innerHTML = filteredFoods.map(food => `
+    list.innerHTML = filteredFoods.map(food => {
+        const isFav = favoriteFoodIds.includes(food.id) || food.categoryId === 'custom';
+        return `
         <div class="food-db-item" onclick="selectFood('${food.id}')">
             <div style="display:flex; align-items:center;">
                 <div style="font-size: 32px; margin-right: 12px; width: 48px; height: 48px; background: var(--bg-main); border-radius: 8px; display: flex; align-items: center; justify-content: center;">${food.icon || '🍽️'}</div>
@@ -247,11 +467,14 @@ function renderDBContent(searchQuery = '') {
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
+                <button style="background:transparent; border:none; padding:4px; font-size:16px;" onclick="toggleFavorite(event, '${food.id}')">
+                    ${isFav ? '<i class="fa-solid fa-heart" style="color:#ff6b6b;"></i>' : '<i class="fa-regular fa-heart" style="color:#ccc;"></i>'}
+                </button>
                 <div style="width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%;"></div>
                 <button class="btn-add"><i class="fa-solid fa-plus" style="font-size: 12px;"></i></button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function closeFoodDB() {
@@ -264,6 +487,24 @@ function selectFood(foodId) {
     document.getElementById('setup-grams').value = 100;
     updateFoodSetup();
     document.getElementById('food-setup-modal').classList.add('open');
+}
+
+function toggleFavorite(e, id) {
+    e.stopPropagation();
+    // Cannot unfavorite a purely custom food unless we delete it entirely
+    const food = foodDatabase.foods.find(f => f.id === id);
+    if(food && food.categoryId === 'custom') {
+        alert('這是您建立的自訂食物，預設會在我的最愛中喔！');
+        return;
+    }
+    
+    if (favoriteFoodIds.includes(id)) {
+        favoriteFoodIds = favoriteFoodIds.filter(fId => fId !== id);
+    } else {
+        favoriteFoodIds.push(id);
+    }
+    localStorage.setItem('favoriteFoodIds', JSON.stringify(favoriteFoodIds));
+    renderDBContent(document.getElementById('food-search-input').value);
 }
 
 function closeFoodSetup() {
@@ -526,7 +767,7 @@ function renderDateStrip() {
         const d = new Date(baseDate);
         d.setDate(baseDate.getDate() - currentDayOfWeek + i);
         
-        const dateStr = d.toLocaleDateString('en-CA');
+        const dateStr = formatDate(d);
         const dayName = (dateStr === todayDateStr) ? '今' : days[i];
         const dateNum = d.getDate();
         
@@ -564,14 +805,18 @@ function renderLogs() {
 
     html += `
         <div class="meal-group-card" style="margin-bottom: 16px;">
-            <div class="meal-group-header" style="margin-bottom: 12px;">
+            <div class="meal-group-header" style="margin-bottom: 12px; align-items: center;">
                 <div style="display:flex; align-items:baseline;">
                     <h3><i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>飲水</h3>
                 </div>
-                <div class="total-cal" style="color: var(--accent-secondary); font-weight: 600; font-size: 16px;">${waterAmount} <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">/ ${TARGET_WATER} ml</span></div>
+                <div style="display:flex; align-items:center; gap: 8px;">
+                    <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWater(-250)">-</button>
+                    <div class="total-cal" style="color: var(--accent-secondary); font-weight: 600; font-size: 16px; min-width: 80px; text-align: center;">${waterAmount} <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">/ ${TARGET_WATER} ml</span></div>
+                    <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWater(250)">+</button>
+                </div>
             </div>
             <div style="height: 8px; background: var(--card-border); border-radius: 4px; overflow: hidden;">
-                <div style="height: 100%; background: var(--accent-secondary); width: ${waterPercent}%; border-radius: 4px;"></div>
+                <div style="height: 100%; background: var(--accent-secondary); width: ${waterPercent}%; border-radius: 4px; transition: width 0.3s;"></div>
             </div>
         </div>
     `;
@@ -581,11 +826,15 @@ function renderLogs() {
 
     html += `
         <div class="meal-group-card" style="margin-bottom: 16px;">
-            <div class="meal-group-header" style="margin-bottom: 0;">
+            <div class="meal-group-header" style="margin-bottom: 0; align-items: center;">
                 <div style="display:flex; align-items:baseline;">
                     <h3><i class="fa-solid fa-weight-scale" style="color: var(--accent-primary); margin-right: 8px;"></i>體重</h3>
                 </div>
-                <div class="total-cal" style="color: var(--accent-primary); font-weight: 600; font-size: 16px;">${parseFloat(weightAmount).toFixed(1)} <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">kg</span></div>
+                <div style="display:flex; align-items:center; gap: 8px;">
+                    <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWeight(-0.1)">-</button>
+                    <div class="total-cal" style="color: var(--accent-primary); font-weight: 600; font-size: 16px; min-width: 70px; text-align: center;">${parseFloat(weightAmount).toFixed(1)} <span style="font-size:12px; font-weight:normal; color:var(--text-muted);">kg</span></div>
+                    <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWeight(0.1)">+</button>
+                </div>
             </div>
         </div>
     `;
@@ -617,7 +866,7 @@ function renderLogs() {
                         if(match) desc = match[1];
                     }
                     const baseName = item.name.split(' (')[0];
-                    const dbFood = commonFoodsDB.find(f => f.name.includes(baseName));
+                    const dbFood = foodDatabase.foods.find(f => f.name.includes(baseName));
                     if(dbFood) icon = dbFood.icon;
 
                     itemsHTML += `
@@ -626,8 +875,18 @@ function renderLogs() {
                             <div class="meal-item-info">
                                 <div class="meal-item-name">${baseName}</div>
                                 <div class="meal-item-desc">${desc}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
+                                    <span><i class="fa-solid fa-wheat-awn" style="color: #f1fa8c; font-size: 9px;"></i> ${Math.round(item.carb*10)/10}g</span>
+                                    <span><i class="fa-solid fa-drumstick-bite" style="color: #ff79c6; font-size: 9px;"></i> ${Math.round(item.pro*10)/10}g</span>
+                                    <span><i class="fa-solid fa-droplet" style="color: #ff5555; font-size: 9px;"></i> ${Math.round(item.fat*10)/10}g</span>
+                                </div>
                             </div>
-                            <div class="meal-item-cal">${item.cal}kcal <i class="fa-solid fa-chevron-right" style="font-size:10px; margin-left:4px; color:var(--text-muted);"></i></div>
+                            <div class="meal-item-cal" style="display:flex; align-items:center; gap:12px;">
+                                <span>${item.cal}kcal</span>
+                                <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="deleteLogItem(${item.id})">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
@@ -701,82 +960,7 @@ function setupProfile() {
 }
 
 // Scanner (Kept intact)
-function setupScanner() {
-    const fileInput = document.getElementById('file-input');
-    const btnCamera = document.getElementById('btn-camera');
-    const imagePreview = document.getElementById('image-preview');
-    const scanLine = document.getElementById('scan-line');
-    const cameraIcon = document.getElementById('camera-icon');
-    const scanResult = document.getElementById('scan-result');
-    let currentScanData = null;
 
-    btnCamera.addEventListener('click', () => fileInput.click());
-
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-                cameraIcon.style.display = 'none';
-                scanResult.classList.add('hidden');
-                btnCamera.style.display = 'none';
-                scanLine.style.display = 'block';
-                
-                scanLine.style.animation = 'scan 2s infinite linear';
-                
-                setTimeout(processMockAI, 2000);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    function processMockAI() {
-        currentScanData = mockFoods[Math.floor(Math.random() * mockFoods.length)];
-        scanLine.style.display = 'none';
-        
-        const hour = new Date().getHours();
-        let defaultMeal = 'snack';
-        if(hour >= 5 && hour < 10) defaultMeal = 'breakfast';
-        else if(hour >= 10 && hour < 15) defaultMeal = 'lunch';
-        else if(hour >= 17 && hour < 21) defaultMeal = 'dinner';
-        document.getElementById('scan-meal-type').value = defaultMeal;
-
-        document.getElementById('result-name').innerText = currentScanData.name;
-        document.getElementById('res-cal').innerText = currentScanData.cal;
-        document.getElementById('res-pro').innerText = currentScanData.pro;
-        document.getElementById('res-carb').innerText = currentScanData.carb;
-        
-        scanResult.classList.remove('hidden');
-    }
-
-    document.getElementById('btn-save-log').addEventListener('click', () => {
-        if (currentScanData) {
-            const newLog = {
-                id: Date.now(),
-                img: imagePreview.src,
-                time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
-                date: todayDateStr,
-                meal: document.getElementById('scan-meal-type').value,
-                ...currentScanData
-            };
-            logs.unshift(newLog);
-            localStorage.setItem('fitness_logs', JSON.stringify(logs));
-            
-            closeScanner();
-            renderLogs();
-            
-            // reset scanner
-            fileInput.value = '';
-            imagePreview.src = '';
-            imagePreview.style.display = 'none';
-            cameraIcon.style.display = 'block';
-            scanResult.classList.add('hidden');
-            btnCamera.style.display = 'block';
-        }
-    });
-}
 
 // Global scope
 window.openFoodDB = openFoodDB;
@@ -785,7 +969,70 @@ window.selectFood = selectFood;
 window.closeFoodSetup = closeFoodSetup;
 window.openScanner = openScanner;
 window.closeScanner = closeScanner;
+window.callGeminiVisionAPI = callGeminiVisionAPI;
+window.saveGeminiKey = saveGeminiKey;
+window.toggleScanItem = toggleScanItem;
+window.confirmScanResults = confirmScanResults;
 window.switchCategory = switchCategory;
+window.toggleFavorite = toggleFavorite;
+
+// Custom Food Logic
+function openCustomFood() {
+    document.getElementById('custom-food-modal').style.display = 'flex';
+}
+
+function closeCustomFood() {
+    document.getElementById('custom-food-modal').style.display = 'none';
+}
+
+function saveCustomFood() {
+    const name = document.getElementById('cf-name').value.trim();
+    const cals = parseFloat(document.getElementById('cf-cal').value);
+    const p = parseFloat(document.getElementById('cf-pro').value) || 0;
+    const c = parseFloat(document.getElementById('cf-carb').value) || 0;
+    const f = parseFloat(document.getElementById('cf-fat').value) || 0;
+
+    if (!name) {
+        alert("請填寫食物名稱！");
+        return;
+    }
+    if (isNaN(cals) || cals < 0) {
+        alert("請填寫正確的熱量數值！");
+        return;
+    }
+
+    const newFood = {
+        id: 'cf_' + Date.now(),
+        categoryId: 'custom',
+        name: name,
+        cals: cals,
+        macros: { p, c, f },
+        icon: '❤️'
+    };
+
+    // Save to local custom foods
+    customFoods.push(newFood);
+    localStorage.setItem('customFoods', JSON.stringify(customFoods));
+    
+    // Inject into runtime database at the top
+    foodDatabase.foods.unshift(newFood);
+    
+    // Reset form
+    document.getElementById('cf-name').value = '';
+    document.getElementById('cf-cal').value = '';
+    document.getElementById('cf-pro').value = '';
+    document.getElementById('cf-carb').value = '';
+    document.getElementById('cf-fat').value = '';
+    
+    closeCustomFood();
+    
+    // Switch to Custom category to see it
+    switchCategory('custom');
+}
+
+window.openCustomFood = openCustomFood;
+window.closeCustomFood = closeCustomFood;
+window.saveCustomFood = saveCustomFood;
 window.commitCart = commitCart;
 window.selectLogDate = selectLogDate;
 window.showInfo = showInfo;
@@ -795,6 +1042,14 @@ window.changeAddingMeal = changeAddingMeal;
 window.openCartModal = openCartModal;
 window.closeCartModal = closeCartModal;
 window.removeCartItem = removeCartItem;
+
+window.deleteLogItem = function(id) {
+    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
+    logs = logs.filter(log => log.id !== id);
+    localStorage.setItem('fitness_logs', JSON.stringify(logs));
+    updateDashboard();
+    renderLogs();
+};
 
 window.updateLogWeight = function(delta) {
     if (!dailyData[selectedLogDate]) {
@@ -813,6 +1068,24 @@ window.updateLogWeight = function(delta) {
         userProfile.weight = currentWeight;
         localStorage.setItem('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
+    }
+    
+    renderLogs();
+};
+
+window.updateLogWater = function(delta) {
+    if (!dailyData[selectedLogDate]) {
+        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70 };
+    }
+    
+    let currentWater = parseInt(dailyData[selectedLogDate].water || 0);
+    currentWater = Math.max(0, currentWater + delta);
+    
+    dailyData[selectedLogDate].water = currentWater;
+    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    
+    if (selectedLogDate === todayDateStr) {
+        document.getElementById('water-val').innerText = currentWater;
     }
     
     renderLogs();
@@ -892,9 +1165,7 @@ window.closeWeightTrend = closeWeightTrend;
 const style = document.createElement('style');
 style.innerHTML = `@keyframes scan { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }`;
 document.head.appendChild(style);
-
-init();
-
+// Init called at the end of the file
 // Calendar Modal Logic
 let calendarBaseDate = new Date();
 
@@ -913,48 +1184,64 @@ function changeCalendarMonth(delta) {
 }
 
 function renderCalendar() {
-    const year = calendarBaseDate.getFullYear();
-    const month = calendarBaseDate.getMonth();
-    
-    document.getElementById('calendar-month-title').innerText = year + '年 ' + String(month + 1).padStart(2, '0') + '月';
-    
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
-    const grid = document.getElementById('calendar-grid');
-    let html = '';
-    
-    for (let i = 0; i < firstDay; i++) {
-        html += '<div></div>';
-    }
-    
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dStr = year + '-' + String(month+1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    try {
+        const year = calendarBaseDate.getFullYear();
+        const month = calendarBaseDate.getMonth();
         
-        let isSelected = (dStr === selectedLogDate);
-        let isToday = (dStr === todayDateStr);
-        let hasLogs = logs.some(log => (log.date || todayDateStr) === dStr);
-        
-        let dotHtml = hasLogs ? '<div style="width: 4px; height: 4px; background: var(--accent-secondary); border-radius: 50%; margin: 4px auto 0;"></div>' : '<div style="width: 4px; height: 4px; margin: 4px auto 0;"></div>';
-        
-        let circleStyle = 'width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 50%;';
-        let textStyle = 'color: var(--text-main); font-size: 14px;';
-        
-        if (isSelected) {
-            circleStyle += ' background: var(--accent-primary);';
-            textStyle = 'color: white; font-size: 14px; font-weight: 600;';
-        } else if (isToday) {
-            textStyle = 'color: var(--accent-primary); font-size: 14px; font-weight: 600;';
+        const titleEl = document.getElementById('calendar-month-title');
+        if (titleEl) {
+            titleEl.innerText = year + '年 ' + String(month + 1).padStart(2, '0') + '月';
         }
         
-        html += '<div style="cursor: pointer;" onclick="selectLogDate(\'' + dStr + '\'); closeCalendarModal();"><div style="' + circleStyle + '"><span style="' + textStyle + '">' + day + '</span></div>' + dotHtml + '</div>';
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        const grid = document.getElementById('calendar-grid');
+        if (!grid) return;
+        
+        let html = '';
+        
+        for (let i = 0; i < firstDay; i++) {
+            html += '<div></div>';
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dStr = year + '-' + String(month+1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+            
+            let isSelected = (dStr === selectedLogDate);
+            let isToday = (dStr === todayDateStr);
+            let hasLogs = logs.some(log => (log.date || todayDateStr) === dStr);
+            
+            let dotHtml = hasLogs ? '<div style="width: 4px; height: 4px; background: var(--accent-secondary); border-radius: 50%; margin: 4px auto 0;"></div>' : '<div style="width: 4px; height: 4px; margin: 4px auto 0;"></div>';
+            
+            let circleStyle = 'width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 50%;';
+            let textStyle = 'color: var(--text-main); font-size: 14px;';
+            
+            if (isSelected) {
+                circleStyle += ' background: var(--accent-primary);';
+                textStyle = 'color: white; font-size: 14px; font-weight: 600;';
+            } else if (isToday) {
+                textStyle = 'color: var(--accent-primary); font-size: 14px; font-weight: 600;';
+            }
+            
+            html += `<div style="cursor: pointer;" onclick="selectLogDate('${dStr}'); closeCalendarModal();"><div style="${circleStyle}"><span style="${textStyle}">${day}</span></div>${dotHtml}</div>`;
+        }
+        grid.innerHTML = html;
+    } catch(e) {
+        alert("Render calendar error: " + e.message);
     }
-    grid.innerHTML = html;
 }
 
 window.openCalendarModal = openCalendarModal;
 window.closeCalendarModal = closeCalendarModal;
 window.changeCalendarMonth = changeCalendarMonth;
+
+// Start app
+try {
+    init();
+} catch (e) {
+    alert("Startup error: " + e.message + "\\n" + e.stack);
+}
 
 
 
