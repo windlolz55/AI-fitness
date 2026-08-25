@@ -141,7 +141,8 @@ function calculateTargets() {
     const tdeeEl = document.getElementById('analysis-tdee');
     if (tdeeEl) tdeeEl.innerText = Math.round(tdee);
     document.getElementById('water-target').innerText = TARGET_WATER;
-    document.getElementById('cal-target').innerText = TARGET_CALS;
+    const ct = document.getElementById('cal-target');
+    if (ct) ct.innerText = TARGET_CALS;
 }
 
 // Navigation
