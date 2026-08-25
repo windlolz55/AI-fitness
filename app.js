@@ -1,4 +1,14 @@
 // State
+let isApplyingCloudData = false;
+const originalSetItem = localStorage.setItem;
+localStorage.setItem = function(key, value) {
+    originalSetItem.apply(this, arguments);
+    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+    if (!isApplyingCloudData && syncableKeys.includes(key)) {
+        if (typeof triggerAutoSync === 'function') triggerAutoSync();
+    }
+};
+
 let userProfile = JSON.parse(localStorage.getItem('fitness_profile')) || {
     gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
 };
@@ -76,6 +86,9 @@ function init() {
     const ghGistId = localStorage.getItem('github_gist_id');
     if (ghPat) document.getElementById('github-pat').value = ghPat;
     if (ghGistId) document.getElementById('github-gist-id').value = ghGistId;
+    
+    // Auto pull data from GitHub on load
+    if (typeof autoPullFromGitHub === 'function') autoPullFromGitHub();
     
     calculateTargets();
     setupNavigation();
@@ -1521,7 +1534,8 @@ async function syncToGitHub() {
         'fitness_daily': localStorage.getItem('fitness_daily') || '{}',
         'customFoods': localStorage.getItem('customFoods') || '[]',
         'favoriteFoodIds': localStorage.getItem('favoriteFoodIds') || '[]',
-        'fitness_theme': localStorage.getItem('fitness_theme') || 'light'
+        'fitness_theme': localStorage.getItem('fitness_theme') || 'light',
+        'last_updated': new Date().toISOString()
     };
     
     const gistData = {
@@ -1619,6 +1633,121 @@ async function syncFromGitHub() {
         console.error(error);
         statusEl.textContent = "❌ 還原失敗，請檢查設定";
         statusEl.style.color = "#ff4757";
+    }
+}
+
+// Auto Sync Logic
+let autoSyncTimeout = null;
+function triggerAutoSync() {
+    const pat = localStorage.getItem('github_pat');
+    const gistId = localStorage.getItem('github_gist_id');
+    if (!pat || !gistId) return; // Only auto-sync if they've successfully set up syncing
+    
+    if (autoSyncTimeout) clearTimeout(autoSyncTimeout);
+    autoSyncTimeout = setTimeout(() => {
+        autoSyncToGitHub();
+    }, 2000); // 2 seconds debounce
+}
+
+async function autoSyncToGitHub() {
+    const pat = localStorage.getItem('github_pat');
+    const gistId = localStorage.getItem('github_gist_id');
+    const statusEl = document.getElementById('sync-status');
+    if (!pat || !gistId) return;
+    
+    if (statusEl) {
+        statusEl.textContent = "自動備份中...";
+        statusEl.style.color = "var(--text-muted)";
+    }
+    
+    const now = new Date().toISOString();
+    
+    // Set last_updated without triggering another auto-sync
+    isApplyingCloudData = true;
+    localStorage.setItem('last_updated', now);
+    isApplyingCloudData = false;
+    
+    const dataToSync = {
+        'fitness_profile': localStorage.getItem('fitness_profile') || '{}',
+        'fitness_logs': localStorage.getItem('fitness_logs') || '[]',
+        'fitness_daily': localStorage.getItem('fitness_daily') || '{}',
+        'customFoods': localStorage.getItem('customFoods') || '[]',
+        'favoriteFoodIds': localStorage.getItem('favoriteFoodIds') || '[]',
+        'fitness_theme': localStorage.getItem('fitness_theme') || 'light',
+        'last_updated': now
+    };
+    
+    const gistData = {
+        description: "AI Fitness App Backup",
+        public: false,
+        files: { "ai_fitness_backup.json": { content: JSON.stringify(dataToSync) } }
+    };
+    
+    try {
+        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': `token ${pat}`
+            },
+            body: JSON.stringify(gistData)
+        });
+        
+        if (!response.ok) throw new Error("Auto-sync failed");
+        
+        if (statusEl) {
+            statusEl.textContent = `✅ 已自動同步至雲端 (${new Date().toLocaleTimeString()})`;
+            statusEl.style.color = "var(--accent-secondary)";
+        }
+    } catch (error) {
+        console.error("Auto-sync error:", error);
+        if (statusEl) {
+            statusEl.textContent = "❌ 自動備份失敗";
+            statusEl.style.color = "#ff4757";
+        }
+    }
+}
+
+async function autoPullFromGitHub() {
+    const pat = localStorage.getItem('github_pat');
+    const gistId = localStorage.getItem('github_gist_id');
+    if (!pat || !gistId) return;
+    
+    try {
+        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.github.v3+json',
+                'Authorization': `token ${pat}`,
+                'Cache-Control': 'no-cache'
+            }
+        });
+        
+        if (!response.ok) return;
+        
+        const result = await response.json();
+        const fileContent = result.files['ai_fitness_backup.json']?.content;
+        if (!fileContent) return;
+        
+        const cloudData = JSON.parse(fileContent);
+        const cloudTime = cloudData.last_updated ? new Date(cloudData.last_updated).getTime() : 0;
+        
+        const localTimeStr = localStorage.getItem('last_updated');
+        const localTime = localTimeStr ? new Date(localTimeStr).getTime() : 0;
+        
+        if (cloudTime > localTime) {
+            console.log("Cloud data is newer, auto-pulling...");
+            isApplyingCloudData = true; 
+            for (const [key, value] of Object.entries(cloudData)) {
+                if (value) localStorage.setItem(key, value);
+            }
+            isApplyingCloudData = false;
+            
+            // Reload page to apply new data
+            location.reload();
+        }
+    } catch (error) {
+        console.error("Auto-pull error:", error);
     }
 }
 
