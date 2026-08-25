@@ -597,6 +597,7 @@ function toggleFavorite(e, id) {
         favoriteFoodIds.push(id);
     }
     localStorage.setItem('favoriteFoodIds', JSON.stringify(favoriteFoodIds));
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
     renderDBContent(document.getElementById('food-search-input').value);
 }
 
@@ -698,6 +699,7 @@ function commitCart() {
     if(currentCart.length > 0) {
         logs.unshift(...currentCart.reverse());
         localStorage.setItem('fitness_logs', JSON.stringify(logs));
+        if (typeof triggerAutoSync === 'function') triggerAutoSync();
         renderLogs();
         updateDashboard();
     }
@@ -1048,6 +1050,7 @@ document.getElementById('btn-clear').addEventListener('click', () => {
     if(confirm('確定要清空今天的飲食紀錄嗎？')) {
         logs = [];
         localStorage.removeItem('fitness_logs');
+        if (typeof triggerAutoSync === 'function') triggerAutoSync();
         renderLogs();
         updateDashboard();
     }
@@ -1142,6 +1145,7 @@ function saveCustomFood() {
     // Save to local custom foods
     customFoods.push(newFood);
     localStorage.setItem('customFoods', JSON.stringify(customFoods));
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
     
     // Inject into runtime database at the top
     foodDatabase.foods.unshift(newFood);
@@ -1190,6 +1194,7 @@ window.deleteLogItem = function(id) {
     if (!confirm("確定要刪除這筆紀錄嗎？")) return;
     logs = logs.filter(log => log.id !== id);
     localStorage.setItem('fitness_logs', JSON.stringify(logs));
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
     updateDashboard();
     renderLogs();
 };
@@ -1213,6 +1218,7 @@ window.updateLogWeight = function(delta) {
         calculateTargets();
     }
     
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
     renderLogs();
 };
 
@@ -1231,6 +1237,7 @@ window.updateLogWater = function(delta) {
         document.getElementById('water-val').innerText = currentWater;
     }
     
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
     renderLogs();
 };
 
