@@ -14,7 +14,12 @@
         <!-- Dashboard View -->
         <div id="view-dashboard" class="view active">
             <header class="dashboard-header">
-                <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">載入中...</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin: 0;">載入中...</p>
+                    <button onclick="syncFromGitHub()" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--accent-primary); font-size: 12px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 12px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <i class="fa-solid fa-rotate"></i> 同步
+                    </button>
+                </div>
                 
                 <!-- Circular Progress (Calories) -->
                 <div class="progress-ring-container">
