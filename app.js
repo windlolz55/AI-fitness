@@ -1617,12 +1617,11 @@ async function syncToGitHub() {
 }
 
 async function syncFromGitHub() {
-    const pat = localStorage.getItem('github_pat') || document.getElementById('github-pat').value.trim();
-    const gistId = localStorage.getItem('github_gist_id') || document.getElementById('github-gist-id').value.trim();
+    const pat = document.getElementById('github-pat').value.trim();
+    const gistId = document.getElementById('github-gist-id').value.trim();
     const statusEl = document.getElementById('sync-status');
     
     if (!pat || !gistId) {
-        showGlobalToast("❌ 請先設定 PAT 與 Gist ID", true);
         if (statusEl) {
             statusEl.textContent = "請輸入 PAT 與 Gist ID";
             statusEl.style.color = "#ff4757";
@@ -1633,7 +1632,6 @@ async function syncFromGitHub() {
     localStorage.setItem('github_pat', pat);
     localStorage.setItem('github_gist_id', gistId);
     
-    showGlobalToast("🔄 同步資料中...", false);
     if (statusEl) {
         statusEl.textContent = "還原中...";
         statusEl.style.color = "var(--text-main)";
@@ -1661,7 +1659,6 @@ async function syncFromGitHub() {
             if (value) localStorage.setItem(key, value);
         }
         
-        showGlobalToast("✅ 同步成功！重新載入...", true);
         if (statusEl) {
             statusEl.textContent = "✅ 還原成功！即將重新載入頁面...";
             statusEl.style.color = "var(--accent-secondary)";
@@ -1671,7 +1668,6 @@ async function syncFromGitHub() {
         
     } catch (error) {
         console.error(error);
-        showGlobalToast("❌ 同步失敗", true);
         if (statusEl) {
             statusEl.textContent = "❌ 還原失敗，請檢查設定";
             statusEl.style.color = "#ff4757";
@@ -1692,44 +1688,12 @@ function triggerAutoSync() {
     }, 2000); // 2 seconds debounce
 }
 
-function showGlobalToast(msg, isSuccess = false) {
-    const toast = document.getElementById('global-toast');
-    const icon = document.getElementById('toast-icon');
-    const text = document.getElementById('toast-text');
-    if (!toast) return;
-    
-    text.textContent = msg;
-    if (isSuccess) {
-        if (msg.includes('❌')) {
-            icon.className = "fa-solid fa-circle-exclamation";
-            icon.style.color = "#ff4757";
-        } else {
-            icon.className = "fa-solid fa-check-circle";
-            icon.style.color = "var(--accent-secondary)";
-        }
-    } else {
-        icon.className = "fa-solid fa-cloud-arrow-up";
-        icon.style.color = "white";
-    }
-    
-    toast.style.display = 'flex';
-    toast.style.opacity = '1';
-    
-    if (isSuccess) {
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => { toast.style.display = 'none'; }, 300);
-        }, 3000);
-    }
-}
-
 async function autoSyncToGitHub() {
     const pat = localStorage.getItem('github_pat');
     const gistId = localStorage.getItem('github_gist_id');
     const statusEl = document.getElementById('sync-status');
     if (!pat || !gistId) return;
     
-    showGlobalToast("自動備份中...", false);
     if (statusEl) {
         statusEl.textContent = "自動備份中...";
         statusEl.style.color = "var(--text-muted)";
@@ -1770,15 +1734,12 @@ async function autoSyncToGitHub() {
         
         if (!response.ok) throw new Error("Auto-sync failed");
         
-        const successMsg = `✅ 已自動同步至雲端 (${new Date().toLocaleTimeString()})`;
-        showGlobalToast(successMsg, true);
         if (statusEl) {
-            statusEl.textContent = successMsg;
+            statusEl.textContent = `✅ 已自動同步至雲端 (${new Date().toLocaleTimeString()})`;
             statusEl.style.color = "var(--accent-secondary)";
         }
     } catch (error) {
         console.error("Auto-sync error:", error);
-        showGlobalToast("❌ 自動備份失敗", true);
         if (statusEl) {
             statusEl.textContent = "❌ 自動備份失敗";
             statusEl.style.color = "#ff4757";

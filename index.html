@@ -16,9 +16,6 @@
             <header class="dashboard-header">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin: 0;">載入中...</p>
-                    <button onclick="syncFromGitHub()" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--accent-primary); font-size: 12px; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 12px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <i class="fa-solid fa-rotate"></i> 同步
-                    </button>
                 </div>
                 
                 <!-- Circular Progress (Calories) -->
@@ -525,12 +522,6 @@
                     <button class="btn-primary" style="flex: 1;" onclick="confirmWaterEdit()">確認</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Global Toast Notification -->
-        <div id="global-toast" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; display: none; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); align-items: center; gap: 8px; white-space: nowrap; transition: opacity 0.3s;">
-            <i id="toast-icon" class="fa-solid fa-cloud-arrow-up"></i>
-            <span id="toast-text">自動備份中...</span>
         </div>
 
     </div>
