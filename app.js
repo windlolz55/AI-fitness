@@ -759,7 +759,21 @@ function setupDailyTracking() {
 function updateDailyData() {
     document.getElementById('water-val').innerText = dailyData[todayDateStr].water;
     localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
 }
+
+window.promptEditWater = function() {
+    if (!dailyData[todayDateStr]) {
+        dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || 70 };
+    }
+    const current = dailyData[todayDateStr].water || 0;
+    const val = prompt("請手動輸入目前的「總喝水量」 (ml)：", current);
+    if (val !== null && val.trim() !== '' && !isNaN(val)) {
+        dailyData[todayDateStr].water = Math.max(0, parseInt(val) || 0);
+        updateDailyData();
+        renderLogs();
+    }
+};
 
 // Info Modals
 function showInfo(type) {

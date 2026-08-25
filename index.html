@@ -103,7 +103,11 @@
                 <div class="card track-card" style="position: relative;">
                     <button class="btn-icon" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border: none; font-size: 14px; color: var(--text-muted);" onclick="showInfo('water')"><i class="fa-solid fa-circle-info"></i></button>
                     <h3 style="color: var(--accent-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=&quot;view-log&quot;]').click()"><i class="fa-solid fa-droplet" style="margin-right: 6px;"></i> 喝水 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
-                    <div style="font-size: 24px; font-weight: 700; margin: 12px 0;"><span id="water-val">0</span> <span style="font-size: 12px; color: var(--text-muted);">/ <span id="water-target">--</span> ml</span></div>
+                    <div style="font-size: 24px; font-weight: 700; margin: 12px 0; cursor: pointer; display: inline-flex; align-items: baseline; justify-content: center;" onclick="promptEditWater()">
+                        <span id="water-val" style="border-bottom: 2px dashed var(--accent-secondary); padding-bottom: 2px;">0</span>
+                        <i class="fa-solid fa-pen" style="font-size: 14px; margin-left: 8px; color: var(--accent-secondary);"></i>
+                        <span style="font-size: 12px; color: var(--text-muted); margin-left: 4px;">/ <span id="water-target">--</span> ml</span>
+                    </div>
                     <div style="display: flex; gap: 8px; justify-content: center;">
                         <button id="btn-water-minus" class="btn-icon">-</button>
                         <button id="btn-water-plus" class="btn-icon">+</button>
