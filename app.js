@@ -1,4 +1,4 @@
-﻿// State
+// State
 let isApplyingCloudData = false;
 const originalSetItem = localStorage.setItem;
 localStorage.setItem = function(key, value) {
@@ -1758,4 +1758,8 @@ document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
         if (typeof autoPullFromGitHub === 'function') autoPullFromGitHub();
     }
+});
+
+window.addEventListener("focus", () => {
+    if (typeof autoPullFromGitHub === 'function') autoPullFromGitHub();
 });
