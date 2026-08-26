@@ -24,7 +24,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px;">
                         <!-- Left: Eaten -->
                         <div style="text-align: center; flex: 1;">
-                            <div id="cal-eaten" style="font-size: 28px; font-weight: 800; color: white;">0</div>
+                            <div style="font-size: 28px; font-weight: 800; color: white;"><span id="cal-eaten">0</span><span style="font-size: 12px; margin-left: 4px; font-weight: 600;">kcal</span></div>
                             <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px;">攝取</div>
                         </div>
                         
@@ -40,13 +40,13 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <div style="font-size: 36px; font-weight: 800; color: white; line-height: 1; margin-bottom: 4px;" id="cal-remaining">0</div>
+                            <div style="font-size: 36px; font-weight: 800; color: white; line-height: 1; margin-bottom: 4px;"><span id="cal-remaining">0</span><span style="font-size: 14px; margin-left: 4px; font-weight: 600;">kcal</span></div>
                             <div style="font-size: 13px; font-weight: 500; color: #8e8e93; display: flex; align-items: center; cursor: pointer; z-index: 10;" onclick="showInfo('cals')">剩餘 <i class="fa-regular fa-circle-question" style="margin-left: 4px; font-size: 11px;"></i></div>
                         </div>
 
                         <!-- Right: Burned -->
                         <div style="text-align: center; flex: 1;">
-                            <div style="font-size: 28px; font-weight: 800; color: white;">0</div>
+                            <div style="font-size: 28px; font-weight: 800; color: white;">0<span style="font-size: 12px; margin-left: 4px; font-weight: 600;">kcal</span></div>
                             <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px;">燃燒</div>
                         </div>
                     </div>
@@ -125,8 +125,10 @@
                 <div class="card track-card" style="position: relative;">
                     <h3 style="color: #ffb86c; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-weight-scale" style="margin-right: 6px;"></i> 體重 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
                     <button class="btn-icon" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border: none; font-size: 14px; color: #ffb86c;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-chart-line"></i></button>
-                    <input type="number" step="0.1" id="daily-weight" class="input-field" placeholder="輸入" style="text-align: center; font-weight: 700; font-size: 24px; margin-top: 12px; background: transparent; border: none; border-bottom: 2px solid var(--card-border); border-radius: 0; padding: 4px;">
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">kg</p>
+                    <div style="display: flex; align-items: baseline; justify-content: center; margin-top: 12px;">
+                        <input type="number" step="0.1" id="daily-weight" class="input-field" placeholder="輸入" style="text-align: center; font-weight: 700; font-size: 24px; background: transparent; border: none; border-bottom: 2px solid var(--card-border); border-radius: 0; padding: 4px; width: 100px; margin: 0;">
+                        <span style="font-size: 14px; color: var(--text-muted); margin-left: 8px;">kg</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -273,7 +275,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.0.9</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.0</p>
             </div>
         </div>
 
