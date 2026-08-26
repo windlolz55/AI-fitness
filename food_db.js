@@ -2,12 +2,12 @@
 // 擴充版：包含近 250 筆台灣常見食物、小吃、與超商連鎖食品
 const foodDatabase = {
     categories: [
-        { id: 'staple', name: '常吃主食', icon: 'fa-bowl-rice' },
-        { id: 'meat', name: '肉類與海鮮', icon: 'fa-drumstick-bite' },
-        { id: 'veg', name: '蔬菜與蛋豆', icon: 'fa-carrot' },
-        { id: 'snack', name: '外食與小吃', icon: 'fa-burger' },
-        { id: 'store', name: '超商與連鎖', icon: 'fa-store' },
-        { id: 'drink', name: '飲料與水果', icon: 'fa-apple-whole' }
+        { id: 'staple', name: '常吃主食', icon: 'fa-bowl-rice', color: '#FBBF24' },
+        { id: 'meat', name: '肉類與海鮮', icon: 'fa-drumstick-bite', color: '#ff6b6b' },
+        { id: 'veg', name: '蔬菜與蛋豆', icon: 'fa-leaf', color: '#1dd1a1' },
+        { id: 'snack', name: '外食與小吃', icon: 'fa-burger', color: '#A78BFA' },
+        { id: 'store', name: '超商與連鎖', icon: 'fa-store', color: '#38BDF8' },
+        { id: 'drink', name: '飲料與水果', icon: 'fa-apple-whole', color: '#ff9ff3' }
     ],
     foods: [
         // ================= 常吃主食 (Staple) =================

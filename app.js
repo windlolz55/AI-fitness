@@ -39,7 +39,7 @@ if (!dailyData[todayDateStr]) {
 // // Food database is loaded from food_db.js (foodDatabase)
 
 // Initialize 'custom' category dynamically
-foodDatabase.categories.unshift({ id: 'custom', name: '我的最愛', icon: 'fa-heart' });
+foodDatabase.categories.unshift({ id: 'custom', name: '我的最愛', icon: 'fa-heart', color: '#ff6b6b' });
 
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
@@ -554,10 +554,14 @@ function renderDBContent(searchQuery = '') {
     
     list.innerHTML = filteredFoods.map(food => {
         const isFav = favoriteFoodIds.includes(food.id) || food.categoryId === 'custom';
+        const cat = foodDatabase.categories.find(c => c.id === food.categoryId) || { icon: 'fa-utensils', color: '#ccc' };
+        const catColor = cat.color || 'var(--accent-primary)';
+        const renderIcon = `<i class="fa-solid ${cat.icon}" style="color: ${catColor}; font-size: 20px;"></i>`;
+        
         return `
         <div class="food-db-item" onclick="selectFood('${food.id}')">
             <div style="display:flex; align-items:center;">
-                <div style="font-size: 32px; margin-right: 12px; width: 48px; height: 48px; background: var(--bg-main); border-radius: 8px; display: flex; align-items: center; justify-content: center;">${food.icon || '🍽️'}</div>
+                <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                 <div>
                     <h4>${food.name}</h4>
                     <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
@@ -972,15 +976,21 @@ function renderLogs() {
                     if (item.subItems && item.subItems.length > 0) {
                         let subHTML = '';
                         item.subItems.forEach(sub => {
-                            let sIcon = '🍽️';
+                            let sIconHtml = '🍽️';
+                            let sIconStyle = 'width:28px; height:28px; background:var(--bg-main); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size: 14px;';
                             const sBaseName = sub.name.split(' (')[0];
                             const sDbFood = foodDatabase.foods.find(f => f.name.includes(sBaseName));
-                            if(sDbFood) sIcon = sDbFood.icon;
+                            if(sDbFood) {
+                                const sCat = foodDatabase.categories.find(c => c.id === sDbFood.categoryId) || { icon: 'fa-utensils', color: '#ccc' };
+                                const sCatColor = sCat.color || 'var(--accent-primary)';
+                                sIconHtml = `<i class="fa-solid ${sCat.icon}" style="color: ${sCatColor}; font-size: 14px;"></i>`;
+                                sIconStyle = `width:28px; height:28px; background:${sCatColor}20; border-radius:8px; display:flex; align-items:center; justify-content:center;`;
+                            }
                             
                             subHTML += `
                                 <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px; background:var(--bg-main); margin-bottom:4px; border-radius:6px;">
                                     <div style="display:flex; align-items:center; gap:8px;">
-                                        <div style="font-size:16px;">${sIcon}</div>
+                                        <div style="${sIconStyle}">${sIconHtml}</div>
                                         <div>
                                             <div style="font-size:13px; font-weight:500;">${sBaseName}</div>
                                             <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • 碳${Math.round(sub.carb*10)/10} 蛋${Math.round(sub.pro*10)/10} 脂${Math.round(sub.fat*10)/10}</div>
@@ -1019,7 +1029,8 @@ function renderLogs() {
                             </div>
                         `;
                     } else {
-                        let icon = '🍽️';
+                        let iconHtml = '🍽️';
+                        let iconStyle = '';
                         let desc = '1項';
                         if(item.name.includes('(')) {
                             let match = item.name.match(/\(([^)]+)\)/);
@@ -1027,11 +1038,16 @@ function renderLogs() {
                         }
                         const baseName = item.name.split(' (')[0];
                         const dbFood = foodDatabase.foods.find(f => f.name.includes(baseName));
-                        if(dbFood) icon = dbFood.icon;
+                        if(dbFood) {
+                            const cat = foodDatabase.categories.find(c => c.id === dbFood.categoryId) || { icon: 'fa-utensils', color: '#ccc' };
+                            const catColor = cat.color || 'var(--accent-primary)';
+                            iconHtml = `<i class="fa-solid ${cat.icon}" style="color: ${catColor}; font-size: 20px;"></i>`;
+                            iconStyle = `background: ${catColor}20;`;
+                        }
 
                         itemsHTML += `
                             <div class="meal-item">
-                                <div class="meal-item-icon">${icon}</div>
+                                <div class="meal-item-icon" style="${iconStyle}">${iconHtml}</div>
                                 <div class="meal-item-info">
                                     <div class="meal-item-name">${baseName}</div>
                                     <div class="meal-item-desc">${desc}</div>
