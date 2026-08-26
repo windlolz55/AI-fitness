@@ -9,9 +9,9 @@
     --card-border: rgba(0, 0, 0, 0.04);
     --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
     
-    --pro-color: #ff9ff3;
-    --carb-color: #feca57;
-    --fat-color: #ff6b6b;
+    --carb-color: #FBBF24;
+    --pro-color: #38BDF8;
+    --fat-color: #A78BFA;
 }
 
 [data-theme="dark"] {
