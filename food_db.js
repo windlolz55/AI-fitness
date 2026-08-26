@@ -1,4 +1,4 @@
-﻿// 衛福部精華版資料庫 (Curated Taiwan Food Database)
+// 衛福部精華版資料庫 (Curated Taiwan Food Database)
 // 擴充版：包含近 250 筆台灣常見食物、小吃、與超商連鎖食品
 const foodDatabase = {
     categories: [
@@ -70,10 +70,10 @@ const foodDatabase = {
         { id: 'v2', categoryId: 'veg', name: '荷包蛋/煎蛋 (1顆)', cals: 110, macros: { p: 6.5, c: 0.5, f: 9 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v3', categoryId: 'veg', name: '炒蛋/滑蛋 (1份)', cals: 150, macros: { p: 7, c: 2, f: 12 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v4', categoryId: 'veg', name: '無糖豆漿 (400ml)', cals: 140, macros: { p: 14, c: 6, f: 7 }, icon: 'fluent-emoji-flat:glass-of-milk' },
-        { id: 'v5', categoryId: 'veg', name: '傳統豆腐 (半塊/150g)', cals: 130, macros: { p: 13, c: 3, f: 8 }, icon: 'fluent-emoji-flat:white-heart' },
-        { id: 'v6', categoryId: 'veg', name: '嫩豆腐 (1盒/300g)', cals: 150, macros: { p: 15, c: 6, f: 8 }, icon: 'fluent-emoji-flat:white-heart' },
-        { id: 'v7', categoryId: 'veg', name: '百頁豆腐 (半條/100g)', cals: 215, macros: { p: 13, c: 5, f: 17 }, icon: 'fluent-emoji-flat:white-heart' },
-        { id: 'v8', categoryId: 'veg', name: '豆干 (3片/100g)', cals: 160, macros: { p: 19, c: 6, f: 7 }, icon: 'fluent-emoji-flat:brown-heart' },
+        { id: 'v5', categoryId: 'veg', name: '傳統豆腐 (半塊/150g)', cals: 130, macros: { p: 13, c: 3, f: 8 }, icon: 'fluent-emoji-flat:pot-of-food' },
+        { id: 'v6', categoryId: 'veg', name: '嫩豆腐 (1盒/300g)', cals: 150, macros: { p: 15, c: 6, f: 8 }, icon: 'fluent-emoji-flat:pot-of-food' },
+        { id: 'v7', categoryId: 'veg', name: '百頁豆腐 (半條/100g)', cals: 215, macros: { p: 13, c: 5, f: 17 }, icon: 'fluent-emoji-flat:pot-of-food' },
+        { id: 'v8', categoryId: 'veg', name: '豆干 (3片/100g)', cals: 160, macros: { p: 19, c: 6, f: 7 }, icon: 'fluent-emoji-flat:oden' },
         { id: 'v9', categoryId: 'veg', name: '毛豆 (仁/100g)', cals: 120, macros: { p: 11, c: 10, f: 5 }, icon: 'fluent-emoji-flat:pea-pod' },
         { id: 'v10', categoryId: 'veg', name: '高麗菜 (燙1盤)', cals: 40, macros: { p: 2, c: 8, f: 0 }, icon: 'fluent-emoji-flat:leafy-green' },
         { id: 'v11', categoryId: 'veg', name: '炒青菜 (油炒1盤)', cals: 120, macros: { p: 2, c: 8, f: 10 }, icon: 'fluent-emoji-flat:leafy-green' },
