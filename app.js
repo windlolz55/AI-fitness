@@ -994,9 +994,9 @@ function renderLogs() {
                                         <div class="meal-item-info">
                                             <div class="meal-item-name">${item.name}</div>
                                             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                                <span><i class="fa-solid fa-wheat-awn" style="color: #f1fa8c; font-size: 9px;"></i> ${Math.round(item.carb*10)/10}g</span>
-                                                <span><i class="fa-solid fa-drumstick-bite" style="color: #ff79c6; font-size: 9px;"></i> ${Math.round(item.pro*10)/10}g</span>
-                                                <span><i class="fa-solid fa-droplet" style="color: #ff5555; font-size: 9px;"></i> ${Math.round(item.fat*10)/10}g</span>
+                                                <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
+                                                <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
+                                                <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1031,9 +1031,9 @@ function renderLogs() {
                                     <div class="meal-item-name">${baseName}</div>
                                     <div class="meal-item-desc">${desc}</div>
                                     <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                        <span><i class="fa-solid fa-wheat-awn" style="color: #f1fa8c; font-size: 9px;"></i> ${Math.round(item.carb*10)/10}g</span>
-                                        <span><i class="fa-solid fa-drumstick-bite" style="color: #ff79c6; font-size: 9px;"></i> ${Math.round(item.pro*10)/10}g</span>
-                                        <span><i class="fa-solid fa-droplet" style="color: #ff5555; font-size: 9px;"></i> ${Math.round(item.fat*10)/10}g</span>
+                                        <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
+                                        <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
+                                        <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
                                     </div>
                                 </div>
                                 <div class="meal-item-cal" style="display:flex; align-items:center; gap:12px;">
