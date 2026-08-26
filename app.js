@@ -918,7 +918,12 @@ function selectLogDate(dateStr) {
 
 function renderLogs() {
     const container = document.getElementById('all-logs');
-    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
+    const mealMap = { 
+        breakfast: '<i class="fa-solid fa-mug-hot" style="color:#FBBF24; margin-right:8px;"></i>早餐', 
+        lunch: '<i class="fa-solid fa-bowl-food" style="color:#38BDF8; margin-right:8px;"></i>午餐', 
+        dinner: '<i class="fa-solid fa-utensils" style="color:#A78BFA; margin-right:8px;"></i>晚餐', 
+        snack: '<i class="fa-solid fa-apple-whole" style="color:#ff6b6b; margin-right:8px;"></i>加餐' 
+    };
     
     let html = '';
 

@@ -86,19 +86,19 @@
             <!-- Quick Add Actions -->
             <div class="quick-actions">
                 <button class="action-btn" onclick="openFoodDB('breakfast')">
-                    <div class="action-icon">🍳</div>
+                    <div class="action-icon" style="color: #FBBF24; background: rgba(251, 191, 36, 0.1);"><i class="fa-solid fa-mug-hot"></i></div>
                     <span>早餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('lunch')">
-                    <div class="action-icon">🍱</div>
+                    <div class="action-icon" style="color: #38BDF8; background: rgba(56, 189, 248, 0.1);"><i class="fa-solid fa-bowl-food"></i></div>
                     <span>午餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('dinner')">
-                    <div class="action-icon">🍽️</div>
+                    <div class="action-icon" style="color: #A78BFA; background: rgba(167, 139, 250, 0.1);"><i class="fa-solid fa-utensils"></i></div>
                     <span>晚餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('snack')">
-                    <div class="action-icon">🍎</div>
+                    <div class="action-icon" style="color: #ff6b6b; background: rgba(255, 107, 107, 0.1);"><i class="fa-solid fa-apple-whole"></i></div>
                     <span>加餐</span>
                 </button>
                 <button class="action-btn" onclick="openScanner()">
@@ -277,7 +277,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.8</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.9</p>
             </div>
         </div>
 
@@ -463,10 +463,10 @@
                 </div>
                 
                 <select id="scan-meal-type" class="input-field" style="margin-bottom: 12px; text-align: center;">
-                    <option value="breakfast">🍳 早餐</option>
-                    <option value="lunch">🍱 午餐</option>
-                    <option value="dinner">🍽️ 晚餐</option>
-                    <option value="snack">🍎 加餐</option>
+                    <option value="breakfast">早餐</option>
+                    <option value="lunch">午餐</option>
+                    <option value="dinner">晚餐</option>
+                    <option value="snack">加餐</option>
                 </select>
                 <div style="display: flex; gap: 12px;">
                     <button class="btn-secondary" style="flex: 1; border: 1px solid var(--card-border); color: var(--text-muted); background: var(--bg-main); padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="resetScanner()">取消</button>
@@ -484,6 +484,7 @@
             <a href="#" class="nav-item" data-target="view-log">
                 <i class="fa-solid fa-list-ul"></i>
                 <span>紀錄</span>
+            </a>
             <a href="#" class="nav-item" data-target="view-overview">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>概覽</span>
