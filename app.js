@@ -556,7 +556,7 @@ function renderDBContent(searchQuery = '') {
         const isFav = favoriteFoodIds.includes(food.id) || food.categoryId === 'custom';
         const cat = foodDatabase.categories.find(c => c.id === food.categoryId) || { icon: 'fluent-emoji-flat:fork-and-knife-with-plate', color: '#ccc' };
         const catColor = cat.color || 'var(--accent-primary)';
-        const renderIcon = `<span class="iconify" data-icon="${cat.icon}" style="font-size: 24px;"></span>`;
+        const renderIcon = `<span class="iconify" data-icon="${food.icon}" style="font-size: 24px;"></span>`;
         
         return `
         <div class="food-db-item" onclick="selectFood('${food.id}')">
@@ -923,7 +923,7 @@ function selectLogDate(dateStr) {
 function renderLogs() {
     const container = document.getElementById('all-logs');
     const mealMap = { 
-        breakfast: '<span class="iconify" data-icon="fluent-emoji-flat:fried-egg" style="margin-right:8px; font-size:18px;"></span>早餐', 
+        breakfast: '<span class="iconify" data-icon="fluent-emoji-flat:cooking" style="margin-right:8px; font-size:18px;"></span>早餐', 
         lunch: '<span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="margin-right:8px; font-size:18px;"></span>午餐', 
         dinner: '<span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="margin-right:8px; font-size:18px;"></span>晚餐', 
         snack: '<span class="iconify" data-icon="fluent-emoji-flat:cookie" style="margin-right:8px; font-size:18px;"></span>加餐' 
@@ -983,7 +983,7 @@ function renderLogs() {
                             if(sDbFood) {
                                 const sCat = foodDatabase.categories.find(c => c.id === sDbFood.categoryId) || { icon: 'fluent-emoji-flat:fork-and-knife-with-plate', color: '#ccc' };
                                 const sCatColor = sCat.color || 'var(--accent-primary)';
-                                sIconHtml = `<span class="iconify" data-icon="${sCat.icon}" style="font-size: 18px;"></span>`;
+                                sIconHtml = `<span class="iconify" data-icon="${sDbFood.icon}" style="font-size: 18px;"></span>`;
                                 sIconStyle = `width:28px; height:28px; background:${sCatColor}20; border-radius:8px; display:flex; align-items:center; justify-content:center;`;
                             }
                             
@@ -1041,7 +1041,7 @@ function renderLogs() {
                         if(dbFood) {
                             const cat = foodDatabase.categories.find(c => c.id === dbFood.categoryId) || { icon: 'fluent-emoji-flat:fork-and-knife-with-plate', color: '#ccc' };
                             const catColor = cat.color || 'var(--accent-primary)';
-                            iconHtml = `<span class="iconify" data-icon="${cat.icon}" style="font-size: 24px;"></span>`;
+                            iconHtml = `<span class="iconify" data-icon="${dbFood.icon}" style="font-size: 24px;"></span>`;
                             iconStyle = `background: ${catColor}20;`;
                         }
 
