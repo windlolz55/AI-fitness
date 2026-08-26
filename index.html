@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI 健康紀錄</title>
+    <title>AI 智能飲食紀錄</title>
     <link rel="stylesheet" href="style.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -86,19 +87,19 @@
             <!-- Quick Add Actions -->
             <div class="quick-actions">
                 <button class="action-btn" onclick="openFoodDB('breakfast')">
-                    <div class="action-icon" style="color: #FBBF24; background: rgba(251, 191, 36, 0.1);"><i class="fa-solid fa-mug-hot"></i></div>
+                    <div class="action-icon" style="background: rgba(251, 191, 36, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:fried-egg" style="font-size: 28px;"></span></div>
                     <span>早餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('lunch')">
-                    <div class="action-icon" style="color: #38BDF8; background: rgba(56, 189, 248, 0.1);"><i class="fa-solid fa-bowl-food"></i></div>
+                    <div class="action-icon" style="background: rgba(56, 189, 248, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="font-size: 28px;"></span></div>
                     <span>午餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('dinner')">
-                    <div class="action-icon" style="color: #A78BFA; background: rgba(167, 139, 250, 0.1);"><i class="fa-solid fa-utensils"></i></div>
+                    <div class="action-icon" style="background: rgba(167, 139, 250, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="font-size: 28px;"></span></div>
                     <span>晚餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('snack')">
-                    <div class="action-icon" style="color: #ff6b6b; background: rgba(255, 107, 107, 0.1);"><i class="fa-solid fa-apple-whole"></i></div>
+                    <div class="action-icon" style="background: rgba(255, 107, 107, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:cookie" style="font-size: 28px;"></span></div>
                     <span>加餐</span>
                 </button>
                 <button class="action-btn" onclick="openScanner()">
@@ -277,7 +278,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.10</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.11</p>
             </div>
         </div>
 
