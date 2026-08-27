@@ -118,12 +118,30 @@ function calculateTargets() {
 
     let tdee = bmr * parseFloat(userProfile.activity);
     
-    if (userProfile.goal === 'lose') TARGET_CALS = Math.round(tdee - 300);
-    else if (userProfile.goal === 'gain') TARGET_CALS = Math.round(tdee + 300);
-    else TARGET_CALS = Math.round(tdee);
-
-    TARGET_PRO = Math.round(userProfile.weight * 1.8);
-    TARGET_FAT = Math.round(userProfile.weight * 0.9);
+    // A: 穩健減脂 (Cut / Fat Loss)
+    if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
+        TARGET_CALS = Math.round(tdee - 400);
+        TARGET_PRO = Math.round(userProfile.weight * 1.8);
+        TARGET_FAT = Math.round(userProfile.weight * 0.9);
+    } 
+    // B: 乾淨增肌 (Lean Bulk)
+    else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
+        TARGET_CALS = Math.round(tdee + 250);
+        TARGET_PRO = Math.round(userProfile.weight * 1.8);
+        TARGET_FAT = Math.round(userProfile.weight * 0.9);
+    } 
+    // D: 身體重組 / 增肌減脂 (Body Recomposition)
+    else if (userProfile.goal === 'recomp') {
+        TARGET_CALS = Math.round(tdee - 150);
+        TARGET_PRO = Math.round(userProfile.weight * 2.2);
+        TARGET_FAT = Math.round(userProfile.weight * 0.9);
+    } 
+    // C: 維持現狀 (Maintenance)
+    else { 
+        TARGET_CALS = Math.round(tdee);
+        TARGET_PRO = Math.round(userProfile.weight * 1.5);
+        TARGET_FAT = Math.round(userProfile.weight * 0.9);
+    }
     
     let remainingCals = TARGET_CALS - (TARGET_PRO * 4) - (TARGET_FAT * 9);
     TARGET_CARB = Math.max(0, Math.round(remainingCals / 4));
