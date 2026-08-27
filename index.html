@@ -240,13 +240,20 @@
                     <option value="1.9">極高 (天天高強度訓練或重勞力工作) x 1.9</option>
                 </select>
 
-                <label style="font-size: 12px; color: var(--text-muted);">目標</label>
+                <label style="font-size: 12px; color: var(--text-muted);">你的目標是什麼？</label>
                 <select id="goal" class="input-field">
-                    <option value="cut">A: 穩健減脂 (Cut / -400 kcal)</option>
-                    <option value="bulk">B: 乾淨增肌 (Lean Bulk / +250 kcal)</option>
-                    <option value="maintain">C: 維持現狀 (Maintenance)</option>
-                    <option value="recomp">D: 身體重組 (Recomposition / -150 kcal)</option>
+                    <option value="cut">🔥 減脂 (降低體脂，讓身材更精實)</option>
+                    <option value="maintain">⚖️ 維持體重 (維持目前的體重與身體組成)</option>
+                    <option value="bulk">💪 增肌 (增加肌肉，提升體型與肌肉量)</option>
+                    <option value="recomp">🔄 增肌減脂 (同時增加肌肉並降低體脂)</option>
                 </select>
+
+                <div id="pace-container" style="display: block; margin-top: 10px; margin-bottom: 10px;">
+                    <label style="font-size: 12px; color: var(--text-muted);">你希望以什麼速度進行？</label>
+                    <select id="pace" class="input-field">
+                        <!-- Options populated dynamically -->
+                    </select>
+                </div>
 
                 <button id="btn-save-profile" class="btn-primary">儲存資料並計算</button>
             </div>
@@ -279,7 +286,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.15</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.16</p>
             </div>
         </div>
 

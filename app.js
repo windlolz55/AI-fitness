@@ -118,30 +118,45 @@ function calculateTargets() {
 
     let tdee = bmr * parseFloat(userProfile.activity);
     
-    // A: 穩健減脂 (Cut / Fat Loss)
+    let pace = userProfile.pace || 'standard';
+    
+    // 🔥 減脂 (Cut / Fat Loss)
     if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
-        TARGET_CALS = Math.round(tdee - 400);
-        TARGET_PRO = Math.round(userProfile.weight * 1.8);
+        if (pace === 'conservative') {
+            TARGET_CALS = Math.round(tdee * 0.9); // -10%
+            TARGET_PRO = Math.round(userProfile.weight * 1.9);
+        } else {
+            TARGET_CALS = Math.round(tdee * 0.85); // -15%
+            TARGET_PRO = Math.round(userProfile.weight * 2.1);
+        }
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
-    // B: 乾淨增肌 (Lean Bulk)
+    // 💪 增肌 (Lean Bulk)
     else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
-        TARGET_CALS = Math.round(tdee + 250);
+        if (pace === 'conservative') {
+            TARGET_CALS = Math.round(tdee * 1.05); // +5%
+        } else {
+            TARGET_CALS = Math.round(tdee * 1.10); // +10%
+        }
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
-    // D: 身體重組 / 增肌減脂 (Body Recomposition)
+    // 🔄 增肌減脂 (Body Recomposition)
     else if (userProfile.goal === 'recomp') {
-        TARGET_CALS = Math.round(tdee - 150);
+        TARGET_CALS = Math.round(tdee * 0.95); // -5%
         TARGET_PRO = Math.round(userProfile.weight * 2.2);
-        TARGET_FAT = Math.round(userProfile.weight * 0.9);
+        TARGET_FAT = Math.round(userProfile.weight * 0.8);
     } 
-    // C: 維持現狀 (Maintenance)
+    // ⚖️ 維持現狀 (Maintenance)
     else { 
         TARGET_CALS = Math.round(tdee);
-        TARGET_PRO = Math.round(userProfile.weight * 1.5);
+        TARGET_PRO = Math.round(userProfile.weight * 1.8);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     }
+
+    // 最低安全熱量防呆 (Safety Limits)
+    let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
+    if (TARGET_CALS < minCals) TARGET_CALS = minCals;
     
     let remainingCals = TARGET_CALS - (TARGET_PRO * 4) - (TARGET_FAT * 9);
     TARGET_CARB = Math.max(0, Math.round(remainingCals / 4));
@@ -1132,13 +1147,60 @@ function setupProfile() {
     const w = document.getElementById('weight');
     const act = document.getElementById('activity');
     const goal = document.getElementById('goal');
+    const pace = document.getElementById('pace');
 
-    g.value = userProfile.gender;
-    a.value = userProfile.age;
-    h.value = userProfile.height;
-    w.value = userProfile.weight;
-    act.value = userProfile.activity;
-    goal.value = userProfile.goal;
+    const paceOptions = {
+        cut: [
+            { value: 'conservative', text: '🐢 保守減脂 (-10%)' },
+            { value: 'standard', text: '⚡ 標準減脂 ⭐ (-15%)' }
+        ],
+        bulk: [
+            { value: 'conservative', text: '🐢 保守增肌 (+5%)' },
+            { value: 'standard', text: '⚡ 標準增肌 ⭐ (+10%)' }
+        ],
+        maintain: [
+            { value: 'standard', text: '標準維持 (±0%)' }
+        ],
+        recomp: [
+            { value: 'auto', text: '由系統自動計算最佳缺口 (-5%)' }
+        ],
+        lose: [
+            { value: 'standard', text: '⚡ 標準減脂 ⭐ (-15%)' }
+        ],
+        gain: [
+            { value: 'standard', text: '⚡ 標準增肌 ⭐ (+10%)' }
+        ]
+    };
+
+    function updatePaceOptions() {
+        const selectedGoal = goal.value || 'maintain';
+        const options = paceOptions[selectedGoal] || paceOptions['maintain'];
+        pace.innerHTML = '';
+        options.forEach(opt => {
+            const el = document.createElement('option');
+            el.value = opt.value;
+            el.innerText = opt.text;
+            pace.appendChild(el);
+        });
+    }
+
+    goal.addEventListener('change', () => {
+        updatePaceOptions();
+    });
+
+    g.value = userProfile.gender || 'male';
+    a.value = userProfile.age || '';
+    h.value = userProfile.height || '';
+    w.value = userProfile.weight || '';
+    act.value = userProfile.activity || '1.2';
+    goal.value = userProfile.goal || 'maintain';
+    
+    updatePaceOptions();
+    if (userProfile.pace) {
+        // Only set if option exists
+        const exists = Array.from(pace.options).some(opt => opt.value === userProfile.pace);
+        if(exists) pace.value = userProfile.pace;
+    }
 
     document.getElementById('btn-save-profile').addEventListener('click', () => {
         userProfile = {
@@ -1147,7 +1209,8 @@ function setupProfile() {
             height: parseInt(h.value),
             weight: parseInt(w.value),
             activity: parseFloat(act.value),
-            goal: goal.value
+            goal: goal.value,
+            pace: pace.value
         };
         localStorage.setItem('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
