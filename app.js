@@ -1151,24 +1151,24 @@ function setupProfile() {
 
     const paceOptions = {
         cut: [
-            { value: 'conservative', text: '🐢 保守減脂 (-10%)' },
-            { value: 'standard', text: '⚡ 標準減脂 ⭐ (-15%)' }
+            { value: 'conservative', text: '🐢 保守減脂 (約 -200~300 kcal)' },
+            { value: 'standard', text: '⚡ 標準減脂 ⭐ (約 -400~500 kcal)' }
         ],
         bulk: [
-            { value: 'conservative', text: '🐢 保守增肌 (+5%)' },
-            { value: 'standard', text: '⚡ 標準增肌 ⭐ (+10%)' }
+            { value: 'conservative', text: '🐢 保守增肌 (約 +150 kcal)' },
+            { value: 'standard', text: '⚡ 標準增肌 ⭐ (約 +250 kcal)' }
         ],
         maintain: [
-            { value: 'standard', text: '標準維持 (±0%)' }
+            { value: 'standard', text: '標準維持 (完美打平)' }
         ],
         recomp: [
-            { value: 'auto', text: '由系統自動計算最佳缺口 (-5%)' }
+            { value: 'auto', text: '由系統自動計算最佳微缺口' }
         ],
         lose: [
-            { value: 'standard', text: '⚡ 標準減脂 ⭐ (-15%)' }
+            { value: 'standard', text: '⚡ 標準減脂 ⭐ (約 -400~500 kcal)' }
         ],
         gain: [
-            { value: 'standard', text: '⚡ 標準增肌 ⭐ (+10%)' }
+            { value: 'standard', text: '⚡ 標準增肌 ⭐ (約 +250 kcal)' }
         ]
     };
 
