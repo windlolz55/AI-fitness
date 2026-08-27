@@ -1149,32 +1149,51 @@ function setupProfile() {
     const goal = document.getElementById('goal');
     const pace = document.getElementById('pace');
 
-    const paceOptions = {
-        cut: [
-            { value: 'conservative', text: '🐢 保守減脂 (約 -200~300 kcal)' },
-            { value: 'standard', text: '⚡ 標準減脂 ⭐ (約 -400~500 kcal)' }
-        ],
-        bulk: [
-            { value: 'conservative', text: '🐢 保守增肌 (約 +150 kcal)' },
-            { value: 'standard', text: '⚡ 標準增肌 ⭐ (約 +250 kcal)' }
-        ],
-        maintain: [
-            { value: 'standard', text: '標準維持 (完美打平)' }
-        ],
-        recomp: [
-            { value: 'auto', text: '由系統自動計算最佳微缺口' }
-        ],
-        lose: [
-            { value: 'standard', text: '⚡ 標準減脂 ⭐ (約 -400~500 kcal)' }
-        ],
-        gain: [
-            { value: 'standard', text: '⚡ 標準增肌 ⭐ (約 +250 kcal)' }
-        ]
-    };
+    function getPreviewTDEE() {
+        const gender = g.value || 'male';
+        const age = parseInt(a.value) || 25;
+        const height = parseInt(h.value) || 170;
+        const weight = parseInt(w.value) || 70;
+        const activity = parseFloat(act.value) || 1.2;
+
+        let bmr;
+        if (gender === 'male') {
+            bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+        } else {
+            bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+        }
+        return bmr * activity;
+    }
 
     function updatePaceOptions() {
+        const tdee = getPreviewTDEE();
+        const paceOptions = {
+            cut: [
+                { value: 'conservative', text: `🐢 保守減脂 (-${Math.round(tdee * 0.1)} kcal)` },
+                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-${Math.round(tdee * 0.15)} kcal)` }
+            ],
+            bulk: [
+                { value: 'conservative', text: `🐢 保守增肌 (+${Math.round(tdee * 0.05)} kcal)` },
+                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+${Math.round(tdee * 0.1)} kcal)` }
+            ],
+            maintain: [
+                { value: 'standard', text: '標準維持 (±0 kcal)' }
+            ],
+            recomp: [
+                { value: 'auto', text: `由系統自動計算最佳微缺口 (-${Math.round(tdee * 0.05)} kcal)` }
+            ],
+            lose: [
+                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-${Math.round(tdee * 0.15)} kcal)` }
+            ],
+            gain: [
+                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+${Math.round(tdee * 0.1)} kcal)` }
+            ]
+        };
+
+        const currentPace = pace.value;
         const selectedGoal = goal.value || 'maintain';
         const options = paceOptions[selectedGoal] || paceOptions['maintain'];
+        
         pace.innerHTML = '';
         options.forEach(opt => {
             const el = document.createElement('option');
@@ -1182,10 +1201,14 @@ function setupProfile() {
             el.innerText = opt.text;
             pace.appendChild(el);
         });
+
+        const exists = Array.from(pace.options).some(opt => opt.value === currentPace);
+        if (exists) pace.value = currentPace;
     }
 
-    goal.addEventListener('change', () => {
-        updatePaceOptions();
+    [g, a, h, w, act, goal].forEach(input => {
+        input.addEventListener('input', updatePaceOptions);
+        input.addEventListener('change', updatePaceOptions);
     });
 
     g.value = userProfile.gender || 'male';
