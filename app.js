@@ -1169,24 +1169,24 @@ function setupProfile() {
         const tdee = getPreviewTDEE();
         const paceOptions = {
             cut: [
-                { value: 'conservative', text: `🐢 保守減脂 (-${Math.round(tdee * 0.1)} kcal)` },
-                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-${Math.round(tdee * 0.15)} kcal)` }
+                { value: 'conservative', text: `🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)` },
+                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)` }
             ],
             bulk: [
-                { value: 'conservative', text: `🐢 保守增肌 (+${Math.round(tdee * 0.05)} kcal)` },
-                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+${Math.round(tdee * 0.1)} kcal)` }
+                { value: 'conservative', text: `🐢 保守增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)` },
+                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)` }
             ],
             maintain: [
-                { value: 'standard', text: '標準維持 (±0 kcal)' }
+                { value: 'standard', text: '標準維持 (0% / 完美打平)' }
             ],
             recomp: [
-                { value: 'auto', text: `由系統自動計算最佳微缺口 (-${Math.round(tdee * 0.05)} kcal)` }
+                { value: 'auto', text: `系統自動計算最佳缺口 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)` }
             ],
             lose: [
-                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-${Math.round(tdee * 0.15)} kcal)` }
+                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)` }
             ],
             gain: [
-                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+${Math.round(tdee * 0.1)} kcal)` }
+                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)` }
             ]
         };
 
