@@ -1,13 +1,13 @@
 // 衛福部精華版資料庫 (Curated Taiwan Food Database)
 // 擴充版：包含近 250 筆台灣常見食物、小吃、與超商連鎖食品
 const foodDatabase = {
-    categories: [
         { id: 'staple', name: '常吃主食', icon: 'fluent-emoji-flat:cooked-rice', color: '#FBBF24' },
         { id: 'meat', name: '肉類與海鮮', icon: 'fluent-emoji-flat:cut-of-meat', color: '#ff6b6b' },
         { id: 'veg', name: '蔬菜與蛋豆', icon: 'fluent-emoji-flat:leafy-green', color: '#1dd1a1' },
         { id: 'snack', name: '外食與小吃', icon: 'fluent-emoji-flat:hamburger', color: '#A78BFA' },
         { id: 'store', name: '超商與連鎖', icon: 'fluent-emoji-flat:convenience-store', color: '#38BDF8' },
-        { id: 'drink', name: '飲料與水果', icon: 'fluent-emoji-flat:red-apple', color: '#ff9ff3' }
+        { id: 'drink', name: '手搖與飲料', icon: 'fluent-emoji-flat:bubble-tea', color: '#93C5FD' },
+        { id: 'fruit', name: '新鮮水果', icon: 'fluent-emoji-flat:red-apple', color: '#ff9ff3' }
     ],
     foods: [
         // ================= 常吃主食 (Staple) =================
@@ -159,16 +159,17 @@ const foodDatabase = {
         { id: 'd10', categoryId: 'drink', name: '高蛋白飲 (1匙+水)', cals: 120, macros: { p: 25, c: 2, f: 1 }, icon: 'fluent-emoji-flat:cup-with-straw' },
         { id: 'd11', categoryId: 'drink', name: '可口可樂 (330ml)', cals: 140, macros: { p: 0, c: 35, f: 0 }, icon: 'fluent-emoji-flat:cup-with-straw' },
         { id: 'd12', categoryId: 'drink', name: '運動飲料 (600ml)', cals: 160, macros: { p: 0, c: 40, f: 0 }, icon: 'fluent-emoji-flat:droplet' },
-        { id: 'd13', categoryId: 'drink', name: '香蕉 (1根)', cals: 110, macros: { p: 1, c: 28, f: 0 }, icon: 'fluent-emoji-flat:banana' },
-        { id: 'd14', categoryId: 'drink', name: '蘋果 (1顆)', cals: 95, macros: { p: 0.5, c: 25, f: 0 }, icon: 'fluent-emoji-flat:red-apple' },
-        { id: 'd15', categoryId: 'drink', name: '奇異果 (1顆)', cals: 45, macros: { p: 1, c: 11, f: 0 }, icon: 'fluent-emoji-flat:kiwi-fruit' },
-        { id: 'd16', categoryId: 'drink', name: '橘子/柳丁 (1顆)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:tangerine' },
-        { id: 'd17', categoryId: 'drink', name: '芭樂 (1顆/200g)', cals: 75, macros: { p: 1, c: 17, f: 0 }, icon: 'fluent-emoji-flat:green-apple' },
-        { id: 'd18', categoryId: 'drink', name: '西瓜 (1碗切塊)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:watermelon' },
-        { id: 'd19', categoryId: 'drink', name: '鳳梨 (1碗切塊)', cals: 65, macros: { p: 0.5, c: 16, f: 0 }, icon: 'fluent-emoji-flat:pineapple' },
-        { id: 'd20', categoryId: 'drink', name: '木瓜 (1碗切塊)', cals: 55, macros: { p: 1, c: 14, f: 0 }, icon: 'fluent-emoji-flat:melon' },
-        { id: 'd21', categoryId: 'drink', name: '葡萄 (10顆)', cals: 60, macros: { p: 0.5, c: 15, f: 0 }, icon: 'fluent-emoji-flat:grapes' },
-        { id: 'd22', categoryId: 'drink', name: '草莓 (10顆)', cals: 40, macros: { p: 1, c: 9, f: 0 }, icon: 'fluent-emoji-flat:strawberry' },
+        // ================= 新鮮水果 (Fruits) =================
+        { id: 'd13', categoryId: 'fruit', name: '香蕉 (1根)', cals: 110, macros: { p: 1, c: 28, f: 0 }, icon: 'fluent-emoji-flat:banana' },
+        { id: 'd14', categoryId: 'fruit', name: '蘋果 (1顆)', cals: 95, macros: { p: 0.5, c: 25, f: 0 }, icon: 'fluent-emoji-flat:red-apple' },
+        { id: 'd15', categoryId: 'fruit', name: '奇異果 (1顆)', cals: 45, macros: { p: 1, c: 11, f: 0 }, icon: 'fluent-emoji-flat:kiwi-fruit' },
+        { id: 'd16', categoryId: 'fruit', name: '橘子/柳丁 (1顆)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:tangerine' },
+        { id: 'd17', categoryId: 'fruit', name: '芭樂 (1顆/200g)', cals: 75, macros: { p: 1, c: 17, f: 0 }, icon: 'fluent-emoji-flat:green-apple' },
+        { id: 'd18', categoryId: 'fruit', name: '西瓜 (1碗切塊)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:watermelon' },
+        { id: 'd19', categoryId: 'fruit', name: '鳳梨 (1碗切塊)', cals: 65, macros: { p: 0.5, c: 16, f: 0 }, icon: 'fluent-emoji-flat:pineapple' },
+        { id: 'd20', categoryId: 'fruit', name: '木瓜 (1碗切塊)', cals: 55, macros: { p: 1, c: 14, f: 0 }, icon: 'fluent-emoji-flat:melon' },
+        { id: 'd21', categoryId: 'fruit', name: '葡萄 (10顆)', cals: 60, macros: { p: 0.5, c: 15, f: 0 }, icon: 'fluent-emoji-flat:grapes' },
+        { id: 'd22', categoryId: 'fruit', name: '草莓 (10顆)', cals: 40, macros: { p: 1, c: 9, f: 0 }, icon: 'fluent-emoji-flat:strawberry' },
 
         // ================= 綜合便當與外食擴充 (Extended Bentos & Snacks) =================
         { id: 'e1', categoryId: 'snack', name: '炸排骨便當 (1份)', cals: 850, macros: { p: 35, c: 90, f: 38 }, icon: 'fluent-emoji-flat:bento-box' },
