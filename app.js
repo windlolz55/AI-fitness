@@ -854,14 +854,34 @@ function showInfo(type) {
 
         let tdee = bmr * parseFloat(userProfile.activity);
         
-        let goalText = '維持體重 (無調整)';
-        let targetCalText = `${Math.round(tdee)} kcal`;
-        if(userProfile.goal === 'lose') {
-            goalText = '減脂 (-300 kcal)';
-            targetCalText = `${Math.round(tdee)} - 300 = <strong>${TARGET_CALS} kcal</strong>`;
-        } else if (userProfile.goal === 'gain') {
-            goalText = '增肌 (+300 kcal)';
-            targetCalText = `${Math.round(tdee)} + 300 = <strong>${TARGET_CALS} kcal</strong>`;
+        let goalText = '維持現狀 (無調整)';
+        let targetCalText = `TDEE = <strong>${TARGET_CALS} kcal</strong>`;
+        let pace = userProfile.pace || 'standard';
+        
+        if(userProfile.goal === 'cut' || userProfile.goal === 'lose') {
+            if (pace === 'conservative') {
+                goalText = '穩健減脂 (-10%)';
+                targetCalText = `${Math.round(tdee)} * 0.9 = <strong>${TARGET_CALS} kcal</strong>`;
+            } else {
+                goalText = '穩健減脂 (-15%)';
+                targetCalText = `${Math.round(tdee)} * 0.85 = <strong>${TARGET_CALS} kcal</strong>`;
+            }
+        } else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
+            if (pace === 'conservative') {
+                goalText = '乾淨增肌 (+5%)';
+                targetCalText = `${Math.round(tdee)} * 1.05 = <strong>${TARGET_CALS} kcal</strong>`;
+            } else {
+                goalText = '乾淨增肌 (+10%)';
+                targetCalText = `${Math.round(tdee)} * 1.10 = <strong>${TARGET_CALS} kcal</strong>`;
+            }
+        } else if (userProfile.goal === 'recomp') {
+            goalText = '身體重組 (-5%)';
+            targetCalText = `${Math.round(tdee)} * 0.95 = <strong>${TARGET_CALS} kcal</strong>`;
+        }
+
+        let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
+        if (TARGET_CALS === minCals) {
+            targetCalText += ` <br><span style="color:#ff6b6b; font-size:11px;">(已觸發最低安全熱量防護 ${minCals} kcal)</span>`;
         }
 
         title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標熱量說明';
@@ -887,6 +907,16 @@ function showInfo(type) {
             </div>
         `;
     } else if (type === 'macros') {
+        let proMultiplier = 1.8;
+        let fatMultiplier = 0.9;
+        let pace = userProfile.pace || 'standard';
+        if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
+            proMultiplier = (pace === 'conservative') ? 1.9 : 2.1;
+        } else if (userProfile.goal === 'recomp') {
+            proMultiplier = 2.2;
+            fatMultiplier = 0.8;
+        }
+
         title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明';
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
@@ -894,10 +924,10 @@ function showInfo(type) {
                     <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
                     <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準，並用碳水填滿剩餘熱量。</p>
                     
-                    <p style="margin-bottom: 4px;"><strong>蛋白 (體重 * 1.8)</strong> ${userProfile.weight} * 1.8</p>
+                    <p style="margin-bottom: 4px;"><strong>蛋白 (體重 * ${proMultiplier})</strong> ${userProfile.weight} * ${proMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${TARGET_PRO} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_PRO * 4} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>脂肪 (體重 * 0.9)</strong> ${userProfile.weight} * 0.9</p>
+                    <p style="margin-bottom: 4px;"><strong>脂肪 (體重 * ${fatMultiplier})</strong> ${userProfile.weight} * ${fatMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${TARGET_FAT} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_FAT * 9} kcal)</span></p>
                     
                     <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong></p>
