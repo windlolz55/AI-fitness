@@ -854,10 +854,10 @@ function showInfo(type) {
         
         bmrFormula = `
             <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px; line-height: 1.5;">
-                <span style="color: var(--text-main);">10</span> × 體重(kg) + <span style="color: var(--text-main);">6.25</span> × 身高(cm) - <span style="color: var(--text-main);">5</span> × 年齡 + <span style="color: var(--text-main);">${genderConstant}</span>
+                <span style="color: var(--text-main);">10</span> × 體重(kg) + <span style="color: var(--text-main);">6.25</span> × 身高(cm) - <span style="color: var(--text-main);">5</span> × 年齡 <span style="color: var(--text-main);">${genderConstant}</span>
             </div>
             <div>
-                10 * ${userProfile.weight} + 6.25 * ${userProfile.height} - 5 * ${userProfile.age} ${constantVal} = <strong>${Math.round(bmr)}</strong>
+                10 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.weight}</span> + 6.25 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.height}</span> - 5 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.age}</span> <span style="color: var(--accent-secondary); font-weight: bold;">${constantVal}</span> = <strong>${Math.round(bmr)}</strong>
             </div>
         `;
 
