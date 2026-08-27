@@ -124,11 +124,10 @@ function calculateTargets() {
     if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
         if (pace === 'conservative') {
             TARGET_CALS = Math.round(tdee * 0.9); // -10%
-            TARGET_PRO = Math.round(userProfile.weight * 1.9);
         } else {
             TARGET_CALS = Math.round(tdee * 0.85); // -15%
-            TARGET_PRO = Math.round(userProfile.weight * 2.1);
         }
+        TARGET_PRO = Math.round(userProfile.weight * 2.0);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
     // 💪 增肌 (Lean Bulk)
@@ -911,7 +910,7 @@ function showInfo(type) {
         let fatMultiplier = 0.9;
         let pace = userProfile.pace || 'standard';
         if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
-            proMultiplier = (pace === 'conservative') ? 1.9 : 2.1;
+            proMultiplier = 2.0;
         } else if (userProfile.goal === 'recomp') {
             proMultiplier = 2.2;
             fatMultiplier = 0.8;
