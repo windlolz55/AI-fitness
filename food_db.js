@@ -1,6 +1,7 @@
 // 衛福部精華版資料庫 (Curated Taiwan Food Database)
 // 擴充版：包含近 250 筆台灣常見食物、小吃、與超商連鎖食品
 const foodDatabase = {
+    categories: [
         { id: 'staple', name: '常吃主食', icon: 'fluent-emoji-flat:cooked-rice', color: '#FBBF24' },
         { id: 'meat', name: '肉類與海鮮', icon: 'fluent-emoji-flat:cut-of-meat', color: '#ff6b6b' },
         { id: 'veg', name: '蔬菜與蛋豆', icon: 'fluent-emoji-flat:leafy-green', color: '#1dd1a1' },
