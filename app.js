@@ -843,13 +843,23 @@ function showInfo(type) {
     } else if (type === 'cals') {
         let bmr = 0;
         let bmrFormula = '';
+        let genderConstant = userProfile.gender === 'male' ? '+ 5 (男性常數)' : '- 161 (女性常數)';
+        let constantVal = userProfile.gender === 'male' ? '+ 5' : '- 161';
+        
         if (userProfile.gender === 'male') {
             bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) + 5;
-            bmrFormula = `10 * ${userProfile.weight}kg + 6.25 * ${userProfile.height}cm - 5 * ${userProfile.age}歲 + 5 = <strong>${Math.round(bmr)}</strong>`;
         } else {
             bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
-            bmrFormula = `10 * ${userProfile.weight}kg + 6.25 * ${userProfile.height}cm - 5 * ${userProfile.age}歲 - 161 = <strong>${Math.round(bmr)}</strong>`;
         }
+        
+        bmrFormula = `
+            <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px; line-height: 1.5;">
+                <span style="color: var(--text-main);">10</span> × 體重(kg) + <span style="color: var(--text-main);">6.25</span> × 身高(cm) - <span style="color: var(--text-main);">5</span> × 年齡 + <span style="color: var(--text-main);">${genderConstant}</span>
+            </div>
+            <div>
+                10 * ${userProfile.weight} + 6.25 * ${userProfile.height} - 5 * ${userProfile.age} ${constantVal} = <strong>${Math.round(bmr)}</strong>
+            </div>
+        `;
 
         let tdee = bmr * parseFloat(userProfile.activity);
         
@@ -921,16 +931,18 @@ function showInfo(type) {
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
                     <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
-                    <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準，並用碳水填滿剩餘熱量。</p>
+                    <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準計算蛋白質與脂肪，並用碳水填滿剩餘熱量。</p>
                     
-                    <p style="margin-bottom: 4px;"><strong>蛋白 (體重 * ${proMultiplier})</strong> ${userProfile.weight} * ${proMultiplier}</p>
+                    <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${TARGET_PRO} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_PRO * 4} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>脂肪 (體重 * ${fatMultiplier})</strong> ${userProfile.weight} * ${fatMultiplier}</p>
+                    <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${fatMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${TARGET_FAT} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_FAT * 9} kcal)</span></p>
                     
                     <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong></p>
-                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - ${TARGET_PRO * 4} - ${TARGET_FAT * 9}) ÷ 4</p>
+                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
                 </div>
             </div>
