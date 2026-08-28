@@ -1540,6 +1540,7 @@ function renderOverview() {
     let sumCal = 0;
     let daysWithCal = 0;
     let sumBurned = 0;
+    let sumBurnedTime = 0;
     let daysWithBurned = 0;
     let lastValidWeight = userProfile.weight || 70;
     
@@ -1581,9 +1582,11 @@ function renderOverview() {
             }
             
             let dayBurned = (dailyData[dStr] && dailyData[dStr].burned) ? dailyData[dStr].burned : 0;
+            let dayBurnedTime = (dailyData[dStr] && dailyData[dStr].burnedTime) ? dailyData[dStr].burnedTime : 0;
             burnedData.push(dayBurned);
-            if(dayBurned > 0) {
+            if(dayBurned > 0 || dayBurnedTime > 0) {
                 sumBurned += dayBurned;
+                sumBurnedTime += dayBurnedTime;
                 daysWithBurned++;
             }
         }
@@ -1594,8 +1597,15 @@ function renderOverview() {
     document.getElementById('overview-avg-cal').innerText = `${avgCal} 大卡`;
     
     const avgBurned = daysWithBurned > 0 ? Math.round(sumBurned / daysWithBurned) : 0;
+    const avgBurnedTime = daysWithBurned > 0 ? Math.round(sumBurnedTime / daysWithBurned) : 0;
     const elAvgBurned = document.getElementById('overview-avg-burned');
-    if (elAvgBurned) elAvgBurned.innerText = `${avgBurned} kcal`;
+    if (elAvgBurned) {
+        if (avgBurnedTime > 0) {
+            elAvgBurned.innerText = `${avgBurned} kcal, ${avgBurnedTime} 分鐘`;
+        } else {
+            elAvgBurned.innerText = `${avgBurned} kcal`;
+        }
+    }
     
     const commonOptions = {
         responsive: true,
