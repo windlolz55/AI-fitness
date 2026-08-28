@@ -46,9 +46,14 @@
                         </div>
 
                         <!-- Right: Burned -->
-                        <div style="text-align: center; flex: 1;">
-                            <div style="font-size: 28px; font-weight: 800; color: white;">0</div>
-                            <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px;">燃燒 kcal</div>
+                        <div style="text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+                            <div style="cursor: pointer; display: inline-flex; align-items: baseline;" onclick="promptEditBurned()">
+                                <span id="cal-burned" style="font-size: 28px; font-weight: 800; color: white; border-bottom: 2px dashed #8e8e93;">0</span>
+                                <i class="fa-solid fa-pen" style="font-size: 10px; margin-left: 6px; color: #8e8e93;"></i>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px; display: flex; align-items: center; cursor: pointer;" onclick="showInfo('burned')">
+                                燃燒 kcal <i class="fa-solid fa-circle-info" style="margin-left: 4px; font-size: 11px;"></i>
+                            </div>
                         </div>
                     </div>
 
@@ -291,7 +296,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.21</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.22</p>
             </div>
         </div>
 
@@ -562,6 +567,23 @@
         </div>
 
     </div>
+
+    <!-- Burned Kcal Modal -->
+    <div id="burned-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
+            <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeBurnedModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 style="margin-bottom: 8px;">記錄運動消耗</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">這僅做為您的純紀錄，不會增加剩餘熱量目標（為防止重複計算）。</p>
+            
+            <input type="number" id="burned-input-val" class="input-field" placeholder="例如: 300" style="font-size: 24px; font-weight: bold; text-align: center; height: 60px;">
+            
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn-secondary" style="flex: 1;" onclick="closeBurnedModal()">取消</button>
+                <button class="btn-primary" style="flex: 1;" onclick="confirmBurnedEdit()">確認</button>
+            </div>
+        </div>
+    </div>
+
     <script src="food_db.js?v=5"></script>
     <script src="app.js?v=5"></script>
 </body>

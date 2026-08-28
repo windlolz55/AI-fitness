@@ -798,6 +798,13 @@ function setupDailyTracking() {
 
 function updateDailyData() {
     document.getElementById('water-val').innerText = dailyData[todayDateStr].water;
+    
+    // Also update burned
+    const burnedEl = document.getElementById('cal-burned');
+    if (burnedEl) {
+        burnedEl.innerText = dailyData[todayDateStr].burned || 0;
+    }
+
     localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
 }
@@ -825,6 +832,28 @@ window.confirmWaterEdit = function() {
     closeWaterModal();
 };
 
+window.promptEditBurned = function() {
+    if (!dailyData[todayDateStr]) {
+        dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || 70, burned: 0 };
+    }
+    const current = dailyData[todayDateStr].burned || 0;
+    document.getElementById('burned-input-val').value = current;
+    document.getElementById('burned-setup-modal').style.display = 'flex';
+};
+
+window.closeBurnedModal = function() {
+    document.getElementById('burned-setup-modal').style.display = 'none';
+};
+
+window.confirmBurnedEdit = function() {
+    const val = document.getElementById('burned-input-val').value;
+    if (val !== null && val.trim() !== '' && !isNaN(val)) {
+        dailyData[todayDateStr].burned = Math.max(0, parseInt(val) || 0);
+        updateDailyData();
+    }
+    closeBurnedModal();
+};
+
 // Info Modals
 function showInfo(type) {
     const title = document.getElementById('info-modal-title');
@@ -839,6 +868,16 @@ function showInfo(type) {
                 <p>體重 ${userProfile.weight} kg * 35 ml = <strong>${TARGET_WATER} ml</strong></p>
             </div>
             <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 建議分次小口飲用，若流汗多可適度增加。</p>
+        `;
+    } else if (type === 'burned') {
+        title.innerHTML = '<i class="fa-solid fa-fire" style="color: #ff9ff3; margin-right: 8px;"></i>運動消耗紀錄';
+        content.innerHTML = `
+            <p><strong>這僅為純打卡紀錄，不影響每日可吃熱量上限。</strong></p>
+            <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px; line-height: 1.5;">
+                <p style="color: #ffb86c; font-weight: 600; margin-bottom: 8px;"><i class="fa-solid fa-triangle-exclamation"></i> 為什麼不增加可吃熱量？</p>
+                <p>因為你的「TDEE 每日總消耗」已經包含了你選擇的<strong>活動係數</strong> (例如每週運動 3 次)。如果運動後又額外增加攝取熱量，會導致<strong>重複計算 (Double Counting)</strong>，破壞熱量缺口哦！</p>
+            </div>
+            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 請直接照著「剩餘 kcal」安心吃，有去運動就來這裡記上一筆即可！</p>
         `;
     } else if (type === 'cals') {
         let bmr = 0;
