@@ -845,6 +845,12 @@ window.closeBurnedModal = function() {
     document.getElementById('burned-setup-modal').style.display = 'none';
 };
 
+window.addBurnedKcal = function(amount) {
+    const input = document.getElementById('burned-input-val');
+    const current = parseInt(input.value) || 0;
+    input.value = current + amount;
+};
+
 window.confirmBurnedEdit = function() {
     const val = document.getElementById('burned-input-val').value;
     if (val !== null && val.trim() !== '' && !isNaN(val)) {
