@@ -1616,7 +1616,17 @@ function renderOverview() {
         layout: {
             padding: { bottom: 25 }
         },
-        plugins: { legend: { display: false } },
+        plugins: { 
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    title: function(context) {
+                        const idx = context[0].dataIndex;
+                        return `星期${labels[idx]} (${subLabels[idx]})`;
+                    }
+                }
+            }
+        },
         scales: {
             x: {
                 grid: { display: false, drawBorder: false },
@@ -1738,9 +1748,11 @@ function renderOverview() {
             options: {
                 ...commonOptions,
                 plugins: {
-                    legend: { display: false },
+                    ...commonOptions.plugins,
                     tooltip: {
+                        ...commonOptions.plugins.tooltip,
                         callbacks: {
+                            ...commonOptions.plugins.tooltip.callbacks,
                             label: function(context) {
                                 const val = context.raw;
                                 const time = burnedTimeData[context.dataIndex];
