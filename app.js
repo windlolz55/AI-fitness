@@ -1536,6 +1536,7 @@ function renderOverview() {
     const weightData = [];
     const calorieData = [];
     const burnedData = [];
+    const burnedTimeData = [];
     
     let sumCal = 0;
     let daysWithCal = 0;
@@ -1584,6 +1585,7 @@ function renderOverview() {
             let dayBurned = (dailyData[dStr] && dailyData[dStr].burned) ? dailyData[dStr].burned : 0;
             let dayBurnedTime = (dailyData[dStr] && dailyData[dStr].burnedTime) ? dailyData[dStr].burnedTime : 0;
             burnedData.push(dayBurned);
+            burnedTimeData.push(dayBurnedTime);
             if(dayBurned > 0 || dayBurnedTime > 0) {
                 sumBurned += dayBurned;
                 sumBurnedTime += dayBurnedTime;
@@ -1734,6 +1736,21 @@ function renderOverview() {
             },
             options: {
                 ...commonOptions,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const val = context.raw;
+                                const time = burnedTimeData[context.dataIndex];
+                                if (time > 0) {
+                                    return `${val} kcal (${time} 分鐘)`;
+                                }
+                                return `${val} kcal`;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     x: commonOptions.scales.x,
                     y: {
