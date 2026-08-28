@@ -42,7 +42,7 @@
                                 </defs>
                             </svg>
                             <div id="cal-remaining" style="position: relative; z-index: 10; font-size: 34px; font-weight: 800; color: white; line-height: 1; margin-bottom: 2px;">0</div>
-                            <div style="position: relative; z-index: 10; font-size: 13px; font-weight: 500; color: #8e8e93; display: flex; align-items: center; cursor: pointer;" onclick="showInfo('cals')">剩餘 kcal <i class="fa-regular fa-circle-question" style="margin-left: 4px; font-size: 11px;"></i></div>
+                            <div style="position: relative; z-index: 10; font-size: 13px; font-weight: 500; color: #8e8e93; display: flex; align-items: center; cursor: pointer;" onclick="showInfo('cals')">剩餘 kcal <i class="fa-solid fa-circle-info" style="margin-left: 4px; font-size: 11px;"></i></div>
                         </div>
 
                         <!-- Right: Burned -->
@@ -53,8 +53,12 @@
                     </div>
 
                     <!-- Bottom row: Macros -->
-                    <div style="display: flex; justify-content: space-between; gap: 12px; cursor: pointer;" onclick="showInfo('macros')">
-                        <!-- Carbs -->
+                    <div style="position: relative;">
+                        <div style="position: absolute; right: 0; top: -24px; font-size: 11px; color: #8e8e93; cursor: pointer; display: flex; align-items: center;" onclick="showInfo('macros')">
+                            營養素說明 <i class="fa-solid fa-circle-info" style="margin-left: 4px;"></i>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; gap: 12px; cursor: pointer;" onclick="showInfo('macros')">
+                            <!-- Carbs -->
                         <div style="flex: 1; text-align: center;">
                             <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">碳水</div>
                             <div style="background: rgba(251, 191, 36, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
@@ -79,6 +83,7 @@
                                 <div id="bar-fat" style="background: var(--fat-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
                             <div style="font-size: 12px; font-weight: bold; color: white;"><span id="val-fat">0</span><span style="font-size: 11px; color: #8e8e93; font-weight: 500; margin-left: 2px;">/<span id="tar-fat">65</span>g</span></div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -286,7 +291,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.19</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.20</p>
             </div>
         </div>
 
