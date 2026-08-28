@@ -1483,6 +1483,7 @@ window.updateLogWater = function(delta) {
 let overviewOffsetWeeks = 0;
 let overviewWeightChartInstance = null;
 let overviewCalorieChartInstance = null;
+let overviewBurnedChartInstance = null;
 
 function overviewChangeWeek(delta) {
     overviewOffsetWeeks += delta;
@@ -1508,13 +1509,19 @@ function renderOverview() {
     document.getElementById('overview-weight-date-range').innerText = rangeText;
     document.getElementById('overview-cal-date-range').innerText = rangeText;
     
+    const burnedRangeEl = document.getElementById('overview-burned-date-range');
+    if (burnedRangeEl) burnedRangeEl.innerText = rangeText;
+    
     const labels = ['一', '二', '三', '四', '五', '六', '日'];
     const subLabels = [];
     const weightData = [];
     const calorieData = [];
+    const burnedData = [];
     
     let sumCal = 0;
     let daysWithCal = 0;
+    let sumBurned = 0;
+    let daysWithBurned = 0;
     let lastValidWeight = userProfile.weight || 70;
     
     for (let i = 1; i <= 30; i++) {
@@ -1541,6 +1548,7 @@ function renderOverview() {
         if (isFuture) {
             weightData.push(null);
             calorieData.push(null);
+            burnedData.push(null);
         } else {
             weightData.push(lastValidWeight);
             
@@ -1552,12 +1560,23 @@ function renderOverview() {
                 sumCal += dayCals;
                 daysWithCal++;
             }
+            
+            let dayBurned = (dailyData[dStr] && dailyData[dStr].burned) ? dailyData[dStr].burned : 0;
+            burnedData.push(dayBurned);
+            if(dayBurned > 0) {
+                sumBurned += dayBurned;
+                daysWithBurned++;
+            }
         }
     }
     
     document.getElementById('overview-current-weight').innerText = `${lastValidWeight} kg`;
     const avgCal = daysWithCal > 0 ? Math.round(sumCal / daysWithCal) : 0;
     document.getElementById('overview-avg-cal').innerText = `${avgCal} 大卡`;
+    
+    const avgBurned = daysWithBurned > 0 ? Math.round(sumBurned / daysWithBurned) : 0;
+    const elAvgBurned = document.getElementById('overview-avg-burned');
+    if (elAvgBurned) elAvgBurned.innerText = `${avgBurned} kcal`;
     
     const commonOptions = {
         responsive: true,
@@ -1653,6 +1672,50 @@ function renderOverview() {
             },
             plugins: [{
                 id: 'customSubLabelsCal',
+                afterDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.font = '10px sans-serif';
+                    const xAxis = chart.scales.x;
+                    const yPos = xAxis.bottom + 15;
+                    xAxis.ticks.forEach((tick, i) => {
+                        if(subLabels[i]) ctx.fillText(subLabels[i], xAxis.getPixelForTick(i), yPos);
+                    });
+                    ctx.restore();
+                }
+            }]
+        });
+    }
+
+    const bCtx = document.getElementById('overviewBurnedChart');
+    if(bCtx) {
+        if (overviewBurnedChartInstance) overviewBurnedChartInstance.destroy();
+        overviewBurnedChartInstance = new Chart(bCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: burnedData.map(v => v === null ? 0 : v),
+                    backgroundColor: burnedData.map(val => val > 0 ? '#ff9ff3' : 'rgba(255,255,255,0.1)'),
+                    borderRadius: 8,
+                    barThickness: 24
+                }]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    x: commonOptions.scales.x,
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false, borderDash: [5, 5] },
+                        ticks: { color: 'rgba(255,255,255,0.5)', maxTicksLimit: 5, padding: 10 },
+                        suggestedMax: 500
+                    }
+                }
+            },
+            plugins: [{
+                id: 'customSubLabelsBurned',
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
                     ctx.save();

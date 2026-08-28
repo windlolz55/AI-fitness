@@ -206,6 +206,24 @@
                     <canvas id="overviewCalorieChart"></canvas>
                 </div>
             </div>
+            
+            <!-- Burned Chart -->
+            <div class="card" style="padding: 16px; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                    <h3 style="color: #ff9ff3; margin: 0;"><i class="fa-solid fa-fire" style="margin-right: 8px;"></i> 運動消耗趨勢</h3>
+                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-avg-burned" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- kcal</span> <span style="opacity: 0.6;">/ 每天平均</span></div>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-muted); font-size: 13px;">
+                    <button class="btn-icon" style="background: var(--bg-main); width: 28px; height: 28px; border-radius: 50%; border: none; color: var(--text-main);" onclick="overviewChangeWeek(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span id="overview-burned-date-range" style="font-weight: bold;">--</span>
+                    <button class="btn-icon" style="background: var(--bg-main); width: 28px; height: 28px; border-radius: 50%; border: none; color: var(--text-main);" onclick="overviewChangeWeek(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                
+                <div style="position: relative; height: 180px; width: 100%;">
+                    <canvas id="overviewBurnedChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <!-- Profile View -->
@@ -296,7 +314,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.24</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.25</p>
             </div>
         </div>
 
