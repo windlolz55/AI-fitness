@@ -96,6 +96,7 @@ function init() {
     setupDailyTracking();
     
     updateDashboard();
+    updateDailyData();
     selectLogDate(todayDateStr);
 }
 
