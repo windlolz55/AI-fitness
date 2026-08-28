@@ -804,6 +804,17 @@ function updateDailyData() {
     if (burnedEl) {
         burnedEl.innerText = dailyData[todayDateStr].burned || 0;
     }
+    const burnedTimeEl = document.getElementById('cal-burned-time');
+    const burnedTimeValEl = document.getElementById('cal-burned-time-val');
+    if (burnedTimeEl && burnedTimeValEl) {
+        const bTime = dailyData[todayDateStr].burnedTime || 0;
+        if (bTime > 0) {
+            burnedTimeValEl.innerText = bTime;
+            burnedTimeEl.style.display = 'inline-flex';
+        } else {
+            burnedTimeEl.style.display = 'none';
+        }
+    }
 
     localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
@@ -834,10 +845,12 @@ window.confirmWaterEdit = function() {
 
 window.promptEditBurned = function() {
     if (!dailyData[todayDateStr]) {
-        dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || 70, burned: 0 };
+        dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
     }
     const current = dailyData[todayDateStr].burned || 0;
+    const currentTime = dailyData[todayDateStr].burnedTime || 0;
     document.getElementById('burned-input-val').value = current;
+    document.getElementById('burned-time-input-val').value = currentTime;
     document.getElementById('burned-setup-modal').style.display = 'flex';
 };
 
@@ -845,16 +858,22 @@ window.closeBurnedModal = function() {
     document.getElementById('burned-setup-modal').style.display = 'none';
 };
 
-window.addBurnedKcal = function(amount) {
+window.addBurnedKcal = function(amount, time = 0) {
     const input = document.getElementById('burned-input-val');
     const current = parseInt(input.value) || 0;
     input.value = current + amount;
+    
+    const timeInput = document.getElementById('burned-time-input-val');
+    const currentTime = parseInt(timeInput.value) || 0;
+    timeInput.value = currentTime + time;
 };
 
 window.confirmBurnedEdit = function() {
     const val = document.getElementById('burned-input-val').value;
+    const timeVal = document.getElementById('burned-time-input-val').value;
     if (val !== null && val.trim() !== '' && !isNaN(val)) {
         dailyData[todayDateStr].burned = Math.max(0, parseInt(val) || 0);
+        dailyData[todayDateStr].burnedTime = Math.max(0, parseInt(timeVal) || 0);
         updateDailyData();
     }
     closeBurnedModal();

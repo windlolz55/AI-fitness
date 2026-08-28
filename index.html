@@ -51,8 +51,9 @@
                                 <span id="cal-burned" style="font-size: 28px; font-weight: 800; color: white; border-bottom: 2px dashed #8e8e93;">0</span>
                                 <i class="fa-solid fa-pen" style="font-size: 10px; margin-left: 6px; color: #8e8e93;"></i>
                             </div>
-                            <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px; display: flex; align-items: center; cursor: pointer;" onclick="showInfo('burned')">
-                                燃燒 kcal <i class="fa-solid fa-circle-info" style="margin-left: 4px; font-size: 11px;"></i>
+                            <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; cursor: pointer;" onclick="showInfo('burned')">
+                                <span>燃燒 kcal</span> <i class="fa-solid fa-circle-info" style="font-size: 11px;"></i>
+                                <div id="cal-burned-time" style="font-size: 11px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 8px; display: none; align-items: center;"><i class="fa-regular fa-clock" style="margin-right: 3px;"></i><span id="cal-burned-time-val">0</span>m</div>
                             </div>
                         </div>
                     </div>
@@ -314,7 +315,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.28</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.29</p>
             </div>
         </div>
 
@@ -593,15 +594,24 @@
             <h2 style="margin-bottom: 8px;">記錄運動消耗</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">這僅做為您的純紀錄，不會增加剩餘熱量目標（為防止重複計算）。</p>
             
-            <input type="number" id="burned-input-val" class="input-field" placeholder="例如: 300" style="font-size: 24px; font-weight: bold; text-align: center; height: 60px;">
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">消耗熱量 (kcal)</label>
+                    <input type="number" id="burned-input-val" class="input-field" placeholder="例如: 300" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">運動時間 (分鐘)</label>
+                    <input type="number" id="burned-time-input-val" class="input-field" placeholder="例如: 60" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                </div>
+            </div>
             
             <div style="margin-top: 16px;">
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">快速估算 (自動累加)：</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(200)"><i class="fa-solid fa-dumbbell" style="margin-right: 4px;"></i>重訓 1hr (+200)</button>
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(300)"><i class="fa-solid fa-person-running" style="margin-right: 4px;"></i>跑步 30min (+300)</button>
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(150)"><i class="fa-solid fa-person-walking" style="margin-right: 4px;"></i>走路 1hr (+150)</button>
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(100)"><i class="fa-solid fa-child-reaching" style="margin-right: 4px;"></i>瑜珈 1hr (+100)</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(200, 60)"><i class="fa-solid fa-dumbbell" style="margin-right: 4px;"></i>重訓 1hr</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(300, 30)"><i class="fa-solid fa-person-running" style="margin-right: 4px;"></i>跑步 30min</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(150, 60)"><i class="fa-solid fa-person-walking" style="margin-right: 4px;"></i>走路 1hr</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(100, 60)"><i class="fa-solid fa-child-reaching" style="margin-right: 4px;"></i>瑜珈 1hr</button>
                 </div>
             </div>
             
