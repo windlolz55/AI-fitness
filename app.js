@@ -1858,13 +1858,6 @@ window.openCalendarModal = openCalendarModal;
 window.closeCalendarModal = closeCalendarModal;
 window.changeCalendarMonth = changeCalendarMonth;
 
-// Start app
-try {
-    init();
-} catch (e) {
-    alert("Startup error: " + e.message + "\\n" + e.stack);
-}
-
 // GitHub Sync Logic
 async function syncToGitHub() {
     const pat = document.getElementById('github-pat').value.trim();
@@ -2127,3 +2120,10 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("focus", () => {
     if (typeof autoPullFromGitHub === 'function') autoPullFromGitHub();
 });
+
+// Start app
+try {
+    init();
+} catch (e) {
+    alert("Startup error: " + e.message + "\\n" + e.stack);
+}
