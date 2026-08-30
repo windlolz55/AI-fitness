@@ -14,6 +14,8 @@ const db = firebase.firestore();
 
 // Auth State Observer
 auth.onAuthStateChanged((user) => {
+    document.getElementById('global-loader').style.display = 'none';
+    
     if (user) {
         document.getElementById('view-auth').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
