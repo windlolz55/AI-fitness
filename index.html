@@ -350,24 +350,6 @@
                 <button id="btn-save-profile" class="btn-primary">儲存資料並計算</button>
             </div>
             
-            <!-- GitHub Sync Card -->
-            <div class="card" style="padding: 16px; margin-top: 16px;">
-                <h3 style="margin-bottom: 12px; font-size: 16px;"><i class="fa-brands fa-github" style="margin-right: 6px;"></i> GitHub 雲端同步</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">使用 GitHub Gist 來跨裝置備份與同步您的健康紀錄。金鑰僅儲存於本機。</p>
-                
-                <label style="font-size: 12px; color: var(--text-muted);">Personal Access Token (需有 gist 權限)</label>
-                <input type="password" id="github-pat" class="input-field" placeholder="ghp_...">
-                
-                <label style="font-size: 12px; color: var(--text-muted);">Gist ID</label>
-                <input type="text" id="github-gist-id" class="input-field" placeholder="留空則在首次備份時自動建立">
-                
-                <div style="display: flex; gap: 12px; margin-top: 16px;">
-                    <button id="btn-sync-up" class="btn-primary" style="flex: 1; background: var(--accent-secondary);" onclick="syncToGitHub()">⬆️ 備份</button>
-                    <button id="btn-sync-down" class="btn-secondary" style="flex: 1; border: 1px solid var(--accent-secondary); color: var(--accent-secondary); background: transparent;" onclick="syncFromGitHub()">⬇️ 還原</button>
-                </div>
-                <div id="sync-status" style="margin-top: 12px; font-size: 12px; text-align: center; font-weight: bold;"></div>
-            </div>
-            
             <button class="btn-secondary" style="width: 100%; margin-top: 24px; color: #ff4757; border-color: #ff4757;" onclick="handleLogout()">登出帳號</button>
 
             <div id="profile-analysis" class="card" style="padding: 24px; margin-top: 16px; display: none;">
