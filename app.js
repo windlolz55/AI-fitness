@@ -388,6 +388,14 @@ function openWorkoutModal(name) {
         lastRecordEl.style.display = 'none';
     }
     
+    // Set Save button text
+    const btnSave = document.getElementById('btn-save-workout');
+    if (logged) {
+        btnSave.innerText = '更新紀錄';
+    } else {
+        btnSave.innerText = '完成打卡';
+    }
+    
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
 
@@ -414,6 +422,7 @@ function openAddExerciseModal() {
     
     document.getElementById('workout-modal-last-record').style.display = 'none';
     document.getElementById('btn-delete-workout').style.display = 'none';
+    document.getElementById('btn-save-workout').innerText = '完成打卡';
     
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
