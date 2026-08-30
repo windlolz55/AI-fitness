@@ -332,8 +332,19 @@ function openWorkoutModal(name) {
     const loggedWorkouts = dailyDataEntry.workouts || [];
     const logged = loggedWorkouts.find(w => w.name === name);
     
-    // Show/Hide Delete Button
-    document.getElementById('btn-delete-workout').style.display = 'block';
+    // Show/Hide Delete Button based on state
+    const btnDelete = document.getElementById('btn-delete-workout');
+    if (logged) {
+        btnDelete.style.display = 'block';
+        btnDelete.innerText = '清除紀錄';
+        btnDelete.onclick = function() { deleteWorkoutRecord('clear_log', name); };
+    } else if (templateEx) {
+        btnDelete.style.display = 'block';
+        btnDelete.innerText = '移出課表';
+        btnDelete.onclick = function() { deleteWorkoutRecord('remove_template', name); };
+    } else {
+        btnDelete.style.display = 'none';
+    }
     
     document.getElementById('workout-weight-val').value = logged ? logged.weight : (templateEx ? templateEx.weight : '');
     document.getElementById('workout-sets-val').value = logged ? logged.sets : (templateEx ? templateEx.sets : '');
@@ -475,44 +486,32 @@ function confirmWorkoutEdit() {
     renderWorkout();
 }
 
-function deleteWorkoutRecord() {
-    let name = document.getElementById('workout-name-val').value;
-    const idx = parseInt(document.getElementById('workout-index-val').value);
-    
-    if (idx === -1) {
-        // Should not happen for new custom exercise
-        closeWorkoutModal();
-        return;
-    }
-    
-    let deletedFromLog = false;
-    if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
-        let workouts = dailyData[selectedLogDate].workouts;
-        const initLength = workouts.length;
-        dailyData[selectedLogDate].workouts = workouts.filter(w => w.name !== name);
-        if (dailyData[selectedLogDate].workouts.length < initLength) {
+function deleteWorkoutRecord(action, name) {
+    if (action === 'clear_log') {
+        if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
+            dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
             localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
-            deletedFromLog = true;
         }
-    }
-    
-    // Check if user also wants to delete it from the routine template
-    const d = new Date(selectedLogDate);
-    const dayOfWeek = d.getDay();
-    let routineKey = dayOfWeek;
-    if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
-        routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
-    }
-    
-    const inTemplate = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
-    if (inTemplate) {
-        let confirmMsg = deletedFromLog ? 
-            `已取消今日的打卡紀錄！\n是否也要順便從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中永久移除「${name}」？\n(按取消的話，它依然會以「未記錄」的狀態留在今天的清單上)` :
-            `確定要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中永久刪除「${name}」嗎？`;
-            
-        if (confirm(confirmMsg)) {
+    } else if (action === 'remove_template') {
+        const d = new Date(selectedLogDate);
+        const dayOfWeek = d.getDay();
+        let routineKey = dayOfWeek;
+        if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
+            routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
+        }
+        
+        const days = ['日','一','二','三','四','五','六'];
+        if (confirm(`確定要將「${name}」從星期${days[dayOfWeek]}的固定課表中永久移除嗎？`)) {
             WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
             localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+            
+            // Also ensure it's removed from today's log just in case
+            if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
+                dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
+                localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+            }
+        } else {
+            return; // Don't close modal if cancelled
         }
     }
     
