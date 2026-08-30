@@ -2235,12 +2235,22 @@ function renderCalendar() {
             html += '<div></div>';
         }
         
+        const isWorkoutView = document.getElementById('view-workout').classList.contains('active');
+        
         for (let day = 1; day <= daysInMonth; day++) {
             const dStr = year + '-' + String(month+1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
             
             let isSelected = (dStr === selectedLogDate);
             let isToday = (dStr === todayDateStr);
-            let hasLogs = logs.some(log => (log.date || todayDateStr) === dStr);
+            
+            let hasLogs = false;
+            if (isWorkoutView) {
+                if (dailyData[dStr] && dailyData[dStr].workouts && dailyData[dStr].workouts.length > 0) {
+                    hasLogs = true;
+                }
+            } else {
+                hasLogs = logs.some(log => (log.date || todayDateStr) === dStr);
+            }
             
             let dotHtml = hasLogs ? '<div style="width: 4px; height: 4px; background: var(--accent-secondary); border-radius: 50%; margin: 4px auto 0;"></div>' : '<div style="width: 4px; height: 4px; margin: 4px auto 0;"></div>';
             
