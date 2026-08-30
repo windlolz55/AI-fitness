@@ -157,7 +157,7 @@
                     </div>
                     <button id="btn-clear" class="btn-icon" style="border:none;"><i class="fa-solid fa-trash"></i></button>
                 </div>
-                <div id="date-strip" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="date-strip" style="display: flex; justify-content: space-between; align-items: center;">
                     <!-- Date items injected via JS -->
                 </div>
             </header>
@@ -169,18 +169,18 @@
 
         <!-- VIEW: WORKOUT -->
         <div id="view-workout" class="view">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <div>
-                    <h2 style="margin: 0;">運動課表</h2>
-                    <p id="workout-day-title" style="margin: 4px 0 0 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">載入中...</p>
+            <header style="padding: 16px 0; position: sticky; top: 0; background: var(--bg-main); z-index: 10; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h2 style="font-size: 18px; margin: 0;">運動課表</h2>
+                        <button class="btn-icon" style="border: none; background: transparent; font-size: 16px; color: var(--accent-primary); outline: none; padding: 4px;" onclick="openCalendarModal()"><i class="fa-regular fa-calendar"></i></button>
+                    </div>
+                    <p id="workout-day-title" style="margin: 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">載入中...</p>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <!-- Date navigation for workout view reuses same selectedLogDate -->
-                    <button class="btn-icon" style="background: var(--card-bg); width: 32px; height: 32px;" onclick="selectLogDate(new Date(new Date(selectedLogDate).getTime() - 86400000).toLocaleDateString('en-CA'))"><i class="fa-solid fa-chevron-left"></i></button>
-                    <button class="btn-icon" style="background: var(--card-bg); width: 32px; height: 32px;" onclick="document.getElementById('calendar-modal').style.display='flex'"><i class="fa-regular fa-calendar"></i></button>
-                    <button class="btn-icon" style="background: var(--card-bg); width: 32px; height: 32px;" onclick="selectLogDate(new Date(new Date(selectedLogDate).getTime() + 86400000).toLocaleDateString('en-CA'))"><i class="fa-solid fa-chevron-right"></i></button>
+                <div class="date-strip" style="display: flex; justify-content: space-between; align-items: center;">
+                    <!-- Date items injected via JS -->
                 </div>
-            </div>
+            </header>
 
             <!-- Workout List Container -->
             <div id="workout-list-container">

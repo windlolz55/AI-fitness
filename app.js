@@ -1413,7 +1413,7 @@ function closeInfoModal() {
 
 // Logs Rendering
 function renderDateStrip() {
-    const strip = document.getElementById('date-strip');
+    const strips = document.querySelectorAll('.date-strip');
     const baseDate = new Date(selectedLogDate || todayDateStr);
     const currentDayOfWeek = baseDate.getDay();
     const days = ['日', '一', '二', '三', '四', '五', '六'];
@@ -1435,7 +1435,10 @@ function renderDateStrip() {
             </div>
         `;
     }
-    strip.innerHTML = html;
+    
+    strips.forEach(strip => {
+        strip.innerHTML = html;
+    });
 }
 
 function selectLogDate(dateStr) {
