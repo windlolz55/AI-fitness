@@ -16,7 +16,7 @@ let logs = JSON.parse(localStorage.getItem('fitness_logs')) || [];
 let dailyData = JSON.parse(localStorage.getItem('fitness_daily')) || {};
 
 // Workout Routines
-const WORKOUT_ROUTINES = {
+let defaultRoutines = {
     1: { title: "完全休息 🎉", exercises: [] },
     2: { title: "背 ＋ 核心 ＋ 有氧", exercises: [
         { name: "單臂啞鈴划船", type: "weight", weight: 18, sets: 6, reps: '' },
@@ -38,6 +38,7 @@ const WORKOUT_ROUTINES = {
     6: { ref: 2 },
     0: { ref: 3 }
 };
+let WORKOUT_ROUTINES = JSON.parse(localStorage.getItem('fitness_routines')) || defaultRoutines;
 
 // Constants
 let TARGET_CALS = 2000;
@@ -331,6 +332,13 @@ function openWorkoutModal(name) {
     const loggedWorkouts = dailyDataEntry.workouts || [];
     const logged = loggedWorkouts.find(w => w.name === name);
     
+    // Show/Hide Delete Button
+    if (logged) {
+        document.getElementById('btn-delete-workout').style.display = 'block';
+    } else {
+        document.getElementById('btn-delete-workout').style.display = 'none';
+    }
+    
     document.getElementById('workout-weight-val').value = logged ? logged.weight : (templateEx ? templateEx.weight : '');
     document.getElementById('workout-sets-val').value = logged ? logged.sets : (templateEx ? templateEx.sets : '');
     document.getElementById('workout-reps-val').value = logged ? logged.reps : (templateEx ? templateEx.reps : '');
@@ -398,6 +406,7 @@ function openAddExerciseModal() {
     document.getElementById('workout-reps-val').value = '';
     
     document.getElementById('workout-modal-last-record').style.display = 'none';
+    document.getElementById('btn-delete-workout').style.display = 'none';
     
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
@@ -415,17 +424,38 @@ function confirmWorkoutEdit() {
     const idx = parseInt(document.getElementById('workout-index-val').value);
     let name = document.getElementById('workout-name-val').value;
     
+    const weight = parseFloat(document.getElementById('workout-weight-val').value) || 0;
+    const sets = parseInt(document.getElementById('workout-sets-val').value) || 0;
+    const reps = document.getElementById('workout-reps-val').value.trim();
+    
+    const d = new Date(selectedLogDate);
+    const dayOfWeek = d.getDay();
+    let routineKey = dayOfWeek;
+    if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
+        routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
+    }
+    
     if (idx === -1) {
         name = document.getElementById('workout-custom-name-val').value.trim();
         if (!name) {
             alert("請輸入動作名稱");
             return;
         }
+        
+        // Add to template routine so it appears on subsequent days
+        const customType = document.getElementById('workout-custom-type-val').value;
+        const exists = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
+        if (!exists) {
+            WORKOUT_ROUTINES[routineKey].exercises.push({
+                name: name,
+                type: customType,
+                weight: weight,
+                sets: sets,
+                reps: reps
+            });
+            localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+        }
     }
-    
-    const weight = parseFloat(document.getElementById('workout-weight-val').value) || 0;
-    const sets = parseInt(document.getElementById('workout-sets-val').value) || 0;
-    const reps = document.getElementById('workout-reps-val').value.trim();
     
     if (!dailyData[selectedLogDate]) {
         dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
@@ -444,6 +474,42 @@ function confirmWorkoutEdit() {
     }
     
     localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    
+    closeWorkoutModal();
+    renderWorkout();
+}
+
+function deleteWorkoutRecord() {
+    let name = document.getElementById('workout-name-val').value;
+    const idx = parseInt(document.getElementById('workout-index-val').value);
+    
+    if (idx === -1) {
+        // Should not happen for new custom exercise
+        closeWorkoutModal();
+        return;
+    }
+    
+    if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
+        let workouts = dailyData[selectedLogDate].workouts;
+        dailyData[selectedLogDate].workouts = workouts.filter(w => w.name !== name);
+        localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    }
+    
+    // Check if user also wants to delete it from the routine template
+    const d = new Date(selectedLogDate);
+    const dayOfWeek = d.getDay();
+    let routineKey = dayOfWeek;
+    if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
+        routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
+    }
+    
+    const inTemplate = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
+    if (inTemplate) {
+        if (confirm(`是否也要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中刪除「${name}」？\n(按確定將從課表永久刪除，按取消則只刪除今日紀錄)`)) {
+            WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
+            localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+        }
+    }
     
     closeWorkoutModal();
     renderWorkout();
