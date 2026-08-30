@@ -507,8 +507,8 @@ function deleteWorkoutRecord() {
     const inTemplate = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
     if (inTemplate) {
         let confirmMsg = deletedFromLog ? 
-            `是否也要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中刪除「${name}」？\n(按確定將從課表永久刪除，按取消則只刪除今日紀錄)` :
-            `確定要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中刪除「${name}」嗎？`;
+            `已取消今日的打卡紀錄！\n是否也要順便從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中永久移除「${name}」？\n(按取消的話，它依然會以「未記錄」的狀態留在今天的清單上)` :
+            `確定要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中永久刪除「${name}」嗎？`;
             
         if (confirm(confirmMsg)) {
             WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
