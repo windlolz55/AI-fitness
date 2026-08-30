@@ -242,8 +242,13 @@ function renderWorkout() {
     const loggedWorkouts = dailyDataEntry.workouts || [];
     
     let html = '';
+    
+    // Track which ones are rendered so we don't render them twice
+    const renderedNames = new Set();
+    
+    // 1. Render Template Exercises
     routine.exercises.forEach((ex, idx) => {
-        // find if we logged it today
+        renderedNames.add(ex.name);
         const logged = loggedWorkouts.find(w => w.name === ex.name);
         let statusHtml = '';
         if (logged) {
@@ -259,7 +264,7 @@ function renderWorkout() {
         let icon = ex.type === 'cardio' ? 'fa-heart-pulse' : (ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell');
         
         html += `
-            <div class="card log-item" onclick="openWorkoutModal(${idx})" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px; cursor: pointer;">
+            <div class="card log-item" onclick="openWorkoutModal('${ex.name}')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px; cursor: pointer;">
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main);">
                         <i class="fa-solid ${icon}"></i>
@@ -274,30 +279,71 @@ function renderWorkout() {
         `;
     });
     
+    // 2. Render Custom Logged Exercises
+    loggedWorkouts.forEach(logged => {
+        if (!renderedNames.has(logged.name)) {
+            let statusHtml = `<div style="font-size: 12px; color: var(--accent-secondary); margin-top: 4px;">
+                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}組, ${logged.reps}
+            </div>`;
+            
+            // For custom, if weight is 0, we assume it's cardio
+            let icon = logged.weight > 0 ? 'fa-dumbbell' : 'fa-heart-pulse';
+            
+            html += `
+                <div class="card log-item" onclick="openWorkoutModal('${logged.name}')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px; cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main);">
+                            <i class="fa-solid ${icon}"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 500; font-size: 16px;">${logged.name}</div>
+                            ${statusHtml}
+                        </div>
+                    </div>
+                    <div style="color: var(--text-muted);"><i class="fa-solid fa-chevron-right"></i></div>
+                </div>
+            `;
+        }
+    });
+    
     container.innerHTML = html;
 }
 
-function openWorkoutModal(idx) {
+function openWorkoutModal(name) {
     const d = new Date(selectedLogDate);
     const dayOfWeek = d.getDay();
     let routine = WORKOUT_ROUTINES[dayOfWeek];
     if (routine.ref !== undefined) routine = WORKOUT_ROUTINES[routine.ref];
-    const ex = routine.exercises[idx];
     
-    document.getElementById('workout-index-val').value = idx;
-    document.getElementById('workout-name-val').value = ex.name;
-    document.getElementById('workout-modal-title').innerText = ex.name;
+    const templateEx = routine.exercises.find(e => e.name === name);
+    
+    document.getElementById('workout-index-val').value = 0; // dummy value to indicate not a new custom
+    document.getElementById('workout-name-val').value = name;
+    document.getElementById('workout-modal-title').innerText = name;
+    
+    // Hide custom fields, show title
+    document.getElementById('workout-modal-title').style.display = 'block';
+    document.getElementById('workout-custom-name-container').style.display = 'none';
+    document.getElementById('workout-custom-type-container').style.display = 'none';
     
     // Look up today's logged data
     const dailyDataEntry = dailyData[selectedLogDate] || {};
     const loggedWorkouts = dailyDataEntry.workouts || [];
-    const logged = loggedWorkouts.find(w => w.name === ex.name);
+    const logged = loggedWorkouts.find(w => w.name === name);
     
-    document.getElementById('workout-weight-val').value = logged ? logged.weight : ex.weight;
-    document.getElementById('workout-sets-val').value = logged ? logged.sets : ex.sets;
-    document.getElementById('workout-reps-val').value = logged ? logged.reps : ex.reps;
+    document.getElementById('workout-weight-val').value = logged ? logged.weight : (templateEx ? templateEx.weight : '');
+    document.getElementById('workout-sets-val').value = logged ? logged.sets : (templateEx ? templateEx.sets : '');
+    document.getElementById('workout-reps-val').value = logged ? logged.reps : (templateEx ? templateEx.reps : '');
     
-    if (ex.type === 'cardio' || ex.type === 'bodyweight') {
+    // Determine type to show/hide weight container
+    let exType = 'weight';
+    if (templateEx) {
+        exType = templateEx.type;
+    } else if (logged && logged.weight === 0) {
+        exType = 'cardio';
+    }
+    
+    if (exType === 'cardio' || exType === 'bodyweight' || exType === 'time') {
         document.getElementById('workout-weight-container').style.display = 'none';
     } else {
         document.getElementById('workout-weight-container').style.display = 'block';
@@ -312,7 +358,7 @@ function openWorkoutModal(idx) {
         curD.setDate(curD.getDate() - 1);
         let checkDateStr = curD.toLocaleDateString('en-CA');
         if (dailyData[checkDateStr] && dailyData[checkDateStr].workouts) {
-            let found = dailyData[checkDateStr].workouts.find(w => w.name === ex.name);
+            let found = dailyData[checkDateStr].workouts.find(w => w.name === name);
             if (found) {
                 lastRecord = found;
                 break;
@@ -334,8 +380,49 @@ function closeWorkoutModal() {
     document.getElementById('workout-setup-modal').style.display = 'none';
 }
 
+function openAddExerciseModal() {
+    document.getElementById('workout-index-val').value = -1;
+    document.getElementById('workout-name-val').value = '';
+    
+    // Show custom fields, hide title
+    document.getElementById('workout-modal-title').style.display = 'none';
+    document.getElementById('workout-custom-name-container').style.display = 'block';
+    document.getElementById('workout-custom-type-container').style.display = 'block';
+    
+    document.getElementById('workout-custom-name-val').value = '';
+    document.getElementById('workout-custom-type-val').value = 'weight';
+    toggleWorkoutModalType();
+    
+    document.getElementById('workout-weight-val').value = '';
+    document.getElementById('workout-sets-val').value = '';
+    document.getElementById('workout-reps-val').value = '';
+    
+    document.getElementById('workout-modal-last-record').style.display = 'none';
+    
+    document.getElementById('workout-setup-modal').style.display = 'flex';
+}
+
+function toggleWorkoutModalType() {
+    const type = document.getElementById('workout-custom-type-val').value;
+    if (type === 'cardio') {
+        document.getElementById('workout-weight-container').style.display = 'none';
+    } else {
+        document.getElementById('workout-weight-container').style.display = 'block';
+    }
+}
+
 function confirmWorkoutEdit() {
-    const name = document.getElementById('workout-name-val').value;
+    const idx = parseInt(document.getElementById('workout-index-val').value);
+    let name = document.getElementById('workout-name-val').value;
+    
+    if (idx === -1) {
+        name = document.getElementById('workout-custom-name-val').value.trim();
+        if (!name) {
+            alert("請輸入動作名稱");
+            return;
+        }
+    }
+    
     const weight = parseFloat(document.getElementById('workout-weight-val').value) || 0;
     const sets = parseInt(document.getElementById('workout-sets-val').value) || 0;
     const reps = document.getElementById('workout-reps-val').value.trim();
