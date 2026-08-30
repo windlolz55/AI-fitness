@@ -15,6 +15,30 @@ let userProfile = JSON.parse(localStorage.getItem('fitness_profile')) || {
 let logs = JSON.parse(localStorage.getItem('fitness_logs')) || [];
 let dailyData = JSON.parse(localStorage.getItem('fitness_daily')) || {};
 
+// Workout Routines
+const WORKOUT_ROUTINES = {
+    1: { title: "完全休息 🎉", exercises: [] },
+    2: { title: "背 ＋ 核心 ＋ 有氧", exercises: [
+        { name: "單臂啞鈴划船", type: "weight", weight: 18, sets: 6, reps: '' },
+        { name: "平板支撐", type: "time", weight: 0, sets: 4, reps: '1分鐘' },
+        { name: "胯下擊掌", type: "cardio", weight: 0, sets: 4, reps: '50下' },
+        { name: "同側提膝", type: "cardio", weight: 0, sets: 4, reps: '50下' },
+        { name: "提膝下壓", type: "cardio", weight: 0, sets: 4, reps: '左右各30下' },
+        { name: "開合跳 (或快速直拳)", type: "cardio", weight: 0, sets: 4, reps: '左右各30下' }
+    ]},
+    3: { title: "腿 ＋ 胸 ＋ 二頭", exercises: [
+        { name: "高腳杯深蹲", type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "地板啞鈴臥推", type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "站姿啞鈴反握上拉", type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "下斜伏地挺身", type: "bodyweight", weight: 0, sets: 4, reps: '' },
+        { name: "集中彎舉", type: "weight", weight: 13, sets: 3, reps: '8下' }
+    ]},
+    4: { ref: 2 },
+    5: { ref: 3 },
+    6: { ref: 2 },
+    0: { ref: 3 }
+};
+
 // Constants
 let TARGET_CALS = 2000;
 let TARGET_PRO = 120;
@@ -178,6 +202,166 @@ function calculateTargets() {
     if (ct) ct.innerText = TARGET_CALS;
 }
 
+// ========================
+// Workout Logic
+// ========================
+
+function renderWorkout() {
+    const d = new Date(selectedLogDate);
+    const dayOfWeek = d.getDay(); // 0 is Sunday, 1 is Monday
+    
+    // resolve routine ref
+    let routine = WORKOUT_ROUTINES[dayOfWeek];
+    if (routine.ref !== undefined) {
+        routine = WORKOUT_ROUTINES[routine.ref];
+    }
+    
+    const titleEl = document.getElementById('workout-day-title');
+    if (titleEl) {
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dt = String(d.getDate()).padStart(2, '0');
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        titleEl.innerText = `${m}/${dt} (星期${days[dayOfWeek]}) - ${routine.title}`;
+    }
+    
+    const container = document.getElementById('workout-list-container');
+    if (!container) return;
+    
+    if (routine.exercises.length === 0) {
+        container.innerHTML = `
+            <div class="card" style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 40px; margin-bottom: 16px;">🎉</div>
+                <h3 style="margin-bottom: 8px;">今天完全休息</h3>
+                <p style="color: var(--text-muted); font-size: 14px;">讓肌肉好好恢復吧！</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const dailyDataEntry = dailyData[selectedLogDate] || {};
+    const loggedWorkouts = dailyDataEntry.workouts || [];
+    
+    let html = '';
+    routine.exercises.forEach((ex, idx) => {
+        // find if we logged it today
+        const logged = loggedWorkouts.find(w => w.name === ex.name);
+        let statusHtml = '';
+        if (logged) {
+            statusHtml = `<div style="font-size: 12px; color: var(--accent-secondary); margin-top: 4px;">
+                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}組, ${logged.reps}
+            </div>`;
+        } else {
+            statusHtml = `<div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                目標: ${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
+            </div>`;
+        }
+        
+        let icon = ex.type === 'cardio' ? 'fa-heart-pulse' : (ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell');
+        
+        html += `
+            <div class="card log-item" onclick="openWorkoutModal(${idx})" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px; cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main);">
+                        <i class="fa-solid ${icon}"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 500; font-size: 16px;">${ex.name}</div>
+                        ${statusHtml}
+                    </div>
+                </div>
+                <div style="color: var(--text-muted);"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function openWorkoutModal(idx) {
+    const d = new Date(selectedLogDate);
+    const dayOfWeek = d.getDay();
+    let routine = WORKOUT_ROUTINES[dayOfWeek];
+    if (routine.ref !== undefined) routine = WORKOUT_ROUTINES[routine.ref];
+    const ex = routine.exercises[idx];
+    
+    document.getElementById('workout-index-val').value = idx;
+    document.getElementById('workout-name-val').value = ex.name;
+    document.getElementById('workout-modal-title').innerText = ex.name;
+    
+    // Look up today's logged data
+    const dailyDataEntry = dailyData[selectedLogDate] || {};
+    const loggedWorkouts = dailyDataEntry.workouts || [];
+    const logged = loggedWorkouts.find(w => w.name === ex.name);
+    
+    document.getElementById('workout-weight-val').value = logged ? logged.weight : ex.weight;
+    document.getElementById('workout-sets-val').value = logged ? logged.sets : ex.sets;
+    document.getElementById('workout-reps-val').value = logged ? logged.reps : ex.reps;
+    
+    if (ex.type === 'cardio' || ex.type === 'bodyweight') {
+        document.getElementById('workout-weight-container').style.display = 'none';
+    } else {
+        document.getElementById('workout-weight-container').style.display = 'block';
+    }
+    
+    // Look up previous record
+    const lastRecordEl = document.getElementById('workout-modal-last-record');
+    let lastRecord = null;
+    let daysToCheck = 30; // look back up to 30 days
+    let curD = new Date(selectedLogDate);
+    for (let i=1; i<=daysToCheck; i++) {
+        curD.setDate(curD.getDate() - 1);
+        let checkDateStr = curD.toLocaleDateString('en-CA');
+        if (dailyData[checkDateStr] && dailyData[checkDateStr].workouts) {
+            let found = dailyData[checkDateStr].workouts.find(w => w.name === ex.name);
+            if (found) {
+                lastRecord = found;
+                break;
+            }
+        }
+    }
+    
+    if (lastRecord) {
+        lastRecordEl.innerText = `上次紀錄: ${lastRecord.weight > 0 ? lastRecord.weight + 'kg, ' : ''}${lastRecord.sets}組, ${lastRecord.reps}`;
+        lastRecordEl.style.display = 'block';
+    } else {
+        lastRecordEl.style.display = 'none';
+    }
+    
+    document.getElementById('workout-setup-modal').style.display = 'flex';
+}
+
+function closeWorkoutModal() {
+    document.getElementById('workout-setup-modal').style.display = 'none';
+}
+
+function confirmWorkoutEdit() {
+    const name = document.getElementById('workout-name-val').value;
+    const weight = parseFloat(document.getElementById('workout-weight-val').value) || 0;
+    const sets = parseInt(document.getElementById('workout-sets-val').value) || 0;
+    const reps = document.getElementById('workout-reps-val').value.trim();
+    
+    if (!dailyData[selectedLogDate]) {
+        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
+    }
+    if (!dailyData[selectedLogDate].workouts) {
+        dailyData[selectedLogDate].workouts = [];
+    }
+    
+    let workouts = dailyData[selectedLogDate].workouts;
+    const existingIdx = workouts.findIndex(w => w.name === name);
+    
+    if (existingIdx >= 0) {
+        workouts[existingIdx] = { name, weight, sets, reps };
+    } else {
+        workouts.push({ name, weight, sets, reps });
+    }
+    
+    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    
+    closeWorkoutModal();
+    renderWorkout();
+}
+
 // Navigation
 function setupNavigation() {
     navItems.forEach(item => {
@@ -194,6 +378,7 @@ function setupNavigation() {
             
             if (targetId === 'view-dashboard') updateDashboard();
             if (targetId === 'view-overview') renderOverview();
+            if (targetId === 'view-workout') renderWorkout();
         });
     });
 }
@@ -714,7 +899,7 @@ function openCartModal() {
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border);">
                 <div>
                     <div style="font-size: 15px; font-weight: 500;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">${item.cal} ?�卡</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">${item.cal} ?卡</div>
                 </div>
                 <button class="btn-icon" style="color: #ff4757; border:none; width:32px; height:32px;" onclick="removeCartItem(${index})"><i class="fa-solid fa-minus-circle" style="font-size:20px;"></i></button>
             </div>
@@ -1056,7 +1241,10 @@ function selectLogDate(dateStr) {
     const d = new Date(dateStr);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
-    document.getElementById('log-view-title').innerText = `飲食紀錄 (${m}/${dt})`;
+    document.getElementById('log-view-title').innerText = `紀錄 (${m}/${dt})`;
+    
+    // Also update workout tab if it's active
+    renderWorkout();
 }
 
 function renderLogs() {

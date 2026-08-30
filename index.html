@@ -167,6 +167,31 @@
             </div>
         </div>
 
+        <!-- VIEW: WORKOUT -->
+        <div id="view-workout" class="view">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <div>
+                    <h2 style="margin: 0;">運動課表</h2>
+                    <p id="workout-day-title" style="margin: 4px 0 0 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">載入中...</p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <!-- Date navigation for workout view reuses same selectedLogDate -->
+                    <button class="btn-icon" style="background: var(--card-bg); width: 32px; height: 32px;" onclick="selectLogDate(new Date(new Date(selectedLogDate).getTime() - 86400000).toLocaleDateString('en-CA'))"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button class="btn-icon" style="background: var(--card-bg); width: 32px; height: 32px;" onclick="document.getElementById('calendar-modal').style.display='flex'"><i class="fa-regular fa-calendar"></i></button>
+                    <button class="btn-icon" style="background: var(--card-bg); width: 32px; height: 32px;" onclick="selectLogDate(new Date(new Date(selectedLogDate).getTime() + 86400000).toLocaleDateString('en-CA'))"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Workout List Container -->
+            <div id="workout-list-container">
+                <!-- Exercises will be injected here via JS -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 16px;">
+                <p style="font-size: 12px; color: var(--text-muted);">點擊動作來記錄你的重量與組數</p>
+            </div>
+        </div>
+
         <!-- Overview View -->
         <div id="view-overview" class="view">
             <header style="margin-bottom: 24px;">
@@ -315,7 +340,7 @@
             </div>
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.1.36</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v1.2.0</p>
             </div>
         </div>
 
@@ -520,8 +545,12 @@
                 <span>每日</span>
             </a>
             <a href="#" class="nav-item" data-target="view-log">
-                <i class="fa-solid fa-list-ul"></i>
-                <span>紀錄</span>
+                <i class="fa-solid fa-utensils"></i>
+                <span>飲食</span>
+            </a>
+            <a href="#" class="nav-item" data-target="view-workout">
+                <i class="fa-solid fa-dumbbell"></i>
+                <span>運動</span>
             </a>
             <a href="#" class="nav-item" data-target="view-overview">
                 <i class="fa-solid fa-chart-line"></i>
@@ -618,6 +647,39 @@
             <div style="display: flex; gap: 12px; margin-top: 24px;">
                 <button class="btn-secondary" style="flex: 1;" onclick="closeBurnedModal()">取消</button>
                 <button class="btn-primary" style="flex: 1;" onclick="confirmBurnedEdit()">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workout Edit Modal -->
+    <div id="workout-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
+            <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeWorkoutModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 id="workout-modal-title" style="margin-bottom: 8px;">記錄動作</h2>
+            <p id="workout-modal-last-record" style="font-size: 13px; color: var(--accent-secondary); margin-bottom: 16px; display: none;">上次紀錄: 18kg, 6組, 12下</p>
+            
+            <input type="hidden" id="workout-index-val">
+            <input type="hidden" id="workout-name-val">
+            
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <div style="flex: 1;" id="workout-weight-container">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">重量 (kg)</label>
+                    <input type="number" id="workout-weight-val" class="input-field" placeholder="例如: 18" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                </div>
+                <div style="flex: 1;" id="workout-sets-container">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">組數</label>
+                    <input type="number" id="workout-sets-val" class="input-field" placeholder="例如: 4" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 24px;" id="workout-reps-container">
+                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">次數 / 時間 (自填文字)</label>
+                <input type="text" id="workout-reps-val" class="input-field" placeholder="例如: 10下 或 1分鐘" style="font-size: 16px; text-align: center; height: 44px;">
+            </div>
+            
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-secondary" style="flex: 1;" onclick="closeWorkoutModal()">取消</button>
+                <button class="btn-primary" style="flex: 1;" onclick="confirmWorkoutEdit()">儲存</button>
             </div>
         </div>
     </div>
