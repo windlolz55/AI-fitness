@@ -67,11 +67,13 @@ function handleSignup() {
 }
 
 function handleLogout() {
-    auth.signOut().then(() => {
-        const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
-        syncableKeys.forEach(k => localStorage.removeItem(k));
-        window.location.reload();
-    });
+    if (confirm("確定要登出帳號嗎？")) {
+        auth.signOut().then(() => {
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
+            syncableKeys.forEach(k => localStorage.removeItem(k));
+            window.location.reload();
+        });
+    }
 }
 
 let unsubscribeFirestore = null;
