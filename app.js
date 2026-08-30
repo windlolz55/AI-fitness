@@ -265,8 +265,9 @@ function renderWorkout() {
         let icon = ex.type === 'cardio' ? 'fa-heart-pulse' : (ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell');
         
         html += `
-            <div class="card log-item" onclick="openWorkoutModal('${ex.name}')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px; cursor: pointer;">
-                <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="card log-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
+                <!-- Left: Details (Click to edit) -->
+                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="openWorkoutModal('${ex.name}')">
                     <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main);">
                         <i class="fa-solid ${icon}"></i>
                     </div>
@@ -275,7 +276,10 @@ function renderWorkout() {
                         ${statusHtml}
                     </div>
                 </div>
-                <div style="color: var(--text-muted);"><i class="fa-solid fa-chevron-right"></i></div>
+                <!-- Right: Checkbox -->
+                <div style="font-size: 28px; color: ${logged ? 'var(--accent-secondary)' : 'var(--card-border)'}; padding: 8px 0 8px 16px; cursor: pointer;" onclick="toggleWorkoutCheck('${ex.name}')">
+                    <i class="fa-${logged ? 'solid' : 'regular'} fa-circle-check"></i>
+                </div>
             </div>
         `;
     });
@@ -291,8 +295,9 @@ function renderWorkout() {
             let icon = logged.weight > 0 ? 'fa-dumbbell' : 'fa-heart-pulse';
             
             html += `
-                <div class="card log-item" onclick="openWorkoutModal('${logged.name}')" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px; cursor: pointer;">
-                    <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="card log-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
+                    <!-- Left: Details (Click to edit) -->
+                    <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="openWorkoutModal('${logged.name}')">
                         <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main);">
                             <i class="fa-solid ${icon}"></i>
                         </div>
@@ -301,13 +306,51 @@ function renderWorkout() {
                             ${statusHtml}
                         </div>
                     </div>
-                    <div style="color: var(--text-muted);"><i class="fa-solid fa-chevron-right"></i></div>
+                    <!-- Right: Checkbox -->
+                    <div style="font-size: 28px; color: var(--accent-secondary); padding: 8px 0 8px 16px; cursor: pointer;" onclick="toggleWorkoutCheck('${logged.name}')">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
                 </div>
             `;
         }
     });
     
     container.innerHTML = html;
+}
+
+function toggleWorkoutCheck(name) {
+    if (!dailyData[selectedLogDate]) {
+        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
+    }
+    if (!dailyData[selectedLogDate].workouts) {
+        dailyData[selectedLogDate].workouts = [];
+    }
+    
+    let workouts = dailyData[selectedLogDate].workouts;
+    const existingIdx = workouts.findIndex(w => w.name === name);
+    
+    if (existingIdx >= 0) {
+        // Logged -> Unlog
+        workouts.splice(existingIdx, 1);
+    } else {
+        // Unlogged -> Log with default values from template or last record
+        const d = new Date(selectedLogDate);
+        const dayOfWeek = d.getDay();
+        let routineKey = dayOfWeek;
+        if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
+            routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
+        }
+        const templateEx = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
+        
+        let weight = templateEx ? templateEx.weight : 0;
+        let sets = templateEx ? templateEx.sets : 0;
+        let reps = templateEx ? templateEx.reps : '';
+        
+        workouts.push({ name, weight, sets, reps });
+    }
+    
+    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    renderWorkout();
 }
 
 function openWorkoutModal(name) {
@@ -334,16 +377,20 @@ function openWorkoutModal(name) {
     
     // Show/Hide Delete Button based on state
     const btnDelete = document.getElementById('btn-delete-workout');
-    if (logged) {
+    if (templateEx) {
         btnDelete.style.display = 'block';
-        btnDelete.innerText = '清除紀錄';
-        btnDelete.onclick = function() { deleteWorkoutRecord('clear_log', name); };
-    } else if (templateEx) {
-        btnDelete.style.display = 'block';
-        btnDelete.innerText = '移出課表';
-        btnDelete.onclick = function() { deleteWorkoutRecord('remove_template', name); };
+        btnDelete.innerText = '刪除';
+        btnDelete.onclick = function() { deleteWorkoutRecord(name); };
     } else {
-        btnDelete.style.display = 'none';
+        // If it's not in the template (e.g. an old custom exercise that was removed from template but still in log)
+        // or a completely new exercise.
+        if (logged) {
+            btnDelete.style.display = 'block';
+            btnDelete.innerText = '刪除';
+            btnDelete.onclick = function() { deleteWorkoutRecord(name); };
+        } else {
+            btnDelete.style.display = 'none';
+        }
     }
     
     document.getElementById('workout-weight-val').value = logged ? logged.weight : (templateEx ? templateEx.weight : '');
@@ -390,11 +437,7 @@ function openWorkoutModal(name) {
     
     // Set Save button text
     const btnSave = document.getElementById('btn-save-workout');
-    if (logged) {
-        btnSave.innerText = '更新紀錄';
-    } else {
-        btnSave.innerText = '完成打卡';
-    }
+    btnSave.innerText = '儲存';
     
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
@@ -495,33 +538,29 @@ function confirmWorkoutEdit() {
     renderWorkout();
 }
 
-function deleteWorkoutRecord(action, name) {
-    if (action === 'clear_log') {
+function deleteWorkoutRecord(name) {
+    const d = new Date(selectedLogDate);
+    const dayOfWeek = d.getDay();
+    let routineKey = dayOfWeek;
+    if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
+        routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
+    }
+    
+    const days = ['日','一','二','三','四','五','六'];
+    if (confirm(`確定要將「${name}」刪除嗎？\n(如果這是固定課表內的動作，會從課表中永久移除)`)) {
+        // Remove from template
+        if (WORKOUT_ROUTINES[routineKey]) {
+            WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
+            localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+        }
+        
+        // Also remove from today's log just in case
         if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
             dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
             localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
         }
-    } else if (action === 'remove_template') {
-        const d = new Date(selectedLogDate);
-        const dayOfWeek = d.getDay();
-        let routineKey = dayOfWeek;
-        if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
-            routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
-        }
-        
-        const days = ['日','一','二','三','四','五','六'];
-        if (confirm(`確定要將「${name}」從星期${days[dayOfWeek]}的固定課表中永久移除嗎？`)) {
-            WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
-            localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
-            
-            // Also ensure it's removed from today's log just in case
-            if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
-                dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
-                localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
-            }
-        } else {
-            return; // Don't close modal if cancelled
-        }
+    } else {
+        return; // Don't close modal if cancelled
     }
     
     closeWorkoutModal();
