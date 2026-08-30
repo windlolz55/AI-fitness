@@ -333,11 +333,7 @@ function openWorkoutModal(name) {
     const logged = loggedWorkouts.find(w => w.name === name);
     
     // Show/Hide Delete Button
-    if (logged) {
-        document.getElementById('btn-delete-workout').style.display = 'block';
-    } else {
-        document.getElementById('btn-delete-workout').style.display = 'none';
-    }
+    document.getElementById('btn-delete-workout').style.display = 'block';
     
     document.getElementById('workout-weight-val').value = logged ? logged.weight : (templateEx ? templateEx.weight : '');
     document.getElementById('workout-sets-val').value = logged ? logged.sets : (templateEx ? templateEx.sets : '');
@@ -489,10 +485,15 @@ function deleteWorkoutRecord() {
         return;
     }
     
+    let deletedFromLog = false;
     if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
         let workouts = dailyData[selectedLogDate].workouts;
+        const initLength = workouts.length;
         dailyData[selectedLogDate].workouts = workouts.filter(w => w.name !== name);
-        localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+        if (dailyData[selectedLogDate].workouts.length < initLength) {
+            localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+            deletedFromLog = true;
+        }
     }
     
     // Check if user also wants to delete it from the routine template
@@ -505,7 +506,11 @@ function deleteWorkoutRecord() {
     
     const inTemplate = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
     if (inTemplate) {
-        if (confirm(`是否也要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中刪除「${name}」？\n(按確定將從課表永久刪除，按取消則只刪除今日紀錄)`)) {
+        let confirmMsg = deletedFromLog ? 
+            `是否也要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中刪除「${name}」？\n(按確定將從課表永久刪除，按取消則只刪除今日紀錄)` :
+            `確定要從「星期${['日','一','二','三','四','五','六'][dayOfWeek]}」的固定課表中刪除「${name}」嗎？`;
+            
+        if (confirm(confirmMsg)) {
             WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
             localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
         }
