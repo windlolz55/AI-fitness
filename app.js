@@ -118,41 +118,73 @@ function setupFirestoreListener(uid) {
     unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
         if (doc.exists) {
             const data = doc.data();
+            let changed = false;
             
-            // 1. Force overwrite memory variables from Cloud
-            userProfile = (data.fitness_profile ? JSON.parse(data.fitness_profile) : null) || {
-                gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
-            };
-            logs = (data.fitness_logs ? JSON.parse(data.fitness_logs) : null) || [];
-            dailyData = (data.fitness_daily ? JSON.parse(data.fitness_daily) : null) || {};
-            WORKOUT_ROUTINES = (data.fitness_routines ? JSON.parse(data.fitness_routines) : null) || (typeof defaultRoutines !== 'undefined' ? defaultRoutines : {});
-            customFoods = (data.customFoods ? JSON.parse(data.customFoods) : null) || [];
-            favoriteFoodIds = (data.favoriteFoodIds ? JSON.parse(data.favoriteFoodIds) : null) || [];
-            
-            // 2. Best-effort save to localStorage (bypass quota crashes)
-            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
-            keys.forEach(k => {
-                try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) { console.warn('localStorage write failed:', e); }
-            });
-            
-            // 3. Apply Theme
-            const savedTheme = data.fitness_theme || 'light';
-            const themeToggle = document.getElementById('theme-toggle');
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                if (themeToggle) themeToggle.checked = true;
-            } else {
-                document.body.removeAttribute('data-theme');
-                if (themeToggle) themeToggle.checked = false;
+            // Compare and update only if different from current memory state
+            const currentProfileStr = JSON.stringify(typeof userProfile !== 'undefined' ? userProfile : {});
+            if (data.fitness_profile && data.fitness_profile !== currentProfileStr) {
+                userProfile = JSON.parse(data.fitness_profile);
+                changed = true;
             }
             
-            // 4. Re-render UI
-            if (typeof calculateTargets === 'function') calculateTargets();
-            if (typeof setupProfile === 'function') setupProfile();
-            if (typeof updateDashboard === 'function') updateDashboard();
-            if (typeof renderLogs === 'function') renderLogs();
-            if (typeof renderWorkout === 'function') renderWorkout();
-            if (typeof updateDailyData === 'function') updateDailyData();
+            const currentLogsStr = JSON.stringify(typeof logs !== 'undefined' ? logs : []);
+            if (data.fitness_logs && data.fitness_logs !== currentLogsStr) {
+                logs = JSON.parse(data.fitness_logs);
+                changed = true;
+            }
+            
+            const currentDailyStr = JSON.stringify(typeof dailyData !== 'undefined' ? dailyData : {});
+            if (data.fitness_daily && data.fitness_daily !== currentDailyStr) {
+                dailyData = JSON.parse(data.fitness_daily);
+                changed = true;
+            }
+            
+            const currentRoutinesStr = JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {});
+            if (data.fitness_routines && data.fitness_routines !== currentRoutinesStr) {
+                WORKOUT_ROUTINES = JSON.parse(data.fitness_routines);
+                changed = true;
+            }
+            
+            const currentCustomFoodsStr = JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []);
+            if (data.customFoods && data.customFoods !== currentCustomFoodsStr) {
+                customFoods = JSON.parse(data.customFoods);
+                changed = true;
+            }
+            
+            const currentFavoriteFoodIdsStr = JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []);
+            if (data.favoriteFoodIds && data.favoriteFoodIds !== currentFavoriteFoodIdsStr) {
+                favoriteFoodIds = JSON.parse(data.favoriteFoodIds);
+                changed = true;
+            }
+            
+            // Best-effort save to localStorage (bypass quota crashes)
+            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+            keys.forEach(k => {
+                try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
+            });
+            
+            // Apply Theme
+            const savedTheme = data.fitness_theme || 'light';
+            const themeToggle = document.getElementById('theme-toggle');
+            if (savedTheme !== document.body.getAttribute('data-theme')) {
+                if (savedTheme === 'dark') {
+                    document.body.setAttribute('data-theme', 'dark');
+                    if (themeToggle) themeToggle.checked = true;
+                } else {
+                    document.body.removeAttribute('data-theme');
+                    if (themeToggle) themeToggle.checked = false;
+                }
+            }
+            
+            // Re-render UI ONLY if something actually changed from the cloud
+            if (changed) {
+                if (typeof calculateTargets === 'function') calculateTargets();
+                if (typeof setupProfile === 'function') setupProfile();
+                if (typeof updateDashboard === 'function') updateDashboard();
+                if (typeof renderLogs === 'function') renderLogs();
+                if (typeof renderWorkout === 'function') renderWorkout();
+                if (typeof updateDailyData === 'function') updateDailyData();
+            }
             
         } else {
             saveToFirestore();
