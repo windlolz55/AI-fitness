@@ -145,12 +145,10 @@ function handleLogout() {
 }
 
 let unsubscribeFirestore = null;
-let isSyncing = false;
 
 function saveToFirestore() {
     const user = auth.currentUser;
-    if (!user || isSyncing) return Promise.resolve();
-    isSyncing = true;
+    if (!user) return Promise.resolve();
     
     return db.collection('users').doc(user.uid).set({
         fitness_profile: JSON.stringify(typeof userProfile !== 'undefined' ? userProfile : {}) || '{}',
@@ -161,27 +159,21 @@ function saveToFirestore() {
         favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
         fitness_theme: document.body.getAttribute('data-theme') || 'light',
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).then(() => {
-        localStorage.removeItem('pending_sync');
-        isSyncing = false;
-    }).catch(err => {
-        isSyncing = false;
-        console.error(err);
+    }, { merge: true }).catch(err => {
+        console.error("Firestore save failed:", err);
     });
 }
 
 window.setAndSync = function(key, value) {
     try {
         localStorage.setItem(key, value);
-        localStorage.setItem('pending_sync', 'true');
+        localStorage.setItem('pending_sync_time', Date.now().toString());
     } catch(e) {
         console.warn('localStorage setItem failed, bypassing for cloud sync:', e);
     }
     const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
-    if (syncableKeys.includes(key)) {
-        if (auth.currentUser) {
-            return saveToFirestore();
-        }
+    if (syncableKeys.includes(key) && auth.currentUser) {
+        return saveToFirestore();
     }
     return Promise.resolve();
 };
@@ -191,9 +183,10 @@ function setupFirestoreListener(uid) {
     
     unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
         if (doc.exists) {
-            // If local storage has pending unsynced changes, push them to cloud instead of overwriting local data
-            if (localStorage.getItem('pending_sync') === 'true') {
-                console.log("Local unsynced data detected. Pushing to cloud...");
+            // If local storage was written in the last 3 seconds, prioritize local data and push to cloud
+            const pendingSyncTime = parseInt(localStorage.getItem('pending_sync_time') || '0');
+            if (Date.now() - pendingSyncTime < 3000) {
+                console.log("Recent local write detected. Pushing to cloud...");
                 saveToFirestore();
                 return;
             }
