@@ -183,11 +183,10 @@ function setupFirestoreListener(uid) {
     
     unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
         if (doc.exists) {
-            // If local storage was written in the last 3 seconds, prioritize local data and push to cloud
+            // If local storage was written in the last 3 seconds, ignore cloud data to prevent overwriting local data
             const pendingSyncTime = parseInt(localStorage.getItem('pending_sync_time') || '0');
             if (Date.now() - pendingSyncTime < 3000) {
-                console.log("Recent local write detected. Pushing to cloud...");
-                saveToFirestore();
+                console.log("Recent local write detected. Ignoring cloud reflection...");
                 return;
             }
 
