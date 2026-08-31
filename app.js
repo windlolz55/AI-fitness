@@ -172,6 +172,15 @@ function setupFirestoreListener(uid) {
     });
 }
 
+window.manualSync = function() {
+    if (auth.currentUser) {
+        alert("正在從雲端強制拉取最新資料...");
+        setupFirestoreListener(auth.currentUser.uid);
+    } else {
+        alert("請先登入！");
+    }
+};
+
 // State
 let isApplyingCloudData = false;
 
