@@ -11,6 +11,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+db.enablePersistence().catch(err => {
+    console.error("Firestore persistence error", err);
+});
 
 // Auth State Observer
 auth.onAuthStateChanged((user) => {
@@ -101,7 +104,9 @@ function saveToFirestore() {
 
 
 function setupFirestoreListener(uid) {
-    db.collection('users').doc(uid).get().then((doc) => {
+    if (typeof unsubscribeFirestore === 'function') unsubscribeFirestore();
+    
+    unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
         if (doc.exists) {
             const data = doc.data();
             let changed = false;
@@ -145,7 +150,7 @@ function setupFirestoreListener(uid) {
         } else {
             saveToFirestore();
         }
-    }).catch(err => {
+    }, (err) => {
         console.error("Error fetching data:", err);
     });
 }
