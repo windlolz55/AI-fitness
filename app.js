@@ -119,24 +119,62 @@ function setupFirestoreListener(uid) {
     
     unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
         if (doc.exists) {
+            // Ignore local writes (they are already in memory)
+            if (doc.metadata.hasPendingWrites) return;
+
             const data = doc.data();
-            let changed = false;
             
+            // 1. Force overwrite memory variables from Cloud
+            userProfile = (data.fitness_profile ? JSON.parse(data.fitness_profile) : null) || {
+                gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
+            };
+            logs = (data.fitness_logs ? JSON.parse(data.fitness_logs) : null) || [];
+            dailyData = (data.fitness_daily ? JSON.parse(data.fitness_daily) : null) || {};
+            WORKOUT_ROUTINES = (data.fitness_routines ? JSON.parse(data.fitness_routines) : null) || (typeof defaultRoutines !== 'undefined' ? defaultRoutines : {});
+            customFoods = (data.customFoods ? JSON.parse(data.customFoods) : null) || [];
+            favoriteFoodIds = (data.favoriteFoodIds ? JSON.parse(data.favoriteFoodIds) : null) || [];
+            
+            // 2. Best-effort save to localStorage (bypass quota crashes)
             const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
             keys.forEach(k => {
-                try {
-                    if (data[k] && data[k] !== localStorage.getItem(k)) {
-                        localStorage.setItem(k, data[k]);
-                        changed = true;
-                    }
-                } catch(e) {
-                    console.warn('localStorage read/write failed, using memory state:', e);
-                    changed = true; // Still trigger memory update since cloud changed
-                }
+                try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) { console.warn('localStorage write failed:', e); }
             });
             
-            if (changed) {
-                // Hot reload state instead of page refresh to prevent loops
+            // 3. Apply Theme
+            const savedTheme = data.fitness_theme || 'light';
+            const themeToggle = document.getElementById('theme-toggle');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                if (themeToggle) themeToggle.checked = true;
+            } else {
+                document.body.removeAttribute('data-theme');
+                if (themeToggle) themeToggle.checked = false;
+            }
+            
+            // 4. Re-render UI
+            if (typeof calculateTargets === 'function') calculateTargets();
+            if (typeof setupProfile === 'function') setupProfile();
+            if (typeof updateDashboard === 'function') updateDashboard();
+            if (typeof renderLogs === 'function') renderLogs();
+            if (typeof renderWorkout === 'function') renderWorkout();
+            if (typeof updateDailyData === 'function') updateDailyData();
+            
+        } else {
+            saveToFirestore();
+        }
+    }, (err) => {
+        console.error("Error fetching data:", err);
+    });
+}
+
+window.manualSync = async function() {
+    if (auth.currentUser) {
+        alert("正在從雲端強制拉取最新資料...");
+        try {
+            const doc = await db.collection('users').doc(auth.currentUser.uid).get({source: 'server'});
+            if (doc.exists) {
+                const data = doc.data();
+                
                 userProfile = (data.fitness_profile ? JSON.parse(data.fitness_profile) : null) || {
                     gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
                 };
@@ -146,36 +184,26 @@ function setupFirestoreListener(uid) {
                 customFoods = (data.customFoods ? JSON.parse(data.customFoods) : null) || [];
                 favoriteFoodIds = (data.favoriteFoodIds ? JSON.parse(data.favoriteFoodIds) : null) || [];
                 
-                const savedTheme = data.fitness_theme || 'light';
-                const themeToggle = document.getElementById('theme-toggle');
-                if (savedTheme === 'dark') {
-                    document.body.setAttribute('data-theme', 'dark');
-                    if (themeToggle) themeToggle.checked = true;
-                } else {
-                    document.body.removeAttribute('data-theme');
-                    if (themeToggle) themeToggle.checked = false;
-                }
+                const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+                keys.forEach(k => {
+                    try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
+                });
                 
-                // Re-render UI
                 if (typeof calculateTargets === 'function') calculateTargets();
                 if (typeof setupProfile === 'function') setupProfile();
                 if (typeof updateDashboard === 'function') updateDashboard();
                 if (typeof renderLogs === 'function') renderLogs();
                 if (typeof renderWorkout === 'function') renderWorkout();
                 if (typeof updateDailyData === 'function') updateDailyData();
+                
+                alert("同步完成！");
+            } else {
+                alert("雲端沒有您的資料。");
             }
-        } else {
-            saveToFirestore();
+        } catch(e) {
+            console.error(e);
+            alert("同步失敗：" + e.message);
         }
-    }, (err) => {
-        console.error("Error fetching data:", err);
-    });
-}
-
-window.manualSync = function() {
-    if (auth.currentUser) {
-        alert("正在從雲端強制拉取最新資料...");
-        setupFirestoreListener(auth.currentUser.uid);
     } else {
         alert("請先登入！");
     }
