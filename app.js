@@ -134,9 +134,8 @@ function handleSignup() {
         });
 }
 
-function handleLogout() {
+async function handleLogout() {
     if (confirm("確定要登出嗎？")) {
-        // Change UI to indicate saving
         const btn = document.querySelector('[onclick="handleLogout()"]');
         if (btn) {
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在同步並登出...';
@@ -144,17 +143,23 @@ function handleLogout() {
             btn.style.opacity = '0.7';
         }
 
-        // Force a final save before logging out, but with a 1.5s timeout so it doesn't hang forever
-        const savePromise = saveToFirestore();
-        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            const savePromise = saveToFirestore();
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve('timeout'), 1500));
+            await Promise.race([savePromise, timeoutPromise]);
+        } catch (e) {
+            console.warn("Logout save skipped or failed:", e);
+        }
 
-        Promise.race([savePromise, timeoutPromise]).finally(() => {
-            auth.signOut().then(() => {
-                const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
-                syncableKeys.forEach(k => localStorage.removeItem(k));
-                window.location.reload();
-            });
-        });
+        try {
+            await auth.signOut();
+        } catch (e) {
+            console.warn("SignOut failed, but clearing local data anyway:", e);
+        }
+
+        const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
+        syncableKeys.forEach(k => localStorage.removeItem(k));
+        window.location.reload();
     }
 }
 
