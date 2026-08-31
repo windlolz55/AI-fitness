@@ -102,7 +102,7 @@ function handleLogin() {
     const errorEl = document.getElementById('auth-error');
     
     if (!email || !password) {
-        errorEl.innerText = '請輸?�信箱�?密碼';
+        errorEl.innerText = '隢撓?乩縑蝞梯?撖Ⅳ';
         errorEl.style.display = 'block';
         return;
     }
@@ -121,7 +121,7 @@ function handleSignup() {
     const errorEl = document.getElementById('auth-error');
     
     if (!email || !password) {
-        errorEl.innerText = '請輸?�信箱�?密碼';
+        errorEl.innerText = '隢撓?乩縑蝞梯?撖Ⅳ';
         errorEl.style.display = 'block';
         return;
     }
@@ -135,18 +135,20 @@ function handleSignup() {
 }
 
 function handleLogout() {
-    if (confirm("確�?要登?��?�?)) {
+    if (confirm("確定要登出嗎？")) {
         // Change UI to indicate saving
         const btn = document.querySelector('[onclick="handleLogout()"]');
-        const originalText = btn ? btn.innerHTML : '';
         if (btn) {
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> �?��?�步並登??..';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在同步並登出...';
             btn.style.pointerEvents = 'none';
             btn.style.opacity = '0.7';
         }
 
-        // Force a final save before logging out
-        saveToFirestore().finally(() => {
+        // Force a final save before logging out, but with a 1.5s timeout so it doesn't hang forever
+        const savePromise = saveToFirestore();
+        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 1500));
+
+        Promise.race([savePromise, timeoutPromise]).finally(() => {
             auth.signOut().then(() => {
                 const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
                 syncableKeys.forEach(k => localStorage.removeItem(k));
@@ -173,7 +175,7 @@ function saveToFirestore() {
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(err => {
         console.error("Firestore save failed:", err);
-        alert("?�端存�?失�?�? + err.message + "\n如�??��?好�??�出，�?稍�?2秒�??�出，以?�中?��??��?);
+        alert("?脩垢摮?憭望?嚗? + err.message + "\n憒??典?憟質??餃嚗?蝔?2蝘??餃嚗誑?葉?瑚??喋?);
     });
 }
 
@@ -282,7 +284,7 @@ function setupFirestoreListener(uid) {
 
 window.manualSync = async function() {
     if (auth.currentUser) {
-        alert("�?��從雲端強?��??��??��???..");
+        alert("甇?敺蝡臬撥?嗆????啗???..");
         try {
             const doc = await db.collection('users').doc(auth.currentUser.uid).get({source: 'server'});
             if (doc.exists) {
@@ -309,16 +311,16 @@ window.manualSync = async function() {
                 if (typeof renderWorkout === 'function') renderWorkout();
                 if (typeof updateDailyData === 'function') updateDailyData();
                 
-                alert("?�步完�?�?);
+                alert("?郊摰?嚗?);
             } else {
-                alert("?�端沒�??��?資�???);
+                alert("?脩垢瘝??函?鞈???);
             }
         } catch(e) {
             console.error(e);
-            alert("?�步失�?�? + e.message);
+            alert("?郊憭望?嚗? + e.message);
         }
     } else {
-        alert("請�??�入�?);
+        alert("隢??餃嚗?);
     }
 };
 
@@ -333,21 +335,21 @@ let dailyData = JSON.parse(localStorage.getItem('fitness_daily')) || {};
 
 // Workout Routines
 let defaultRoutines = {
-    1: { title: "完全休息 ??", exercises: [] },
-    2: { title: "??�??��? �??�氧", exercises: [
-        { name: "?��??�鈴?�船", type: "weight", weight: 18, sets: 6, reps: '' },
-        { name: "平板?��?", type: "time", weight: 0, sets: 4, reps: '1?��?' },
-        { name: "?��??��?", type: "cardio", weight: 0, sets: 4, reps: '50�? },
-        { name: "?�側?��?", type: "cardio", weight: 0, sets: 4, reps: '50�? },
-        { name: "?��?下�?", type: "cardio", weight: 0, sets: 4, reps: '左右??0�? },
-        { name: "?��?�?(?�快?�直??", type: "cardio", weight: 0, sets: 4, reps: '左右??0�? }
+    1: { title: "摰隡 ??", exercises: [] },
+    2: { title: "??嚗??詨? 嚗??飢", exercises: [
+        { name: "?株???", type: "weight", weight: 18, sets: 6, reps: '' },
+        { name: "撟單?舀?", type: "time", weight: 0, sets: 4, reps: '1??' },
+        { name: "?臭???", type: "cardio", weight: 0, sets: 4, reps: '50銝? },
+        { name: "???", type: "cardio", weight: 0, sets: 4, reps: '50銝? },
+        { name: "??銝?", type: "cardio", weight: 0, sets: 4, reps: '撌血??0銝? },
+        { name: "??頝?(?翰???", type: "cardio", weight: 0, sets: 4, reps: '撌血??0銝? }
     ]},
-    3: { title: "??�???�?二頭", exercises: [
-        { name: "高腳?�深�?, type: "weight", weight: 18, sets: 4, reps: '' },
-        { name: "?�板?�鈴?�推", type: "weight", weight: 18, sets: 4, reps: '' },
-        { name: "站姿?�鈴?�握上�?", type: "weight", weight: 18, sets: 4, reps: '' },
-        { name: "下�?伏地?�身", type: "bodyweight", weight: 0, sets: 4, reps: '' },
-        { name: "?�中彎�?", type: "weight", weight: 13, sets: 3, reps: '8�? }
+    3: { title: "??嚗???嚗?鈭", exercises: [
+        { name: "擃?舀楛頩?, type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "?唳??交", type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "蝡尿??銝?", type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "銝?隡?箄澈", type: "bodyweight", weight: 0, sets: 4, reps: '' },
+        { name: "?葉敶?", type: "weight", weight: 13, sets: 3, reps: '8銝? }
     ]},
     4: { ref: 2 },
     5: { ref: 3 },
@@ -380,7 +382,7 @@ if (!dailyData[todayDateStr]) {
 // // Food database is loaded from food_db.js (foodDatabase)
 
 // Initialize 'custom' category dynamically
-foodDatabase.categories.unshift({ id: 'custom', name: '?��??�??, icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' });
+foodDatabase.categories.unshift({ id: 'custom', name: '?????, icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' });
 
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
@@ -391,9 +393,9 @@ let favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
 
 // Mock Scanner DB
 const mockFoods = [
-    { name: "香�?鮭�?沙�?", cal: 450, pro: 35, carb: 12, fat: 28 },
-    { name: "?�康糙米�?, cal: 180, pro: 4, carb: 38, fat: 1 },
-    { name: "?��??�便??, cal: 680, pro: 32, carb: 85, fat: 22 }
+    { name: "擐?擙剝?瘝?", cal: 450, pro: 35, carb: 12, fat: 28 },
+    { name: "?亙熒蝟掖憌?, cal: 180, pro: 4, carb: 38, fat: 1 },
+    { name: "?日??蹂噶??, cal: 680, pro: 32, carb: 85, fat: 22 }
 ];
 
 // DOM Elements
@@ -454,7 +456,7 @@ function calculateTargets() {
     
     let pace = userProfile.pace || 'standard';
     
-    // ?�� 減�? (Cut / Fat Loss)
+    // ? 皜? (Cut / Fat Loss)
     if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
         if (pace === 'conservative') {
             TARGET_CALS = Math.round(tdee * 0.9); // -10%
@@ -464,7 +466,7 @@ function calculateTargets() {
         TARGET_PRO = Math.round(userProfile.weight * 2.0);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
-    // ?�� 增�? (Lean Bulk)
+    // ? 憓? (Lean Bulk)
     else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
         if (pace === 'conservative') {
             TARGET_CALS = Math.round(tdee * 1.05); // +5%
@@ -474,20 +476,20 @@ function calculateTargets() {
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
-    // ?? 增�?減�? (Body Recomposition)
+    // ?? 憓?皜? (Body Recomposition)
     else if (userProfile.goal === 'recomp') {
         TARGET_CALS = Math.round(tdee * 0.95); // -5%
         TARGET_PRO = Math.round(userProfile.weight * 2.2);
         TARGET_FAT = Math.round(userProfile.weight * 0.8);
     } 
-    // ?��? 維�??��? (Maintenance)
+    // ?? 蝬剜??曄? (Maintenance)
     else { 
         TARGET_CALS = Math.round(tdee);
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     }
 
-    // ?�低�??�熱?�防??(Safety Limits)
+    // ?雿??函???(Safety Limits)
     let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
     if (TARGET_CALS < minCals) TARGET_CALS = minCals;
     
@@ -529,8 +531,8 @@ function renderWorkout() {
     if (titleEl) {
         const m = String(d.getMonth() + 1).padStart(2, '0');
         const dt = String(d.getDate()).padStart(2, '0');
-        const days = ['??, '一', '�?, '�?, '??, '�?, '??];
-        titleEl.innerText = `${m}/${dt} (?��?${days[dayOfWeek]}) - ${routine.title}`;
+        const days = ['??, '銝', '鈭?, '銝?, '??, '鈭?, '??];
+        titleEl.innerText = `${m}/${dt} (??${days[dayOfWeek]}) - ${routine.title}`;
     }
     
     const container = document.getElementById('workout-list-container');
@@ -540,8 +542,8 @@ function renderWorkout() {
         container.innerHTML = `
             <div class="card" style="text-align: center; padding: 40px 20px;">
                 <div style="font-size: 40px; margin-bottom: 16px;">??</div>
-                <h3 style="margin-bottom: 8px;">今天完全休息</h3>
-                <p style="color: var(--text-muted); font-size: 14px;">讓�??�好好恢復吧�?/p>
+                <h3 style="margin-bottom: 8px;">隞予摰隡</h3>
+                <p style="color: var(--text-muted); font-size: 14px;">霈??末憟賣敺拙嚗?/p>
             </div>
         `;
         return;
@@ -562,11 +564,11 @@ function renderWorkout() {
         let statusHtml = '';
         if (logged) {
             statusHtml = `<div style="font-size: 12px; color: var(--accent-secondary); margin-top: 4px;">
-                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}�? ${logged.reps}
+                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}蝯? ${logged.reps}
             </div>`;
         } else {
             statusHtml = `<div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
-                ?��?: ${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}�? ${ex.reps}
+                ?格?: ${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}蝯? ${ex.reps}
             </div>`;
         }
         
@@ -596,7 +598,7 @@ function renderWorkout() {
     loggedWorkouts.forEach(logged => {
         if (!renderedNames.has(logged.name)) {
             let statusHtml = `<div style="font-size: 12px; color: var(--accent-secondary); margin-top: 4px;">
-                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}�? ${logged.reps}
+                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}蝯? ${logged.reps}
             </div>`;
             
             // For custom, if weight is 0, we assume it's cardio
@@ -687,14 +689,14 @@ function openWorkoutModal(name) {
     const btnDelete = document.getElementById('btn-delete-workout');
     if (templateEx) {
         btnDelete.style.display = 'block';
-        btnDelete.innerText = '?�除';
+        btnDelete.innerText = '?芷';
         btnDelete.onclick = function() { deleteWorkoutRecord(name); };
     } else {
         // If it's not in the template (e.g. an old custom exercise that was removed from template but still in log)
         // or a completely new exercise.
         if (logged) {
             btnDelete.style.display = 'block';
-            btnDelete.innerText = '?�除';
+            btnDelete.innerText = '?芷';
             btnDelete.onclick = function() { deleteWorkoutRecord(name); };
         } else {
             btnDelete.style.display = 'none';
@@ -737,7 +739,7 @@ function openWorkoutModal(name) {
     }
     
     if (lastRecord) {
-        lastRecordEl.innerText = `上次紀?? ${lastRecord.weight > 0 ? lastRecord.weight + 'kg, ' : ''}${lastRecord.sets}�? ${lastRecord.reps}`;
+        lastRecordEl.innerText = `銝活蝝?? ${lastRecord.weight > 0 ? lastRecord.weight + 'kg, ' : ''}${lastRecord.sets}蝯? ${lastRecord.reps}`;
         lastRecordEl.style.display = 'block';
     } else {
         lastRecordEl.style.display = 'none';
@@ -745,7 +747,7 @@ function openWorkoutModal(name) {
     
     // Set Save button text
     const btnSave = document.getElementById('btn-save-workout');
-    btnSave.innerText = '?��?';
+    btnSave.innerText = '?脣?';
     
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
@@ -773,7 +775,7 @@ function openAddExerciseModal() {
     
     document.getElementById('workout-modal-last-record').style.display = 'none';
     document.getElementById('btn-delete-workout').style.display = 'none';
-    document.getElementById('btn-save-workout').innerText = '完�??�卡';
+    document.getElementById('btn-save-workout').innerText = '摰??';
     
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
@@ -805,7 +807,7 @@ function confirmWorkoutEdit() {
     if (idx === -1) {
         name = document.getElementById('workout-custom-name-val').value.trim();
         if (!name) {
-            alert("請輸?��?作�?�?);
+            alert("隢撓?亙?雿?蝔?);
             return;
         }
         
@@ -854,8 +856,8 @@ function deleteWorkoutRecord(name) {
         routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
     }
     
-    const days = ['??,'一','�?,'�?,'??,'�?,'??];
-    if (confirm(`確�?要�???{name}?�刪?��?？\n(如�??�是?��?課表?��??��?，�?從課表中永�?移除)`)) {
+    const days = ['??,'銝','鈭?,'銝?,'??,'鈭?,'??];
+    if (confirm(`蝣箏?閬???{name}??文?嚗n(憒???箏?隤脰”?抒???嚗?敺玨銵其葉瘞訾?蝘駁)`)) {
         // Remove from template
         if (WORKOUT_ROUTINES[routineKey]) {
             WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
@@ -931,10 +933,10 @@ function saveGeminiKey() {
     const key = document.getElementById('gemini-api-key').value.trim();
     if (key) {
         setAndSync('gemini_api_key', key);
-        alert("API Key 已儲存�?");
+        alert("API Key 撌脣摮?");
         openScanner(); // refresh UI
     } else {
-        alert("請輸?��??��? API Key�?);
+        alert("隢撓?交??? API Key嚗?);
     }
 }
 
@@ -997,7 +999,7 @@ async function callGeminiVisionAPI(input) {
                         body: JSON.stringify({
                             contents: [{
                                 parts: [
-                                    { text: "你是一位�?業�?養師?��??��??�張?��??�\n\n?��??��??�示：\n1. 如�??��??�「�?養�?示」�?請直?�精準�??��?籤�??�大?�、�??�質?�碳水�??�肪?�值�?並�??��?裝總份�?算出?�份?�數?�。\n2. 如�??��??��??��??��?請估算�??��??��??�數(grams)，使?�台??��見�?稱�?並根?��?福部資�?庫�?算�?絕�?禁止低估?��?！\n3. 請幫?�整份�??�想一??2-5 ?��??�總?�稱 (例�?: ?�骨便當?��?奶、�??��?)?�\n\n以嚴?��? JSON ?�件?��??�傳，�?�?markdown 語�??�格式�?{ \"meal_name\": \"字串\", \"items\": [ { \"name\": \"標�?食物?�\", \"grams\": ?��?, \"cal\": ?��?, \"pro\": ?��?, \"carb\": ?��?, \"fat\": ?��? } ] }" },
+                                    { text: "雿銝雿?璆剔?擗葦?????撐?抒??n\n?????內嚗n1. 憒??抒??胯?擗?蝷箝?隢?亦移皞???蝐支??之?～??質釭?４瘞渲???詨潘?銝虫???鋆蜇隞賡?蝞?港遢??潦n2. 憒??抒??臭??祇??抬?隢摯蝞??????(grams)嚗蝙?典??虜閬?蝔梧?銝行??蝳鞈?摨怨?蝞?蝯?蝳迫雿摯?梢?嚗n3. 隢鼠?隞賡??拇銝??2-5 ???蜇?迂 (靘?: ?爸靘輻??憟嗚???)?n\n隞亙?潛? JSON ?拐辣?澆??嚗?閬?markdown 隤??撘?{ \"meal_name\": \"摮葡\", \"items\": [ { \"name\": \"璅?憌?", \"grams\": ?詨?, \"cal\": ?詨?, \"pro\": ?詨?, \"carb\": ?詨?, \"fat\": ?詨? } ] }" },
                                     { inline_data: { mime_type: file.type, data: base64String } }
                                 ]
                             }]
@@ -1033,7 +1035,7 @@ async function callGeminiVisionAPI(input) {
                 
                 const aiResults = JSON.parse(jsonText);
                 
-                document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI ?�慧組�?�?;
+                document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI ?箸蝯?擗?;
                 
                 const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
                 currentScanItems = itemsArray.map(item => {
@@ -1078,7 +1080,7 @@ async function callGeminiVisionAPI(input) {
             } catch (err) {
                 clearInterval(progressInterval);
                 progContainer.style.display = 'none';
-                alert('API ?�叫失�?，�?檢查 API Key ?�照?�格式�?\\n' + err.message);
+                alert('API ?澆憭望?嚗?瑼Ｘ API Key ??撘?\\n' + err.message);
                 document.getElementById('btn-camera').style.display = 'block';
             }
             };
@@ -1096,7 +1098,7 @@ function renderScanChecklist() {
                 <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
                 <div>
                     <div style="font-weight: 600;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">�?${item.grams}g</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">蝝?${item.grams}g</div>
                 </div>
             </div>
             <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} kcal</div>
@@ -1126,14 +1128,14 @@ function confirmScanResults() {
     try {
         const selectedItems = currentScanItems.filter(item => item.checked);
         if(selectedItems.length === 0) {
-            alert("請至少勾?��??��??��?");
+            alert("隢撠?訾????抬?");
             return;
         }
         
         const mealType = document.getElementById('scan-meal-type').value;
         const now = new Date();
         const mealNameInput = document.getElementById('scan-meal-name').value.trim();
-        const groupName = mealNameInput || 'AI ?�慧組�?�?;
+        const groupName = mealNameInput || 'AI ?箸蝯?擗?;
 
         const totalCal = selectedItems.reduce((sum, item) => sum + item.cal, 0);
         const totalPro = selectedItems.reduce((sum, item) => sum + (item.pro || 0), 0);
@@ -1160,7 +1162,7 @@ function confirmScanResults() {
         renderLogs();
         if (typeof updateDashboard === 'function') updateDashboard();
         
-        alert(`?��?�?${selectedItems.length} ?��??��??��??��??��?`);
+        alert(`??撠?${selectedItems.length} ???拇????亦???`);
         
         closeScanner();
         
@@ -1171,7 +1173,7 @@ function confirmScanResults() {
         resetScanner();
         
     } catch (e) {
-        alert("確�??�發?�錯�? " + e.message);
+        alert("蝣箄???隤? " + e.message);
         console.error(e);
     }
 }
@@ -1180,7 +1182,7 @@ function confirmScanResults() {
 function updateDashboard() {
     const greeting = document.getElementById('overview-greeting');
     if (greeting) {
-        greeting.innerText = userProfile.nickname ? `${userProfile.nickname} ?�總覽` : '總覽';
+        greeting.innerText = userProfile.nickname ? `${userProfile.nickname} ?蜇閬窯 : '蝮質汗';
     }
     // Calculate today's totals
     let todayEaten = 0, todayPro = 0, todayCarb = 0, todayFat = 0;
@@ -1245,7 +1247,7 @@ function openFoodDB(meal) {
 
 function changeAddingMeal(meal) {
     currentAddingMeal = meal;
-    const mealMap = { breakfast: '?��?', lunch: '?��?', dinner: '?��?', snack: '?��?' };
+    const mealMap = { breakfast: '?拚?', lunch: '??', dinner: '??', snack: '??' };
     document.getElementById('cart-meal-label').innerHTML = `${mealMap[meal]} <i class="fa-solid fa-caret-up" style="font-size: 10px; margin-left: 2px;"></i>`;
 }
 
@@ -1274,11 +1276,11 @@ function renderDBContent(searchQuery = '') {
     let filteredFoods = [];
     
     if (searchQuery.trim() !== '') {
-        document.getElementById('db-category-title').innerText = '?��?結�?';
+        document.getElementById('db-category-title').innerText = '??蝯?';
         filteredFoods = foodDatabase.foods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
     } else {
         const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
-        document.getElementById('db-category-title').innerText = title + '�?;
+        document.getElementById('db-category-title').innerText = title + '憿?;
         
         if (activeCategory === 'custom') {
             filteredFoods = foodDatabase.foods.filter(f => f.categoryId === 'custom' || favoriteFoodIds.includes(f.id));
@@ -1330,7 +1332,7 @@ function toggleFavorite(e, id) {
     // Cannot unfavorite a purely custom food unless we delete it entirely
     const food = foodDatabase.foods.find(f => f.id === id);
     if(food && food.categoryId === 'custom') {
-        alert('?�是?�建立�??��?食物，�?設�??��??��??�中?��?');
+        alert('??典遣蝡??芾?憌嚗?閮剜??冽????葉??');
         return;
     }
     
@@ -1467,10 +1469,10 @@ function copyYesterdayMeal() {
         });
         updateCartUI();
         
-        const mealMap = { breakfast: '?��?', lunch: '?��?', dinner: '?��?', snack: '?��?' };
-        alert(`已�??�日??${mealMap[currentAddingMeal]} ??${yestLogs.length} ?��??��??��??��??�中！�?點�?左�?角「�??��??�」確認送出?�`);
+        const mealMap = { breakfast: '?拚?', lunch: '??', dinner: '??', snack: '??' };
+        alert(`撌脣??冽??${mealMap[currentAddingMeal]} ??${yestLogs.length} ???拙??亙??賊??支葉嚗?暺?撌虫?閫??賊??扎Ⅱ隤?);
     } else {
-        alert('?�日此�??�任何�??��?);
+        alert('?冽甇日??∩遙雿???);
     }
 }
 
@@ -1615,50 +1617,50 @@ function showInfo(type) {
     const content = document.getElementById('info-modal-content');
     
     if (type === 'bmi') {
-        title.innerHTML = '<i class="fa-solid fa-weight-scale" style="color: var(--accent-primary); margin-right: 8px;"></i>BMI 計�??��?';
+        title.innerHTML = '<i class="fa-solid fa-weight-scale" style="color: var(--accent-primary); margin-right: 8px;"></i>BMI 閮??砍?';
         content.innerHTML = `
-            <p style="margin-bottom: 8px;"><strong>計�??��?�?/strong></p>
+            <p style="margin-bottom: 8px;"><strong>閮??砍?嚗?/strong></p>
             <p style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-family: monospace; text-align: center; margin-bottom: 16px;">
-                BMI = 體�?(kg) / (身�?(m) ? 身�?(m))
+                BMI = 擃?(kg) / (頨恍?(m) ? 頨恍?(m))
             </p>
-            <p style="margin-bottom: 8px;"><strong>?�康範�??�考�?</strong></p>
+            <p style="margin-bottom: 8px;"><strong>?亙熒蝭???</strong></p>
             <ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 12px;">
-                <li>體�??��?: BMI < 18.5</li>
-                <li>?�康體�?: 18.5 ??BMI < 24.0</li>
-                <li>?��?範�?: 24.0 ??BMI < 27.0</li>
-                <li>?��?警�?: BMI ??27.0</li>
+                <li>擃???: BMI < 18.5</li>
+                <li>?亙熒擃?: 18.5 ??BMI < 24.0</li>
+                <li>??蝭?: 24.0 ??BMI < 27.0</li>
+                <li>?亥?霅西?: BMI ??27.0</li>
             </ul>
             <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; background: rgba(255, 184, 108, 0.1); padding: 8px; border-radius: 8px; border-left: 3px solid #ffb86c;">
-                <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> <strong>?�別??BMI�?/strong><br>
-                ?�人??BMI ?�康標�???strong>不�??�別</strong>?��?！�??��??�為 BMI ?��??�辨?��??��??��?比�?，男女性在?�樣??BMI 下�?體�??�可?��??��?大差?��??�此建議?��?體�??��?起�??��??��?確�?
+                <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> <strong>?批??BMI嚗?/strong><br>
+                ?犖??BMI ?亙熒璅???strong>銝??批</strong>??嚗???? BMI ?⊥??儘?????芰?瘥?嚗憟單批?見??BMI 銝?擃???賣???憭批榆?堆??迨撱箄降?剝?擃???韏瑕????湔?蝣綽?
             </p>
         `;
     }
 
     if (type === 'water') {
-        title.innerHTML = '<i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>飲水建議';
+        title.innerHTML = '<i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>憌脫偌撱箄降';
         content.innerHTML = `
-            <p>每日建議飲水??<strong style="color: var(--accent-secondary); font-size: 16px;">${TARGET_WATER} ml</strong></p>
+            <p>瘥撱箄降憌脫偌??<strong style="color: var(--accent-secondary); font-size: 16px;">${TARGET_WATER} ml</strong></p>
             <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px;">
-                <p style="margin-bottom: 4px;"><strong>計�??��?�?/strong></p>
-                <p>體�? ${userProfile.weight} kg * 35 ml = <strong>${TARGET_WATER} ml</strong></p>
+                <p style="margin-bottom: 4px;"><strong>閮??砍?嚗?/strong></p>
+                <p>擃? ${userProfile.weight} kg * 35 ml = <strong>${TARGET_WATER} ml</strong></p>
             </div>
-            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 建議?�次小口飲用，若流�?多可?�度增�???/p>
+            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 撱箄降?活撠憌脩嚗瘚?憭?拙漲憓???/p>
         `;
     } else if (type === 'burned') {
-        title.innerHTML = '<i class="fa-solid fa-fire" style="color: #ff9ff3; margin-right: 8px;"></i>?��?消耗�???;
+        title.innerHTML = '<i class="fa-solid fa-fire" style="color: #ff9ff3; margin-right: 8px;"></i>??瘨???;
         content.innerHTML = `
-            <p><strong>?��??��??�卡紀?��?不影?��??�可?�熱?��??��?/strong></p>
+            <p><strong>???箇??蝝??銝蔣?踵??亙?????/strong></p>
             <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px; line-height: 1.5;">
-                <p style="color: #ffb86c; font-weight: 600; margin-bottom: 8px;"><i class="fa-solid fa-triangle-exclamation"></i> ?��?麼�?增�??��??��?�?/p>
-                <p>?�為你�??�TDEE 每日總�??�」已經�??��?你選?��?<strong>活�?係數</strong> (例�?每週�???3 �??��??��??��??��?外�??��??�熱?��??��???strong>?��?計�? (Double Counting)</strong>，破壞熱?�缺??���?/p>
+                <p style="color: #ffb86c; font-weight: 600; margin-bottom: 8px;"><i class="fa-solid fa-triangle-exclamation"></i> ?箔?暻潔?憓??臬??梢?嚗?/p>
+                <p>?雿??DEE 瘥蝮賣??歇蝬??思?雿??<strong>瘣餃?靽</strong> (靘?瘥梢???3 甈?????????憭??????????strong>??閮? (Double Counting)</strong>嚗憯?撩??嚗?/p>
             </div>
-            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 請直?�照?�「剩�?kcal?��?心�?，�??��??�就來這裡記�?一筆即?��?</p>
+            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 隢?亦?擗?kcal??敹?嚗??駁??停靘ㄐ閮?銝蝑?荔?</p>
         `;
     } else if (type === 'cals') {
         let bmr = 0;
         let bmrFormula = '';
-        let genderConstant = userProfile.gender === 'male' ? '+ 5 (?�性常??' : '- 161 (女性常??';
+        let genderConstant = userProfile.gender === 'male' ? '+ 5 (?瑟批虜??' : '- 161 (憟單批虜??';
         let constantVal = userProfile.gender === 'male' ? '+ 5' : '- 161';
         
         if (userProfile.gender === 'male') {
@@ -1669,7 +1671,7 @@ function showInfo(type) {
         
         bmrFormula = `
             <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px; line-height: 1.5;">
-                <span style="color: var(--text-main);">10</span> ? 體�?(kg) + <span style="color: var(--text-main);">6.25</span> ? 身�?(cm) - <span style="color: var(--text-main);">5</span> ? 年齡 <span style="color: var(--text-main);">${genderConstant}</span>
+                <span style="color: var(--text-main);">10</span> ? 擃?(kg) + <span style="color: var(--text-main);">6.25</span> ? 頨恍?(cm) - <span style="color: var(--text-main);">5</span> ? 撟湧翩 <span style="color: var(--text-main);">${genderConstant}</span>
             </div>
             <div>
                 10 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.weight}</span> + 6.25 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.height}</span> - 5 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.age}</span> <span style="color: var(--accent-secondary); font-weight: bold;">${constantVal}</span> = <strong>${Math.round(bmr)}</strong>
@@ -1678,54 +1680,54 @@ function showInfo(type) {
 
         let tdee = bmr * parseFloat(userProfile.activity);
         
-        let goalText = '維�??��? (?�調??';
+        let goalText = '蝬剜??曄? (?∟矽??';
         let targetCalText = `TDEE = <strong>${TARGET_CALS} kcal</strong>`;
         let pace = userProfile.pace || 'standard';
         
         if(userProfile.goal === 'cut' || userProfile.goal === 'lose') {
             if (pace === 'conservative') {
-                goalText = '穩健減�? (-10%)';
+                goalText = '蝛拙皜? (-10%)';
                 targetCalText = `${Math.round(tdee)} * 0.9 = <strong>${TARGET_CALS} kcal</strong>`;
             } else {
-                goalText = '穩健減�? (-15%)';
+                goalText = '蝛拙皜? (-15%)';
                 targetCalText = `${Math.round(tdee)} * 0.85 = <strong>${TARGET_CALS} kcal</strong>`;
             }
         } else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
             if (pace === 'conservative') {
-                goalText = '乾淨增�? (+5%)';
+                goalText = '銋暹楊憓? (+5%)';
                 targetCalText = `${Math.round(tdee)} * 1.05 = <strong>${TARGET_CALS} kcal</strong>`;
             } else {
-                goalText = '乾淨增�? (+10%)';
+                goalText = '銋暹楊憓? (+10%)';
                 targetCalText = `${Math.round(tdee)} * 1.10 = <strong>${TARGET_CALS} kcal</strong>`;
             }
         } else if (userProfile.goal === 'recomp') {
-            goalText = '身�??��? (-5%)';
+            goalText = '頨恍??? (-5%)';
             targetCalText = `${Math.round(tdee)} * 0.95 = <strong>${TARGET_CALS} kcal</strong>`;
         }
 
         let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
         if (TARGET_CALS === minCals) {
-            targetCalText += ` <br><span style="color:#ff6b6b; font-size:11px;">(已觸?��?低�??�熱?�防�?${minCals} kcal)</span>`;
+            targetCalText += ` <br><span style="color:#ff6b6b; font-size:11px;">(撌脰孛?潭?雿??函?霅?${minCals} kcal)</span>`;
         }
 
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?��??��?說�?';
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?格??梢?隤芣?';
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 1: ?��?�????(BMR)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">維�??�命?�?�?��?低熱?��??�。使??Mifflin-St Jeor ?��?�?/p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 1: ?箇?隞????(BMR)</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">蝬剜??????雿???蝙??Mifflin-St Jeor ?砍?嚗?/p>
                     <p>${bmrFormula}</p>
                 </div>
                 
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 2: 每日總�??�熱??(TDEE)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">BMR 乘�?活�?係數得出每日總�??�熱?��?/p>
-                    <p>${Math.round(bmr)} * ${userProfile.activity} (活�?係數) = <strong>${Math.round(tdee)} kcal</strong></p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 2: 瘥蝮賣????(TDEE)</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">BMR 銋?瘣餃?靽敺瘥蝮賣????/p>
+                    <p>${Math.round(bmr)} * ${userProfile.activity} (瘣餃?靽) = <strong>${Math.round(tdee)} kcal</strong></p>
                 </div>
 
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: ?��??��?</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">?��??��?調整總熱?��?${goalText}</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: ?格??梢?</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">?寞??格?隤踵蝮賜??${goalText}</p>
                     <p>${targetCalText}</p>
                 </div>
             </div>
@@ -1741,23 +1743,23 @@ function showInfo(type) {
             fatMultiplier = 0.8;
         }
 
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?��??��?素說??;
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?格???蝝牧??;
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大?��?素�???/p>
-                    <p style="color: var(--text-muted); margin-bottom: 8px;">以�??�為?��?計�??�白質�??�肪，並?�碳水填滿剩餘熱?��?/p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">銝之??蝝???/p>
+                    <p style="color: var(--text-muted); margin-bottom: 8px;">隞仿???箸?閮??鞈芾??嚗蒂?函４瘞游‵皛踹擗??/p>
                     
-                    <p style="margin-bottom: 4px;"><strong>?�白�?(每公?��???* ${proMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>?鞈?(瘥?日???* ${proMultiplier}g)</strong></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${TARGET_PRO} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_PRO * 4} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>?�肪 (每公?��???* ${fatMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>? (瘥?日???* ${fatMultiplier}g)</strong></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${fatMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${TARGET_FAT} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_FAT * 9} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>碳水 (?��?填滿)</strong></p>
-                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - ?�白質熱??- ?�肪?��?) ÷ 4</p>
+                    <p style="margin-bottom: 4px;"><strong>蝣單偌 (?梢?憛急遛)</strong></p>
+                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - ?鞈芰??- ??梢?) 繩 4</p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
                 </div>
             </div>
@@ -1776,7 +1778,7 @@ function renderDateStrip() {
     const strips = document.querySelectorAll('.date-strip');
     const baseDate = new Date(selectedLogDate || todayDateStr);
     const currentDayOfWeek = baseDate.getDay();
-    const days = ['??, '一', '�?, '�?, '??, '�?, '??];
+    const days = ['??, '銝', '鈭?, '銝?, '??, '鈭?, '??];
     
     let html = '';
     for(let i=0; i<7; i++) {
@@ -1784,7 +1786,7 @@ function renderDateStrip() {
         d.setDate(baseDate.getDate() - currentDayOfWeek + i);
         
         const dateStr = formatDate(d);
-        const dayName = (dateStr === todayDateStr) ? '�? : days[i];
+        const dayName = (dateStr === todayDateStr) ? '隞? : days[i];
         const dateNum = d.getDate();
         
         const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
@@ -1809,7 +1811,7 @@ function selectLogDate(dateStr) {
     const d = new Date(dateStr);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
-    document.getElementById('log-view-title').innerText = `紀??(${m}/${dt})`;
+    document.getElementById('log-view-title').innerText = `蝝??(${m}/${dt})`;
     
     // Also update workout tab if it's active
     renderWorkout();
@@ -1818,10 +1820,10 @@ function selectLogDate(dateStr) {
 function renderLogs() {
     const container = document.getElementById('all-logs');
     const mealMap = { 
-        breakfast: '<span class="iconify" data-icon="fluent-emoji-flat:cooking" style="margin-right:8px; font-size:18px;"></span>?��?', 
-        lunch: '<span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="margin-right:8px; font-size:18px;"></span>?��?', 
-        dinner: '<span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="margin-right:8px; font-size:18px;"></span>?��?', 
-        snack: '<span class="iconify" data-icon="fluent-emoji-flat:cookie" style="margin-right:8px; font-size:18px;"></span>?��?' 
+        breakfast: '<span class="iconify" data-icon="fluent-emoji-flat:cooking" style="margin-right:8px; font-size:18px;"></span>?拚?', 
+        lunch: '<span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="margin-right:8px; font-size:18px;"></span>??', 
+        dinner: '<span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="margin-right:8px; font-size:18px;"></span>??', 
+        snack: '<span class="iconify" data-icon="fluent-emoji-flat:cookie" style="margin-right:8px; font-size:18px;"></span>??' 
     };
     
     let html = '';
@@ -1834,7 +1836,7 @@ function renderLogs() {
         <div class="meal-group-card" style="margin-bottom: 16px;">
             <div class="meal-group-header" style="margin-bottom: 12px; align-items: center;">
                 <div style="display:flex; align-items:baseline;">
-                    <h3><i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>飲水</h3>
+                    <h3><i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>憌脫偌</h3>
                 </div>
                 <div style="display:flex; align-items:center; gap: 8px;">
                     <button class="btn-icon" style="width:24px;height:24px;font-size:12px;background:var(--bg-main);" onclick="updateLogWater(-250)">-</button>
@@ -1871,7 +1873,7 @@ function renderLogs() {
                     if (item.subItems && item.subItems.length > 0) {
                         let subHTML = '';
                         item.subItems.forEach(sub => {
-                            let sIconHtml = '?���?;
+                            let sIconHtml = '?儭?;
                             let sIconStyle = 'width:28px; height:28px; background:var(--bg-main); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size: 14px;';
                             const sBaseName = sub.name.split(' (')[0];
                             const sDbFood = foodDatabase.foods.find(f => f.name.includes(sBaseName));
@@ -1888,7 +1890,7 @@ function renderLogs() {
                                         <div style="${sIconStyle}">${sIconHtml}</div>
                                         <div>
                                             <div style="font-size:13px; font-weight:500;">${sBaseName}</div>
-                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g ??�?{Math.round(sub.carb*10)/10} ??{Math.round(sub.pro*10)/10} ??{Math.round(sub.fat*10)/10}</div>
+                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g ??蝣?{Math.round(sub.carb*10)/10} ??{Math.round(sub.pro*10)/10} ??{Math.round(sub.fat*10)/10}</div>
                                         </div>
                                     </div>
                                     <div style="font-size:13px; font-weight:600; color:var(--text-main);">${sub.cal}kcal</div>
@@ -1904,7 +1906,7 @@ function renderLogs() {
                                         <div class="meal-item-info">
                                             <div class="meal-item-name">${item.name}</div>
                                             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                                <span><span style="color: var(--carb-color); font-weight: bold;">�?/span> ${Math.round(item.carb*10)/10}g</span>
+                                                <span><span style="color: var(--carb-color); font-weight: bold;">蝣?/span> ${Math.round(item.carb*10)/10}g</span>
                                                 <span><span style="color: var(--pro-color); font-weight: bold;">??/span> ${Math.round(item.pro*10)/10}g</span>
                                                 <span><span style="color: var(--fat-color); font-weight: bold;">??/span> ${Math.round(item.fat*10)/10}g</span>
                                             </div>
@@ -1924,7 +1926,7 @@ function renderLogs() {
                             </div>
                         `;
                     } else {
-                        let iconHtml = '?���?;
+                        let iconHtml = '?儭?;
                         let iconStyle = '';
                         let desc = '1??;
                         if(item.name.includes('(')) {
@@ -1947,7 +1949,7 @@ function renderLogs() {
                                     <div class="meal-item-name">${baseName}</div>
                                     <div class="meal-item-desc">${desc}</div>
                                     <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                        <span><span style="color: var(--carb-color); font-weight: bold;">�?/span> ${Math.round(item.carb*10)/10}g</span>
+                                        <span><span style="color: var(--carb-color); font-weight: bold;">蝣?/span> ${Math.round(item.carb*10)/10}g</span>
                                         <span><span style="color: var(--pro-color); font-weight: bold;">??/span> ${Math.round(item.pro*10)/10}g</span>
                                         <span><span style="color: var(--fat-color); font-weight: bold;">??/span> ${Math.round(item.fat*10)/10}g</span>
                                     </div>
@@ -1968,9 +1970,9 @@ function renderLogs() {
                 
             let suggestStr = '';
             if(meal === 'breakfast' || meal === 'dinner') {
-                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.25)} - ${Math.round(TARGET_CALS * 0.35)} kcal`;
+                suggestStr = `撱箄降 ${Math.round(TARGET_CALS * 0.25)} - ${Math.round(TARGET_CALS * 0.35)} kcal`;
             } else if(meal === 'lunch') {
-                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.35)} - ${Math.round(TARGET_CALS * 0.45)} kcal`;
+                suggestStr = `撱箄降 ${Math.round(TARGET_CALS * 0.35)} - ${Math.round(TARGET_CALS * 0.45)} kcal`;
             }
             
             html += `
@@ -1991,7 +1993,7 @@ function renderLogs() {
 }
 
 document.getElementById('btn-clear').addEventListener('click', () => {
-    if(confirm('確�?要�?空�?天�?飲�?紀?��?�?)) {
+    if(confirm('蝣箏?閬?蝛箔?憭拍?憌脤?蝝??嚗?)) {
         logs = [];
         localStorage.removeItem('fitness_logs');
         if (typeof triggerAutoSync === 'function') triggerAutoSync();
@@ -2032,24 +2034,24 @@ function setupProfile() {
         const tdee = getPreviewTDEE();
         const paceOptions = {
             cut: [
-                { value: 'conservative', text: `?�� 保�?減�? (-10% / �?-${Math.round(tdee * 0.1)} kcal)` },
-                { value: 'standard', text: `??標�?減�? �?(-15% / �?-${Math.round(tdee * 0.15)} kcal)` }
+                { value: 'conservative', text: `? 靽?皜? (-10% / 蝝?-${Math.round(tdee * 0.1)} kcal)` },
+                { value: 'standard', text: `??璅?皜? 潃?(-15% / 蝝?-${Math.round(tdee * 0.15)} kcal)` }
             ],
             bulk: [
-                { value: 'conservative', text: `?�� 保�?增�? (+5% / �?+${Math.round(tdee * 0.05)} kcal)` },
-                { value: 'standard', text: `??標�?增�? �?(+10% / �?+${Math.round(tdee * 0.1)} kcal)` }
+                { value: 'conservative', text: `? 靽?憓? (+5% / 蝝?+${Math.round(tdee * 0.05)} kcal)` },
+                { value: 'standard', text: `??璅?憓? 潃?(+10% / 蝝?+${Math.round(tdee * 0.1)} kcal)` }
             ],
             maintain: [
-                { value: 'standard', text: '標�?維�? (0% / 完�??�平)' }
+                { value: 'standard', text: '璅?蝬剜? (0% / 摰??像)' }
             ],
             recomp: [
-                { value: 'auto', text: `系統?��?計�??�佳缺??(-5% / �?-${Math.round(tdee * 0.05)} kcal)` }
+                { value: 'auto', text: `蝟餌絞?芸?閮??雿喟撩??(-5% / 蝝?-${Math.round(tdee * 0.05)} kcal)` }
             ],
             lose: [
-                { value: 'standard', text: `??標�?減�? �?(-15% / �?-${Math.round(tdee * 0.15)} kcal)` }
+                { value: 'standard', text: `??璅?皜? 潃?(-15% / 蝝?-${Math.round(tdee * 0.15)} kcal)` }
             ],
             gain: [
-                { value: 'standard', text: `??標�?增�? �?(+10% / �?+${Math.round(tdee * 0.1)} kcal)` }
+                { value: 'standard', text: `??璅?憓? 潃?(+10% / 蝝?+${Math.round(tdee * 0.1)} kcal)` }
             ]
         };
 
@@ -2127,7 +2129,7 @@ function setupProfile() {
         setAndSync('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
         updateDashboard();
-        alert('?��??��?！已?�新計�??��??��???);
+        alert('?脣???嚗歇?閮??格??梢???);
     });
 }
 
@@ -2166,11 +2168,11 @@ function saveCustomFood() {
     const f = parseFloat(document.getElementById('cf-fat').value) || 0;
 
     if (!name) {
-        alert("請填寫�??��?稱�?");
+        alert("隢‵撖恍??拙?蝔梧?");
         return;
     }
     if (isNaN(cals) || cals < 0) {
-        alert("請填寫正確�??��??�值�?");
+        alert("隢‵撖急迤蝣箇??梢??詨潘?");
         return;
     }
 
@@ -2180,7 +2182,7 @@ function saveCustomFood() {
         name: name,
         cals: cals,
         macros: { p, c, f },
-        icon: '?��?'
+        icon: '?歹?'
     };
 
     // Save to local custom foods
@@ -2232,7 +2234,7 @@ window.toggleSubItems = function(id) {
 };
 
 window.deleteLogItem = function(id) {
-    if (!confirm("確�?要刪?�這�?紀?��?�?)) return;
+    if (!confirm("蝣箏?閬?日?蝝??嚗?)) return;
     logs = logs.filter(log => log.id !== id);
     setAndSync('fitness_logs', JSON.stringify(logs));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
@@ -2299,7 +2301,7 @@ function renderOverview() {
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     
-    const formatRange = (d) => `${d.getMonth()+1}??{d.getDate()}?�`;
+    const formatRange = (d) => `${d.getMonth()+1}??{d.getDate()}?匝;
     const rangeText = `${formatRange(startOfWeek)} - ${formatRange(endOfWeek)}`;
     document.getElementById('overview-weight-date-range').innerText = rangeText;
     document.getElementById('overview-cal-date-range').innerText = rangeText;
@@ -2307,7 +2309,7 @@ function renderOverview() {
     const burnedRangeEl = document.getElementById('overview-burned-date-range');
     if (burnedRangeEl) burnedRangeEl.innerText = rangeText;
     
-    const labels = ['一', '�?, '�?, '??, '�?, '??, '??];
+    const labels = ['銝', '鈭?, '銝?, '??, '鈭?, '??, '??];
     const subLabels = [];
     const weightData = [];
     const calorieData = [];
@@ -2372,14 +2374,14 @@ function renderOverview() {
     
     document.getElementById('overview-current-weight').innerText = `${lastValidWeight} kg`;
     const avgCal = daysWithCal > 0 ? Math.round(sumCal / daysWithCal) : 0;
-    document.getElementById('overview-avg-cal').innerText = `${avgCal} 大卡`;
+    document.getElementById('overview-avg-cal').innerText = `${avgCal} 憭批`;
     
     const avgBurned = daysWithBurned > 0 ? Math.round(sumBurned / daysWithBurned) : 0;
     const avgBurnedTime = daysWithBurned > 0 ? Math.round(sumBurnedTime / daysWithBurned) : 0;
     const elAvgBurned = document.getElementById('overview-avg-burned');
     if (elAvgBurned) {
         if (avgBurnedTime > 0) {
-            elAvgBurned.innerText = `${avgBurned} kcal, ${avgBurnedTime} ?��?`;
+            elAvgBurned.innerText = `${avgBurned} kcal, ${avgBurnedTime} ??`;
         } else {
             elAvgBurned.innerText = `${avgBurned} kcal`;
         }
@@ -2397,7 +2399,7 @@ function renderOverview() {
                 callbacks: {
                     title: function(context) {
                         const idx = context[0].dataIndex;
-                        return `?��?${labels[idx]} (${subLabels[idx]})`;
+                        return `??${labels[idx]} (${subLabels[idx]})`;
                     }
                 }
             }
@@ -2532,7 +2534,7 @@ function renderOverview() {
                                 const val = context.raw;
                                 const time = burnedTimeData[context.dataIndex];
                                 if (time > 0) {
-                                    return `${val} kcal (${time} ?��?)`;
+                                    return `${val} kcal (${time} ??)`;
                                 }
                                 return `${val} kcal`;
                             }
@@ -2599,7 +2601,7 @@ function renderCalendar() {
         
         const titleEl = document.getElementById('calendar-month-title');
         if (titleEl) {
-            titleEl.innerText = year + '�?' + String(month + 1).padStart(2, '0') + '??;
+            titleEl.innerText = year + '撟?' + String(month + 1).padStart(2, '0') + '??;
         }
         
         const firstDay = new Date(year, month, 1).getDay();
@@ -2694,10 +2696,10 @@ document.addEventListener('touchmove', (e) => {
         
         if (visualDistance > PTR_THRESHOLD * 0.4) {
             ptrIcon.style.transform = 'rotate(180deg)';
-            ptrText.innerText = '?��?以�??�整??;
+            ptrText.innerText = '?暸?隞仿??唳??;
         } else {
             ptrIcon.style.transform = 'rotate(0deg)';
-            ptrText.innerText = '下�?以�??�整??..';
+            ptrText.innerText = '銝?隞仿??唳??..';
         }
     }
 }, {passive: false});
@@ -2714,7 +2716,7 @@ document.addEventListener('touchend', () => {
     if (visualDistance > PTR_THRESHOLD * 0.4 && ptrCurrentY > ptrStartY) {
         ptrIndicator.style.transform = 'translateY(0px)';
         ptrIcon.className = 'fa-solid fa-spinner fa-spin';
-        ptrText.innerText = '?�新�?..';
+        ptrText.innerText = '?湔銝?..';
         
         setTimeout(() => {
             window.location.reload(true);
@@ -2725,8 +2727,9 @@ document.addEventListener('touchend', () => {
             if(ptrIcon) {
                 ptrIcon.className = 'fa-solid fa-arrow-down';
                 ptrIcon.style.transform = 'rotate(0deg)';
-                ptrText.innerText = '下�?以�??�整??..';
+                ptrText.innerText = '銝?隞仿??唳??..';
             }
         }, 300);
     }
 });
+
