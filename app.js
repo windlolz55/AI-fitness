@@ -11,9 +11,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-db.enablePersistence().catch(err => {
-    console.error("Firestore persistence error", err);
-});
+// Persistence removed to prevent iOS Safari multi-tab IndexedDB lockups
 
 // Auth State Observer
 auth.onAuthStateChanged((user) => {
@@ -119,9 +117,6 @@ function setupFirestoreListener(uid) {
     
     unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
         if (doc.exists) {
-            // Ignore local writes (they are already in memory)
-            if (doc.metadata.hasPendingWrites) return;
-
             const data = doc.data();
             
             // 1. Force overwrite memory variables from Cloud
