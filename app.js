@@ -1,4 +1,4 @@
-// Firebase Config
+﻿// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBr2YDukv10alEJMleNnSx7dA34jI65HVg",
   authDomain: "ai-fitness-app-e5bd5.firebaseapp.com",
@@ -1334,9 +1334,6 @@ function setupDailyTracking() {
         const newWeight = parseFloat(e.target.value);
         if (!isNaN(newWeight)) {
             dailyData[todayDateStr].weight = newWeight;
-            userProfile.weight = newWeight;
-            setAndSync('fitness_profile', JSON.stringify(userProfile));
-            calculateTargets();
             updateDailyData();
         }
     });
@@ -2025,13 +2022,6 @@ window.updateLogWeight = function(delta) {
     dailyData[selectedLogDate].weight = currentWeight;
     setAndSync('fitness_daily', JSON.stringify(dailyData));
     
-    // If modifying today's weight, sync it back to profile and dashboard
-    if (selectedLogDate === todayDateStr) {
-        document.getElementById('weight-val').innerText = currentWeight.toFixed(1);
-        userProfile.weight = currentWeight;
-        setAndSync('fitness_profile', JSON.stringify(userProfile));
-        calculateTargets();
-    }
     
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
     renderLogs();
@@ -2443,4 +2433,5 @@ try {
 } catch (e) {
     alert("Startup error: " + e.message + "\\n" + e.stack);
 }
+
 
