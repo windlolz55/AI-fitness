@@ -1447,8 +1447,6 @@ function showInfo(type) {
                 <li>肥胖警訊: BMI ≧ 30</li>
             </ul>
         `;
-        document.getElementById('info-modal').style.display = 'flex';
-        return;
     }
 
     if (type === 'water') {
