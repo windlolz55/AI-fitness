@@ -156,12 +156,12 @@ function handleLogout() {
             }, 100);
         };
 
-        // Extreme absolute failsafe: reload no matter what after 2.5 seconds
-        setTimeout(forceClearAndReload, 2500);
+        // Extreme absolute failsafe: reload no matter what after 4 seconds
+        setTimeout(forceClearAndReload, 4000);
 
-        // Try to save, wait at most 1.5 seconds
+        // Try to save, wait at most 3 seconds
         const savePromise = saveToFirestore();
-        const saveTimeout = new Promise(resolve => setTimeout(resolve, 1500));
+        const saveTimeout = new Promise(resolve => setTimeout(resolve, 3000));
         
         Promise.race([savePromise, saveTimeout]).finally(() => {
             // Then try to sign out (guaranteed to be called now)
