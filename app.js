@@ -135,7 +135,13 @@ function handleSignup() {
 }
 
 function handleLogout() {
-    if (confirm("確定要登出帳號嗎？")) {
+    const pendingSyncTime = parseInt(localStorage.getItem('pending_sync_time') || '0');
+    if (Date.now() - pendingSyncTime < 3000) {
+        alert("資料正在努力飛往雲端，請給它 3 秒鐘的時間，稍後再按登出！");
+        return;
+    }
+
+    if (confirm("確定要登出嗎？")) {
         auth.signOut().then(() => {
             const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
