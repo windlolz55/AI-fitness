@@ -42,7 +42,7 @@
                 <div style="width: 80px; height: 80px; background: var(--accent-primary); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: white; margin-bottom: 16px;">
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.26</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.27</span></h1>
                 <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             </div>
             
@@ -192,9 +192,13 @@
                 <div class="card track-card" style="position: relative;">
                     <h3 style="color: #ffb86c; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-weight-scale" style="margin-right: 6px;"></i> 體重 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
                     <button class="btn-icon" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border: none; font-size: 14px; color: #ffb86c;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-chart-line"></i></button>
-                    <div style="display: flex; align-items: baseline; justify-content: center; margin-top: 12px;">
-                        <input type="number" step="0.1" id="daily-weight" class="input-field" placeholder="輸入" style="text-align: center; font-weight: 700; font-size: 24px; background: transparent; border: none; border-bottom: 2px solid var(--card-border); border-radius: 0; padding: 4px; width: 100px; margin: 0;">
-                        <span style="font-size: 14px; color: var(--text-muted); margin-left: 8px;">kg</span>
+                    <div style="display: flex; align-items: center; justify-content: center; margin-top: 12px; gap: 12px;">
+                        <button id="btn-weight-minus" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,184,108,0.15); color: #ffb86c; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">-</button>
+                        <div style="display: flex; align-items: baseline;">
+                            <input type="number" step="0.1" id="daily-weight" class="input-field" placeholder="輸入" style="text-align: center; font-weight: 700; font-size: 24px; background: transparent; border: none; border-bottom: 2px solid var(--card-border); border-radius: 0; padding: 4px; width: 80px; margin: 0;">
+                            <span style="font-size: 14px; color: var(--text-muted); margin-left: 4px;">kg</span>
+                        </div>
+                        <button id="btn-weight-plus" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,184,108,0.15); color: #ffb86c; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
                     </div>
                 </div>
             </div>
@@ -381,7 +385,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.26 (Cloud Sync)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.27 (Cloud Sync)</p>
             </div>
         </div>
 
@@ -740,6 +744,6 @@
     </div>
 
     <script src="food_db.js?v=6"></script>
-    <script src="app.js?v=1.26"></script>
+    <script src="app.js?v=1.27"></script>
 </body>
 </html>

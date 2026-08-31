@@ -1,4 +1,4 @@
-﻿// Firebase Config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBr2YDukv10alEJMleNnSx7dA34jI65HVg",
   authDomain: "ai-fitness-app-e5bd5.firebaseapp.com",
@@ -138,19 +138,25 @@ function handleLogout() {
     if (confirm("確定要登出嗎？")) {
         // Change UI to indicate saving
         const btn = document.querySelector('[onclick="handleLogout()"]');
-        const originalText = btn ? btn.innerHTML : '';
         if (btn) {
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在同步並登出...';
             btn.style.pointerEvents = 'none';
             btn.style.opacity = '0.7';
         }
 
-        // Force a final save before logging out
+        const forceClearAndReload = () => {
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
+            syncableKeys.forEach(k => localStorage.removeItem(k));
+            window.location.reload(true);
+        };
+
+        // Absolute Failsafe: No matter what happens with promises, force reload after 1.5s
+        setTimeout(forceClearAndReload, 1500);
+
+        // Attempt graceful logout
         saveToFirestore().finally(() => {
-            auth.signOut().then(() => {
-                const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
-                syncableKeys.forEach(k => localStorage.removeItem(k));
-                window.location.reload();
+            auth.signOut().finally(() => {
+                forceClearAndReload();
             });
         });
     }
@@ -2711,3 +2717,56 @@ document.addEventListener('touchend', () => {
         }, 300);
     }
 });
+
+// Quick Weight Adjustment
+function adjustWeight(amount) {
+    const weightInput = document.getElementById('daily-weight');
+    if (!weightInput) return;
+    let current = parseFloat(weightInput.value);
+    if (isNaN(current)) {
+        current = userProfile.weight || 70;
+    }
+    current += amount;
+    if (current < 20) current = 20; // sanity check
+    
+    // Round to 1 decimal place
+    current = Math.round(current * 10) / 10;
+    weightInput.value = current;
+    
+    // Trigger the change event to save
+    weightInput.dispatchEvent(new Event('change'));
+}
+
+const btnWeightMinus = document.getElementById('btn-weight-minus');
+if (btnWeightMinus) btnWeightMinus.addEventListener('click', () => adjustWeight(-0.1));
+
+const btnWeightPlus = document.getElementById('btn-weight-plus');
+if (btnWeightPlus) btnWeightPlus.addEventListener('click', () => adjustWeight(0.1));
+
+// Quick Burned Calories Adjustment
+function adjustBurned(amount) {
+    let burnedEl = document.getElementById('cal-burned');
+    if (!burnedEl) return;
+    let burned = parseFloat(burnedEl.innerText) || 0;
+    burned += amount;
+    if (burned < 0) burned = 0;
+    
+    burnedEl.innerText = Math.round(burned);
+    
+    // Save to daily data
+    if (!dailyData[todayDateStr]) {
+        dailyData[todayDateStr] = {};
+    }
+    dailyData[todayDateStr].burned = Math.round(burned);
+    
+    // Auto sync
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
+    if (typeof updateDashboard === 'function') updateDashboard();
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
+}
+
+const btnBurnedMinus = document.getElementById('btn-burned-minus');
+if (btnBurnedMinus) btnBurnedMinus.addEventListener('click', () => adjustBurned(-50));
+
+const btnBurnedPlus = document.getElementById('btn-burned-plus');
+if (btnBurnedPlus) btnBurnedPlus.addEventListener('click', () => adjustBurned(50));
