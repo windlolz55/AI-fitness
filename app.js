@@ -149,39 +149,55 @@ let isSyncing = false;
 
 function saveToFirestore() {
     const user = auth.currentUser;
-    if (!user || isSyncing) return;
+    if (!user || isSyncing) return Promise.resolve();
+    isSyncing = true;
     
-    db.collection('users').doc(user.uid).set({
+    return db.collection('users').doc(user.uid).set({
         fitness_profile: JSON.stringify(typeof userProfile !== 'undefined' ? userProfile : {}) || '{}',
         fitness_logs: JSON.stringify(typeof logs !== 'undefined' ? logs : []) || '[]',
         fitness_daily: JSON.stringify(typeof dailyData !== 'undefined' ? dailyData : {}) || '{}',
-        fitness_routines: JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {}) || '[]',
+        fitness_routines: JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {}) || '{}',
         customFoods: JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []) || '[]',
         favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
         fitness_theme: document.body.getAttribute('data-theme') || 'light',
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).catch(console.error);
+    }, { merge: true }).then(() => {
+        localStorage.removeItem('pending_sync');
+        isSyncing = false;
+    }).catch(err => {
+        isSyncing = false;
+        console.error(err);
+    });
 }
 
 window.setAndSync = function(key, value) {
     try {
         localStorage.setItem(key, value);
+        localStorage.setItem('pending_sync', 'true');
     } catch(e) {
         console.warn('localStorage setItem failed, bypassing for cloud sync:', e);
     }
     const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
     if (syncableKeys.includes(key)) {
-        saveToFirestore();
+        if (auth.currentUser) {
+            return saveToFirestore();
+        }
     }
+    return Promise.resolve();
 };
-
-
 
 function setupFirestoreListener(uid) {
     if (typeof unsubscribeFirestore === 'function') unsubscribeFirestore();
     
     unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
         if (doc.exists) {
+            // If local storage has pending unsynced changes, push them to cloud instead of overwriting local data
+            if (localStorage.getItem('pending_sync') === 'true') {
+                console.log("Local unsynced data detected. Pushing to cloud...");
+                saveToFirestore();
+                return;
+            }
+
             const data = doc.data();
             let changed = false;
             
