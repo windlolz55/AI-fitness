@@ -1019,6 +1019,10 @@ function confirmScanResults() {
 
 // Dashboard Updates
 function updateDashboard() {
+    const greeting = document.getElementById('overview-greeting');
+    if (greeting) {
+        greeting.innerText = userProfile.nickname ? `${userProfile.nickname} 的總覽` : '總覽';
+    }
     // Calculate today's totals
     let todayEaten = 0, todayPro = 0, todayCarb = 0, todayFat = 0;
     logs.forEach(log => {
@@ -1821,6 +1825,7 @@ document.getElementById('btn-clear').addEventListener('click', () => {
 
 // Profile Logic
 function setupProfile() {
+    const nickname = document.getElementById('nickname');
     const g = document.getElementById('gender');
     const a = document.getElementById('age');
     const h = document.getElementById('height');
@@ -1891,6 +1896,7 @@ function setupProfile() {
         input.addEventListener('change', updatePaceOptions);
     });
 
+    if (nickname) nickname.value = userProfile.nickname || '';
     g.value = userProfile.gender || 'male';
     a.value = userProfile.age || '';
     h.value = userProfile.height || '';
@@ -1931,6 +1937,7 @@ function setupProfile() {
 
     document.getElementById('btn-save-profile').addEventListener('click', () => {
         userProfile = {
+            nickname: nickname ? nickname.value : '',
             gender: g.value,
             age: parseInt(a.value),
             height: parseInt(h.value),
