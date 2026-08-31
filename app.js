@@ -134,32 +134,19 @@ function handleSignup() {
         });
 }
 
-async function handleLogout() {
+function handleLogout() {
+    const pendingSyncTime = parseInt(localStorage.getItem('pending_sync_time') || '0');
+    if (Date.now() - pendingSyncTime < 3000) {
+        alert("資料正在努力飛往雲端，請給它 3 秒鐘的時間，稍後再按登出！");
+        return;
+    }
+
     if (confirm("確定要登出嗎？")) {
-        const btn = document.querySelector('[onclick="handleLogout()"]');
-        if (btn) {
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在同步並登出...';
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.7';
-        }
-
-        try {
-            const savePromise = saveToFirestore();
-            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve('timeout'), 1500));
-            await Promise.race([savePromise, timeoutPromise]);
-        } catch (e) {
-            console.warn("Logout save skipped or failed:", e);
-        }
-
-        try {
-            await auth.signOut();
-        } catch (e) {
-            console.warn("SignOut failed, but clearing local data anyway:", e);
-        }
-
-        const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
-        syncableKeys.forEach(k => localStorage.removeItem(k));
-        window.location.reload();
+        auth.signOut().then(() => {
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
+            syncableKeys.forEach(k => localStorage.removeItem(k));
+            window.location.reload();
+        });
     }
 }
 
