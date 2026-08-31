@@ -1,4 +1,4 @@
-﻿// Firebase Config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBr2YDukv10alEJMleNnSx7dA34jI65HVg",
   authDomain: "ai-fitness-app-e5bd5.firebaseapp.com",
@@ -1330,14 +1330,25 @@ function setupDailyTracking() {
         updateDailyData();
     });
 
-    inputDailyWeight.addEventListener('input', (e) => {
-        dailyData[todayDateStr].weight = e.target.value;
-        updateDailyData();
+    inputDailyWeight.addEventListener('change', (e) => {
+        const newWeight = parseFloat(e.target.value);
+        if (!isNaN(newWeight)) {
+            dailyData[todayDateStr].weight = newWeight;
+            userProfile.weight = newWeight;
+            setAndSync('fitness_profile', JSON.stringify(userProfile));
+            calculateTargets();
+            updateDailyData();
+        }
     });
 }
 
 function updateDailyData() {
     document.getElementById('water-val').innerText = dailyData[todayDateStr].water;
+    
+    const inputDailyWeight = document.getElementById('daily-weight');
+    if (inputDailyWeight && document.activeElement !== inputDailyWeight) {
+        inputDailyWeight.value = dailyData[todayDateStr].weight || userProfile.weight || 70;
+    }
     
     // Also update burned
     const burnedEl = document.getElementById('cal-burned');
