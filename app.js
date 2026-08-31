@@ -1,4 +1,4 @@
-﻿// Firebase Config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBr2YDukv10alEJMleNnSx7dA34jI65HVg",
   authDomain: "ai-fitness-app-e5bd5.firebaseapp.com",
@@ -1432,6 +1432,25 @@ function showInfo(type) {
     const title = document.getElementById('info-modal-title');
     const content = document.getElementById('info-modal-content');
     
+    if (type === 'bmi') {
+        title.innerHTML = '<i class="fa-solid fa-weight-scale" style="color: var(--accent-primary); margin-right: 8px;"></i>BMI 計算公式';
+        content.innerHTML = `
+            <p style="margin-bottom: 8px;"><strong>計算公式：</strong></p>
+            <p style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-family: monospace; text-align: center; margin-bottom: 16px;">
+                BMI = 體重(kg) / (身高(m) × 身高(m))
+            </p>
+            <p style="margin-bottom: 8px;"><strong>健康範圍參考：</strong></p>
+            <ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 0;">
+                <li>體重過輕: BMI < 18.5</li>
+                <li>健康體重: 18.5 ≦ BMI < 24.9</li>
+                <li>過重範圍: 24.9 ≦ BMI < 30</li>
+                <li>肥胖警訊: BMI ≧ 30</li>
+            </ul>
+        `;
+        document.getElementById('info-modal').style.display = 'flex';
+        return;
+    }
+
     if (type === 'water') {
         title.innerHTML = '<i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>飲水建議';
         content.innerHTML = `
@@ -1877,6 +1896,30 @@ function setupProfile() {
     act.value = userProfile.activity || '1.2';
     goal.value = userProfile.goal || 'maintain';
     
+    function updateBMI() {
+        const height = parseFloat(h.value);
+        const weight = parseFloat(w.value);
+        if (height > 0 && weight > 0) {
+            const hM = height / 100;
+            const bmi = weight / (hM * hM);
+            const bmiEl = document.getElementById('inline-bmi-val');
+            if (bmiEl) {
+                bmiEl.innerText = bmi.toFixed(1);
+                const disp = document.getElementById('inline-bmi-display');
+                if (disp) disp.style.display = 'flex';
+            }
+        } else {
+            const disp = document.getElementById('inline-bmi-display');
+            if (disp) disp.style.display = 'none';
+        }
+    }
+
+    [h, w].forEach(input => {
+        input.addEventListener('input', updateBMI);
+        input.addEventListener('change', updateBMI);
+    });
+
+    updateBMI();
     updatePaceOptions();
     if (userProfile.pace) {
         // Only set if option exists

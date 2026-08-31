@@ -332,6 +332,10 @@
                 
                 <label style="font-size: 12px; color: var(--text-muted);">體重 (kg)</label>
                 <input type="number" id="weight" class="input-field" placeholder="體重 (kg)">
+                <div id="inline-bmi-display" style="display: none; margin-top: -8px; margin-bottom: 16px; font-size: 13px; color: var(--text-muted); align-items: center; justify-content: space-between; padding: 0 4px;">
+                    <span>BMI: <strong id="inline-bmi-val" style="color: var(--accent-primary); font-size: 15px;">--</strong></span>
+                    <button class="btn-icon" style="border: none; background: none; font-size: 16px; padding: 4px; color: var(--accent-primary);" onclick="showInfo('bmi')"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
                 
                 <label style="font-size: 12px; color: var(--text-muted);">活動量</label>
                 <select id="activity" class="input-field">
@@ -362,14 +366,7 @@
             
             <button class="btn-secondary" style="width: 100%; margin-top: 24px; color: #ff4757; border-color: #ff4757;" onclick="handleLogout()">登出帳號</button>
 
-            <div id="profile-analysis" class="card" style="padding: 24px; margin-top: 16px; display: none;">
-                <h2 style="font-size: 18px; margin-bottom: 16px; color: var(--accent-primary);">身體密碼分析</h2>
-                <div>
-                    <h3 style="font-size: 14px; color: var(--text-muted);">BMI 與健康體重</h3>
-                    <p style="font-size: 14px; margin-top: 4px;">你的 BMI: <strong id="analysis-bmi">--</strong></p>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">對應你的身高，健康體重建議範圍 <strong id="analysis-weight-range">--</strong> kg</p>
-                </div>
-            </div>
+
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
                 <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace;">AI Fitness v3.3 (Cloud Sync)</p>
