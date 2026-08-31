@@ -31,6 +31,71 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
+// Fix iOS PWA background suspension: force refresh when app comes to foreground
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && auth.currentUser) {
+        console.log("App resumed. Forcing sync...");
+        db.collection('users').doc(auth.currentUser.uid).get({source: 'server'}).then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                let changed = false;
+                
+                const currentProfileStr = JSON.stringify(typeof userProfile !== 'undefined' ? userProfile : {});
+                if (data.fitness_profile && data.fitness_profile !== currentProfileStr) {
+                    userProfile = JSON.parse(data.fitness_profile);
+                    changed = true;
+                }
+                
+                const currentLogsStr = JSON.stringify(typeof logs !== 'undefined' ? logs : []);
+                if (data.fitness_logs && data.fitness_logs !== currentLogsStr) {
+                    logs = JSON.parse(data.fitness_logs);
+                    changed = true;
+                }
+                
+                const currentDailyStr = JSON.stringify(typeof dailyData !== 'undefined' ? dailyData : {});
+                if (data.fitness_daily && data.fitness_daily !== currentDailyStr) {
+                    dailyData = JSON.parse(data.fitness_daily);
+                    changed = true;
+                }
+                
+                const currentRoutinesStr = JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {});
+                if (data.fitness_routines && data.fitness_routines !== currentRoutinesStr) {
+                    WORKOUT_ROUTINES = JSON.parse(data.fitness_routines);
+                    changed = true;
+                }
+                
+                const currentCustomFoodsStr = JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []);
+                if (data.customFoods && data.customFoods !== currentCustomFoodsStr) {
+                    customFoods = JSON.parse(data.customFoods);
+                    changed = true;
+                }
+                
+                const currentFavoriteFoodIdsStr = JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []);
+                if (data.favoriteFoodIds && data.favoriteFoodIds !== currentFavoriteFoodIdsStr) {
+                    favoriteFoodIds = JSON.parse(data.favoriteFoodIds);
+                    changed = true;
+                }
+                
+                if (changed) {
+                    const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+                    keys.forEach(k => {
+                        try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
+                    });
+                    if (typeof calculateTargets === 'function') calculateTargets();
+                    if (typeof setupProfile === 'function') setupProfile();
+                    if (typeof updateDashboard === 'function') updateDashboard();
+                    if (typeof renderLogs === 'function') renderLogs();
+                    if (typeof renderWorkout === 'function') renderWorkout();
+                    if (typeof updateDailyData === 'function') updateDailyData();
+                }
+            }
+        }).catch(err => console.error("Resume sync failed:", err));
+        
+        // Also restart listener to ensure websocket is alive
+        setupFirestoreListener(auth.currentUser.uid);
+    }
+});
+
 function handleLogin() {
     const email = document.getElementById('auth-email').value;
     const password = document.getElementById('auth-password').value;
