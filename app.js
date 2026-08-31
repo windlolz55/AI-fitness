@@ -1,4 +1,4 @@
-// Firebase Config
+﻿// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBr2YDukv10alEJMleNnSx7dA34jI65HVg",
   authDomain: "ai-fitness-app-e5bd5.firebaseapp.com",
@@ -82,7 +82,6 @@ function handleLogout() {
 }
 
 let unsubscribeFirestore = null;
-const originalSetItem = localStorage.setItem;
 let isSyncing = false;
 
 function saveToFirestore() {
@@ -101,6 +100,14 @@ function saveToFirestore() {
     }, { merge: true }).catch(console.error);
 }
 
+window.setAndSync = function(key, value) {
+    localStorage.setItem(key, value);
+    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+    if (syncableKeys.includes(key)) {
+        saveToFirestore();
+    }
+};
+
 
 
 function setupFirestoreListener(uid) {
@@ -114,7 +121,7 @@ function setupFirestoreListener(uid) {
             const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
             keys.forEach(k => {
                 if (data[k] && data[k] !== localStorage.getItem(k)) {
-                    originalSetItem.call(localStorage, k, data[k]);
+                    localStorage.setItem(k, data[k]);
                     changed = true;
                 }
             });
@@ -158,15 +165,6 @@ function setupFirestoreListener(uid) {
 
 // State
 let isApplyingCloudData = false;
-// (originalSetItem is already declared at the top for Firebase)
-localStorage.setItem = function(key, value) {
-    originalSetItem.apply(this, arguments);
-    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
-    if (syncableKeys.includes(key)) {
-        if (!isApplyingCloudData && typeof triggerAutoSync === 'function') triggerAutoSync();
-        saveToFirestore();
-    }
-};
 
 let userProfile = JSON.parse(localStorage.getItem('fitness_profile')) || {
     gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
@@ -256,10 +254,10 @@ function init() {
     themeToggle.addEventListener('change', (e) => {
         if(e.target.checked) {
             document.body.setAttribute('data-theme', 'dark');
-            localStorage.setItem('fitness_theme', 'dark');
+            setAndSync('fitness_theme', 'dark');
         } else {
             document.body.removeAttribute('data-theme');
-            localStorage.setItem('fitness_theme', 'light');
+            setAndSync('fitness_theme', 'light');
         }
     });
 
@@ -500,7 +498,7 @@ function toggleWorkoutCheck(name) {
         workouts.push({ name, weight, sets, reps });
     }
     
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
     renderWorkout();
 }
 
@@ -663,7 +661,7 @@ function confirmWorkoutEdit() {
                 sets: sets,
                 reps: reps
             });
-            localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+            setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
         }
     }
     
@@ -683,7 +681,7 @@ function confirmWorkoutEdit() {
         workouts.push({ name, weight, sets, reps });
     }
     
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
     
     closeWorkoutModal();
     renderWorkout();
@@ -702,13 +700,13 @@ function deleteWorkoutRecord(name) {
         // Remove from template
         if (WORKOUT_ROUTINES[routineKey]) {
             WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
-            localStorage.setItem('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+            setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
         }
         
         // Also remove from today's log just in case
         if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
             dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
-            localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+            setAndSync('fitness_daily', JSON.stringify(dailyData));
         }
     } else {
         return; // Don't close modal if cancelled
@@ -773,7 +771,7 @@ let currentScanItems = [];
 function saveGeminiKey() {
     const key = document.getElementById('gemini-api-key').value.trim();
     if (key) {
-        localStorage.setItem('gemini_api_key', key);
+        setAndSync('gemini_api_key', key);
         alert("API Key 已儲存！");
         openScanner(); // refresh UI
     } else {
@@ -997,7 +995,7 @@ function confirmScanResults() {
         };
         
         logs.unshift(newLog);
-        localStorage.setItem('fitness_logs', JSON.stringify(logs));
+        setAndSync('fitness_logs', JSON.stringify(logs));
         
         // Update UI and close
         renderLogs();
@@ -1178,7 +1176,7 @@ function toggleFavorite(e, id) {
     } else {
         favoriteFoodIds.push(id);
     }
-    localStorage.setItem('favoriteFoodIds', JSON.stringify(favoriteFoodIds));
+    setAndSync('favoriteFoodIds', JSON.stringify(favoriteFoodIds));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
     renderDBContent(document.getElementById('food-search-input').value);
 }
@@ -1280,7 +1278,7 @@ function removeCartItem(index) {
 function commitCart() {
     if(currentCart.length > 0) {
         logs.unshift(...currentCart.reverse());
-        localStorage.setItem('fitness_logs', JSON.stringify(logs));
+        setAndSync('fitness_logs', JSON.stringify(logs));
         if (typeof triggerAutoSync === 'function') triggerAutoSync();
         renderLogs();
         updateDashboard();
@@ -1358,7 +1356,7 @@ function updateDailyData() {
         }
     }
 
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
 }
 
@@ -1888,7 +1886,7 @@ function setupProfile() {
             goal: goal.value,
             pace: pace.value
         };
-        localStorage.setItem('fitness_profile', JSON.stringify(userProfile));
+        setAndSync('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
         updateDashboard();
         document.getElementById('profile-analysis').style.display = 'block';
@@ -1950,7 +1948,7 @@ function saveCustomFood() {
 
     // Save to local custom foods
     customFoods.push(newFood);
-    localStorage.setItem('customFoods', JSON.stringify(customFoods));
+    setAndSync('customFoods', JSON.stringify(customFoods));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
     
     // Inject into runtime database at the top
@@ -1999,7 +1997,7 @@ window.toggleSubItems = function(id) {
 window.deleteLogItem = function(id) {
     if (!confirm("確定要刪除這筆紀錄嗎？")) return;
     logs = logs.filter(log => log.id !== id);
-    localStorage.setItem('fitness_logs', JSON.stringify(logs));
+    setAndSync('fitness_logs', JSON.stringify(logs));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
     updateDashboard();
     renderLogs();
@@ -2014,13 +2012,13 @@ window.updateLogWeight = function(delta) {
     currentWeight = Math.round((currentWeight + delta) * 10) / 10;
     
     dailyData[selectedLogDate].weight = currentWeight;
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
     
     // If modifying today's weight, sync it back to profile and dashboard
     if (selectedLogDate === todayDateStr) {
         document.getElementById('weight-val').innerText = currentWeight.toFixed(1);
         userProfile.weight = currentWeight;
-        localStorage.setItem('fitness_profile', JSON.stringify(userProfile));
+        setAndSync('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
     }
     
@@ -2037,7 +2035,7 @@ window.updateLogWater = function(delta) {
     currentWater = Math.max(0, currentWater + delta);
     
     dailyData[selectedLogDate].water = currentWater;
-    localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
     
     if (selectedLogDate === todayDateStr) {
         document.getElementById('water-val').innerText = currentWater;
@@ -2434,3 +2432,4 @@ try {
 } catch (e) {
     alert("Startup error: " + e.message + "\\n" + e.stack);
 }
+
