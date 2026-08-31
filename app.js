@@ -143,14 +143,19 @@ function handleLogout() {
             btn.style.opacity = '0.7';
         }
 
-        const savePromise = saveToFirestore();
-        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 1500));
+        const forceReload = () => {
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
+            syncableKeys.forEach(k => localStorage.removeItem(k));
+            window.location.reload();
+        };
 
-        Promise.race([savePromise, timeoutPromise]).finally(() => {
+        // Absolute failsafe: No matter what hangs, log out after 1.5s
+        const failsafeTimer = setTimeout(forceReload, 1500);
+
+        saveToFirestore().finally(() => {
             auth.signOut().finally(() => {
-                const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
-                syncableKeys.forEach(k => localStorage.removeItem(k));
-                window.location.reload();
+                clearTimeout(failsafeTimer);
+                forceReload();
             });
         });
     }
