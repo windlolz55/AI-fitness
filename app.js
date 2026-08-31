@@ -146,6 +146,7 @@ function setupFirestoreListener(uid) {
                 if (typeof updateDashboard === 'function') updateDashboard();
                 if (typeof renderLogs === 'function') renderLogs();
                 if (typeof renderWorkout === 'function') renderWorkout();
+                if (typeof updateDailyData === 'function') updateDailyData();
             }
         } else {
             saveToFirestore();
