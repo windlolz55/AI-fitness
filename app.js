@@ -1949,7 +1949,6 @@ function setupProfile() {
         setAndSync('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
         updateDashboard();
-        document.getElementById('profile-analysis').style.display = 'block';
         alert('儲存成功！已重新計算目標熱量。');
     });
 }
