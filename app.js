@@ -89,19 +89,23 @@ function saveToFirestore() {
     if (!user || isSyncing) return;
     
     db.collection('users').doc(user.uid).set({
-        fitness_profile: localStorage.getItem('fitness_profile') || '{}',
-        fitness_logs: localStorage.getItem('fitness_logs') || '[]',
-        fitness_daily: localStorage.getItem('fitness_daily') || '{}',
-        fitness_routines: localStorage.getItem('fitness_routines') || '[]',
-        customFoods: localStorage.getItem('customFoods') || '[]',
-        favoriteFoodIds: localStorage.getItem('favoriteFoodIds') || '[]',
-        fitness_theme: localStorage.getItem('fitness_theme') || 'light',
+        fitness_profile: JSON.stringify(typeof userProfile !== 'undefined' ? userProfile : {}) || '{}',
+        fitness_logs: JSON.stringify(typeof logs !== 'undefined' ? logs : []) || '[]',
+        fitness_daily: JSON.stringify(typeof dailyData !== 'undefined' ? dailyData : {}) || '{}',
+        fitness_routines: JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {}) || '[]',
+        customFoods: JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []) || '[]',
+        favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
+        fitness_theme: document.body.getAttribute('data-theme') || 'light',
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(console.error);
 }
 
 window.setAndSync = function(key, value) {
-    localStorage.setItem(key, value);
+    try {
+        localStorage.setItem(key, value);
+    } catch(e) {
+        console.warn('localStorage setItem failed, bypassing for cloud sync:', e);
+    }
     const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
     if (syncableKeys.includes(key)) {
         saveToFirestore();
@@ -120,24 +124,29 @@ function setupFirestoreListener(uid) {
             
             const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
             keys.forEach(k => {
-                if (data[k] && data[k] !== localStorage.getItem(k)) {
-                    localStorage.setItem(k, data[k]);
-                    changed = true;
+                try {
+                    if (data[k] && data[k] !== localStorage.getItem(k)) {
+                        localStorage.setItem(k, data[k]);
+                        changed = true;
+                    }
+                } catch(e) {
+                    console.warn('localStorage read/write failed, using memory state:', e);
+                    changed = true; // Still trigger memory update since cloud changed
                 }
             });
             
             if (changed) {
                 // Hot reload state instead of page refresh to prevent loops
-                userProfile = JSON.parse(localStorage.getItem('fitness_profile')) || {
+                userProfile = (data.fitness_profile ? JSON.parse(data.fitness_profile) : null) || {
                     gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
                 };
-                logs = JSON.parse(localStorage.getItem('fitness_logs')) || [];
-                dailyData = JSON.parse(localStorage.getItem('fitness_daily')) || {};
-                WORKOUT_ROUTINES = JSON.parse(localStorage.getItem('fitness_routines')) || (typeof defaultRoutines !== 'undefined' ? defaultRoutines : {});
-                customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
-                favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
+                logs = (data.fitness_logs ? JSON.parse(data.fitness_logs) : null) || [];
+                dailyData = (data.fitness_daily ? JSON.parse(data.fitness_daily) : null) || {};
+                WORKOUT_ROUTINES = (data.fitness_routines ? JSON.parse(data.fitness_routines) : null) || (typeof defaultRoutines !== 'undefined' ? defaultRoutines : {});
+                customFoods = (data.customFoods ? JSON.parse(data.customFoods) : null) || [];
+                favoriteFoodIds = (data.favoriteFoodIds ? JSON.parse(data.favoriteFoodIds) : null) || [];
                 
-                const savedTheme = localStorage.getItem('fitness_theme') || 'light';
+                const savedTheme = data.fitness_theme || 'light';
                 const themeToggle = document.getElementById('theme-toggle');
                 if (savedTheme === 'dark') {
                     document.body.setAttribute('data-theme', 'dark');
