@@ -115,7 +115,32 @@ function setupFirestoreListener(uid) {
             });
             
             if (changed) {
-                window.location.reload();
+                // Hot reload state instead of page refresh to prevent loops
+                userProfile = JSON.parse(localStorage.getItem('fitness_profile')) || {
+                    gender: 'male', age: 25, height: 170, weight: 70, activity: 1.375, goal: 'maintain'
+                };
+                logs = JSON.parse(localStorage.getItem('fitness_logs')) || [];
+                dailyData = JSON.parse(localStorage.getItem('fitness_daily')) || {};
+                WORKOUT_ROUTINES = JSON.parse(localStorage.getItem('fitness_routines')) || (typeof defaultRoutines !== 'undefined' ? defaultRoutines : {});
+                customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
+                favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
+                
+                const savedTheme = localStorage.getItem('fitness_theme') || 'light';
+                const themeToggle = document.getElementById('theme-toggle');
+                if (savedTheme === 'dark') {
+                    document.body.setAttribute('data-theme', 'dark');
+                    if (themeToggle) themeToggle.checked = true;
+                } else {
+                    document.body.removeAttribute('data-theme');
+                    if (themeToggle) themeToggle.checked = false;
+                }
+                
+                // Re-render UI
+                if (typeof calculateTargets === 'function') calculateTargets();
+                if (typeof setupProfile === 'function') setupProfile();
+                if (typeof updateDashboard === 'function') updateDashboard();
+                if (typeof renderLogs === 'function') renderLogs();
+                if (typeof renderWorkout === 'function') renderWorkout();
             }
         } else {
             saveToFirestore();
