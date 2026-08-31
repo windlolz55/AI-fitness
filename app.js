@@ -161,6 +161,7 @@ function saveToFirestore() {
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(err => {
         console.error("Firestore save failed:", err);
+        alert("雲端存檔失敗：" + err.message + "\n如果您剛好要登出，請稍等2秒再登出，以免中斷上傳。");
     });
 }
 
