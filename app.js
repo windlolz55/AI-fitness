@@ -102,7 +102,7 @@ function handleLogin() {
     const errorEl = document.getElementById('auth-error');
     
     if (!email || !password) {
-        errorEl.innerText = '請輸入信箱與密碼';
+        errorEl.innerText = '請輸?�信箱�?密碼';
         errorEl.style.display = 'block';
         return;
     }
@@ -121,7 +121,7 @@ function handleSignup() {
     const errorEl = document.getElementById('auth-error');
     
     if (!email || !password) {
-        errorEl.innerText = '請輸入信箱與密碼';
+        errorEl.innerText = '請輸?�信箱�?密碼';
         errorEl.style.display = 'block';
         return;
     }
@@ -135,12 +135,12 @@ function handleSignup() {
 }
 
 function handleLogout() {
-    if (confirm("確定要登出嗎？")) {
+    if (confirm("確�?要登?��?�?)) {
         // Change UI to indicate saving
         const btn = document.querySelector('[onclick="handleLogout()"]');
         const originalText = btn ? btn.innerHTML : '';
         if (btn) {
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在同步並登出...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> �?��?�步並登??..';
             btn.style.pointerEvents = 'none';
             btn.style.opacity = '0.7';
         }
@@ -173,7 +173,7 @@ function saveToFirestore() {
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(err => {
         console.error("Firestore save failed:", err);
-        alert("雲端存檔失敗：" + err.message + "\n如果您剛好要登出，請稍等2秒再登出，以免中斷上傳。");
+        alert("?�端存�?失�?�? + err.message + "\n如�??��?好�??�出，�?稍�?2秒�??�出，以?�中?��??��?);
     });
 }
 
@@ -282,7 +282,7 @@ function setupFirestoreListener(uid) {
 
 window.manualSync = async function() {
     if (auth.currentUser) {
-        alert("正在從雲端強制拉取最新資料...");
+        alert("�?��從雲端強?��??��??��???..");
         try {
             const doc = await db.collection('users').doc(auth.currentUser.uid).get({source: 'server'});
             if (doc.exists) {
@@ -309,16 +309,16 @@ window.manualSync = async function() {
                 if (typeof renderWorkout === 'function') renderWorkout();
                 if (typeof updateDailyData === 'function') updateDailyData();
                 
-                alert("同步完成！");
+                alert("?�步完�?�?);
             } else {
-                alert("雲端沒有您的資料。");
+                alert("?�端沒�??��?資�???);
             }
         } catch(e) {
             console.error(e);
-            alert("同步失敗：" + e.message);
+            alert("?�步失�?�? + e.message);
         }
     } else {
-        alert("請先登入！");
+        alert("請�??�入�?);
     }
 };
 
@@ -333,21 +333,21 @@ let dailyData = JSON.parse(localStorage.getItem('fitness_daily')) || {};
 
 // Workout Routines
 let defaultRoutines = {
-    1: { title: "完全休息 🎉", exercises: [] },
-    2: { title: "背 ＋ 核心 ＋ 有氧", exercises: [
-        { name: "單臂啞鈴划船", type: "weight", weight: 18, sets: 6, reps: '' },
-        { name: "平板支撐", type: "time", weight: 0, sets: 4, reps: '1分鐘' },
-        { name: "胯下擊掌", type: "cardio", weight: 0, sets: 4, reps: '50下' },
-        { name: "同側提膝", type: "cardio", weight: 0, sets: 4, reps: '50下' },
-        { name: "提膝下壓", type: "cardio", weight: 0, sets: 4, reps: '左右各30下' },
-        { name: "開合跳 (或快速直拳)", type: "cardio", weight: 0, sets: 4, reps: '左右各30下' }
+    1: { title: "完全休息 ??", exercises: [] },
+    2: { title: "??�??��? �??�氧", exercises: [
+        { name: "?��??�鈴?�船", type: "weight", weight: 18, sets: 6, reps: '' },
+        { name: "平板?��?", type: "time", weight: 0, sets: 4, reps: '1?��?' },
+        { name: "?��??��?", type: "cardio", weight: 0, sets: 4, reps: '50�? },
+        { name: "?�側?��?", type: "cardio", weight: 0, sets: 4, reps: '50�? },
+        { name: "?��?下�?", type: "cardio", weight: 0, sets: 4, reps: '左右??0�? },
+        { name: "?��?�?(?�快?�直??", type: "cardio", weight: 0, sets: 4, reps: '左右??0�? }
     ]},
-    3: { title: "腿 ＋ 胸 ＋ 二頭", exercises: [
-        { name: "高腳杯深蹲", type: "weight", weight: 18, sets: 4, reps: '' },
-        { name: "地板啞鈴臥推", type: "weight", weight: 18, sets: 4, reps: '' },
-        { name: "站姿啞鈴反握上拉", type: "weight", weight: 18, sets: 4, reps: '' },
-        { name: "下斜伏地挺身", type: "bodyweight", weight: 0, sets: 4, reps: '' },
-        { name: "集中彎舉", type: "weight", weight: 13, sets: 3, reps: '8下' }
+    3: { title: "??�???�?二頭", exercises: [
+        { name: "高腳?�深�?, type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "?�板?�鈴?�推", type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "站姿?�鈴?�握上�?", type: "weight", weight: 18, sets: 4, reps: '' },
+        { name: "下�?伏地?�身", type: "bodyweight", weight: 0, sets: 4, reps: '' },
+        { name: "?�中彎�?", type: "weight", weight: 13, sets: 3, reps: '8�? }
     ]},
     4: { ref: 2 },
     5: { ref: 3 },
@@ -380,7 +380,7 @@ if (!dailyData[todayDateStr]) {
 // // Food database is loaded from food_db.js (foodDatabase)
 
 // Initialize 'custom' category dynamically
-foodDatabase.categories.unshift({ id: 'custom', name: '我的最愛', icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' });
+foodDatabase.categories.unshift({ id: 'custom', name: '?��??�??, icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' });
 
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
@@ -391,9 +391,9 @@ let favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
 
 // Mock Scanner DB
 const mockFoods = [
-    { name: "香煎鮭魚沙拉", cal: 450, pro: 35, carb: 12, fat: 28 },
-    { name: "健康糙米飯", cal: 180, pro: 4, carb: 38, fat: 1 },
-    { name: "烤雞腿便當", cal: 680, pro: 32, carb: 85, fat: 22 }
+    { name: "香�?鮭�?沙�?", cal: 450, pro: 35, carb: 12, fat: 28 },
+    { name: "?�康糙米�?, cal: 180, pro: 4, carb: 38, fat: 1 },
+    { name: "?��??�便??, cal: 680, pro: 32, carb: 85, fat: 22 }
 ];
 
 // DOM Elements
@@ -454,7 +454,7 @@ function calculateTargets() {
     
     let pace = userProfile.pace || 'standard';
     
-    // 🔥 減脂 (Cut / Fat Loss)
+    // ?�� 減�? (Cut / Fat Loss)
     if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
         if (pace === 'conservative') {
             TARGET_CALS = Math.round(tdee * 0.9); // -10%
@@ -464,7 +464,7 @@ function calculateTargets() {
         TARGET_PRO = Math.round(userProfile.weight * 2.0);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
-    // 💪 增肌 (Lean Bulk)
+    // ?�� 增�? (Lean Bulk)
     else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
         if (pace === 'conservative') {
             TARGET_CALS = Math.round(tdee * 1.05); // +5%
@@ -474,20 +474,20 @@ function calculateTargets() {
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
-    // 🔄 增肌減脂 (Body Recomposition)
+    // ?? 增�?減�? (Body Recomposition)
     else if (userProfile.goal === 'recomp') {
         TARGET_CALS = Math.round(tdee * 0.95); // -5%
         TARGET_PRO = Math.round(userProfile.weight * 2.2);
         TARGET_FAT = Math.round(userProfile.weight * 0.8);
     } 
-    // ⚖️ 維持現狀 (Maintenance)
+    // ?��? 維�??��? (Maintenance)
     else { 
         TARGET_CALS = Math.round(tdee);
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
         TARGET_FAT = Math.round(userProfile.weight * 0.9);
     }
 
-    // 最低安全熱量防呆 (Safety Limits)
+    // ?�低�??�熱?�防??(Safety Limits)
     let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
     if (TARGET_CALS < minCals) TARGET_CALS = minCals;
     
@@ -529,8 +529,8 @@ function renderWorkout() {
     if (titleEl) {
         const m = String(d.getMonth() + 1).padStart(2, '0');
         const dt = String(d.getDate()).padStart(2, '0');
-        const days = ['日', '一', '二', '三', '四', '五', '六'];
-        titleEl.innerText = `${m}/${dt} (星期${days[dayOfWeek]}) - ${routine.title}`;
+        const days = ['??, '一', '�?, '�?, '??, '�?, '??];
+        titleEl.innerText = `${m}/${dt} (?��?${days[dayOfWeek]}) - ${routine.title}`;
     }
     
     const container = document.getElementById('workout-list-container');
@@ -539,9 +539,9 @@ function renderWorkout() {
     if (routine.exercises.length === 0) {
         container.innerHTML = `
             <div class="card" style="text-align: center; padding: 40px 20px;">
-                <div style="font-size: 40px; margin-bottom: 16px;">🎉</div>
+                <div style="font-size: 40px; margin-bottom: 16px;">??</div>
                 <h3 style="margin-bottom: 8px;">今天完全休息</h3>
-                <p style="color: var(--text-muted); font-size: 14px;">讓肌肉好好恢復吧！</p>
+                <p style="color: var(--text-muted); font-size: 14px;">讓�??�好好恢復吧�?/p>
             </div>
         `;
         return;
@@ -562,11 +562,11 @@ function renderWorkout() {
         let statusHtml = '';
         if (logged) {
             statusHtml = `<div style="font-size: 12px; color: var(--accent-secondary); margin-top: 4px;">
-                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}組, ${logged.reps}
+                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}�? ${logged.reps}
             </div>`;
         } else {
             statusHtml = `<div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
-                目標: ${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
+                ?��?: ${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}�? ${ex.reps}
             </div>`;
         }
         
@@ -596,7 +596,7 @@ function renderWorkout() {
     loggedWorkouts.forEach(logged => {
         if (!renderedNames.has(logged.name)) {
             let statusHtml = `<div style="font-size: 12px; color: var(--accent-secondary); margin-top: 4px;">
-                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}組, ${logged.reps}
+                <i class="fa-solid fa-check"></i> ${logged.weight > 0 ? logged.weight + 'kg, ' : ''}${logged.sets}�? ${logged.reps}
             </div>`;
             
             // For custom, if weight is 0, we assume it's cardio
@@ -687,14 +687,14 @@ function openWorkoutModal(name) {
     const btnDelete = document.getElementById('btn-delete-workout');
     if (templateEx) {
         btnDelete.style.display = 'block';
-        btnDelete.innerText = '刪除';
+        btnDelete.innerText = '?�除';
         btnDelete.onclick = function() { deleteWorkoutRecord(name); };
     } else {
         // If it's not in the template (e.g. an old custom exercise that was removed from template but still in log)
         // or a completely new exercise.
         if (logged) {
             btnDelete.style.display = 'block';
-            btnDelete.innerText = '刪除';
+            btnDelete.innerText = '?�除';
             btnDelete.onclick = function() { deleteWorkoutRecord(name); };
         } else {
             btnDelete.style.display = 'none';
@@ -737,7 +737,7 @@ function openWorkoutModal(name) {
     }
     
     if (lastRecord) {
-        lastRecordEl.innerText = `上次紀錄: ${lastRecord.weight > 0 ? lastRecord.weight + 'kg, ' : ''}${lastRecord.sets}組, ${lastRecord.reps}`;
+        lastRecordEl.innerText = `上次紀?? ${lastRecord.weight > 0 ? lastRecord.weight + 'kg, ' : ''}${lastRecord.sets}�? ${lastRecord.reps}`;
         lastRecordEl.style.display = 'block';
     } else {
         lastRecordEl.style.display = 'none';
@@ -745,7 +745,7 @@ function openWorkoutModal(name) {
     
     // Set Save button text
     const btnSave = document.getElementById('btn-save-workout');
-    btnSave.innerText = '儲存';
+    btnSave.innerText = '?��?';
     
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
@@ -773,7 +773,7 @@ function openAddExerciseModal() {
     
     document.getElementById('workout-modal-last-record').style.display = 'none';
     document.getElementById('btn-delete-workout').style.display = 'none';
-    document.getElementById('btn-save-workout').innerText = '完成打卡';
+    document.getElementById('btn-save-workout').innerText = '完�??�卡';
     
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
@@ -805,7 +805,7 @@ function confirmWorkoutEdit() {
     if (idx === -1) {
         name = document.getElementById('workout-custom-name-val').value.trim();
         if (!name) {
-            alert("請輸入動作名稱");
+            alert("請輸?��?作�?�?);
             return;
         }
         
@@ -854,8 +854,8 @@ function deleteWorkoutRecord(name) {
         routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
     }
     
-    const days = ['日','一','二','三','四','五','六'];
-    if (confirm(`確定要將「${name}」刪除嗎？\n(如果這是固定課表內的動作，會從課表中永久移除)`)) {
+    const days = ['??,'一','�?,'�?,'??,'�?,'??];
+    if (confirm(`確�?要�???{name}?�刪?��?？\n(如�??�是?��?課表?��??��?，�?從課表中永�?移除)`)) {
         // Remove from template
         if (WORKOUT_ROUTINES[routineKey]) {
             WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
@@ -931,10 +931,10 @@ function saveGeminiKey() {
     const key = document.getElementById('gemini-api-key').value.trim();
     if (key) {
         setAndSync('gemini_api_key', key);
-        alert("API Key 已儲存！");
+        alert("API Key 已儲存�?");
         openScanner(); // refresh UI
     } else {
-        alert("請輸入有效的 API Key！");
+        alert("請輸?��??��? API Key�?);
     }
 }
 
@@ -997,7 +997,7 @@ async function callGeminiVisionAPI(input) {
                         body: JSON.stringify({
                             contents: [{
                                 parts: [
-                                    { text: "你是一位專業營養師。請分析這張照片。\n\n⚠️重要指示：\n1. 如果照片是「營養標示」，請直接精準讀取標籤上的大卡、蛋白質、碳水與脂肪數值，並依據包裝總份量算出整份的數值。\n2. 如果照片是一般食物，請估算各項食材的克數(grams)，使用台灣常見名稱，並根據衛福部資料庫計算，絕對禁止低估熱量！\n3. 請幫這整份食物想一個 2-5 個字的總名稱 (例如: 排骨便當、牛奶、洋芋片)。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。格式：{ \"meal_name\": \"字串\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
+                                    { text: "你是一位�?業�?養師?��??��??�張?��??�\n\n?��??��??�示：\n1. 如�??��??�「�?養�?示」�?請直?�精準�??��?籤�??�大?�、�??�質?�碳水�??�肪?�值�?並�??��?裝總份�?算出?�份?�數?�。\n2. 如�??��??��??��??��?請估算�??��??��??�數(grams)，使?�台??��見�?稱�?並根?��?福部資�?庫�?算�?絕�?禁止低估?��?！\n3. 請幫?�整份�??�想一??2-5 ?��??�總?�稱 (例�?: ?�骨便當?��?奶、�??��?)?�\n\n以嚴?��? JSON ?�件?��??�傳，�?�?markdown 語�??�格式�?{ \"meal_name\": \"字串\", \"items\": [ { \"name\": \"標�?食物?�\", \"grams\": ?��?, \"cal\": ?��?, \"pro\": ?��?, \"carb\": ?��?, \"fat\": ?��? } ] }" },
                                     { inline_data: { mime_type: file.type, data: base64String } }
                                 ]
                             }]
@@ -1033,7 +1033,7 @@ async function callGeminiVisionAPI(input) {
                 
                 const aiResults = JSON.parse(jsonText);
                 
-                document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 智慧組合餐';
+                document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI ?�慧組�?�?;
                 
                 const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
                 currentScanItems = itemsArray.map(item => {
@@ -1078,7 +1078,7 @@ async function callGeminiVisionAPI(input) {
             } catch (err) {
                 clearInterval(progressInterval);
                 progContainer.style.display = 'none';
-                alert('API 呼叫失敗，請檢查 API Key 或照片格式：\\n' + err.message);
+                alert('API ?�叫失�?，�?檢查 API Key ?�照?�格式�?\\n' + err.message);
                 document.getElementById('btn-camera').style.display = 'block';
             }
             };
@@ -1096,7 +1096,7 @@ function renderScanChecklist() {
                 <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
                 <div>
                     <div style="font-weight: 600;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">約 ${item.grams}g</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">�?${item.grams}g</div>
                 </div>
             </div>
             <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} kcal</div>
@@ -1126,14 +1126,14 @@ function confirmScanResults() {
     try {
         const selectedItems = currentScanItems.filter(item => item.checked);
         if(selectedItems.length === 0) {
-            alert("請至少勾選一項食物！");
+            alert("請至少勾?��??��??��?");
             return;
         }
         
         const mealType = document.getElementById('scan-meal-type').value;
         const now = new Date();
         const mealNameInput = document.getElementById('scan-meal-name').value.trim();
-        const groupName = mealNameInput || 'AI 智慧組合餐';
+        const groupName = mealNameInput || 'AI ?�慧組�?�?;
 
         const totalCal = selectedItems.reduce((sum, item) => sum + item.cal, 0);
         const totalPro = selectedItems.reduce((sum, item) => sum + (item.pro || 0), 0);
@@ -1160,7 +1160,7 @@ function confirmScanResults() {
         renderLogs();
         if (typeof updateDashboard === 'function') updateDashboard();
         
-        alert(`成功將 ${selectedItems.length} 項食物打包加入紀錄！`);
+        alert(`?��?�?${selectedItems.length} ?��??��??��??��??��?`);
         
         closeScanner();
         
@@ -1171,7 +1171,7 @@ function confirmScanResults() {
         resetScanner();
         
     } catch (e) {
-        alert("確認時發生錯誤: " + e.message);
+        alert("確�??�發?�錯�? " + e.message);
         console.error(e);
     }
 }
@@ -1180,7 +1180,7 @@ function confirmScanResults() {
 function updateDashboard() {
     const greeting = document.getElementById('overview-greeting');
     if (greeting) {
-        greeting.innerText = userProfile.nickname ? `${userProfile.nickname} 的總覽` : '總覽';
+        greeting.innerText = userProfile.nickname ? `${userProfile.nickname} ?�總覽` : '總覽';
     }
     // Calculate today's totals
     let todayEaten = 0, todayPro = 0, todayCarb = 0, todayFat = 0;
@@ -1231,7 +1231,7 @@ function openFoodDB(meal) {
     currentCart = [];
     updateCartUI();
     
-    const dateStr = new Date().toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }).replace('/', '月') + '日';
+    const dateStr = new Date().toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }).replace('/', '??) + '??;
     document.getElementById('db-date-title').innerText = dateStr;
     document.getElementById('db-meal-selector').value = meal;
     changeAddingMeal(meal);
@@ -1245,7 +1245,7 @@ function openFoodDB(meal) {
 
 function changeAddingMeal(meal) {
     currentAddingMeal = meal;
-    const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
+    const mealMap = { breakfast: '?��?', lunch: '?��?', dinner: '?��?', snack: '?��?' };
     document.getElementById('cart-meal-label').innerHTML = `${mealMap[meal]} <i class="fa-solid fa-caret-up" style="font-size: 10px; margin-left: 2px;"></i>`;
 }
 
@@ -1274,11 +1274,11 @@ function renderDBContent(searchQuery = '') {
     let filteredFoods = [];
     
     if (searchQuery.trim() !== '') {
-        document.getElementById('db-category-title').innerText = '搜尋結果';
+        document.getElementById('db-category-title').innerText = '?��?結�?';
         filteredFoods = foodDatabase.foods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
     } else {
         const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
-        document.getElementById('db-category-title').innerText = title + '類';
+        document.getElementById('db-category-title').innerText = title + '�?;
         
         if (activeCategory === 'custom') {
             filteredFoods = foodDatabase.foods.filter(f => f.categoryId === 'custom' || favoriteFoodIds.includes(f.id));
@@ -1330,7 +1330,7 @@ function toggleFavorite(e, id) {
     // Cannot unfavorite a purely custom food unless we delete it entirely
     const food = foodDatabase.foods.find(f => f.id === id);
     if(food && food.categoryId === 'custom') {
-        alert('這是您建立的自訂食物，預設會在我的最愛中喔！');
+        alert('?�是?�建立�??��?食物，�?設�??��??��??�中?��?');
         return;
     }
     
@@ -1416,7 +1416,7 @@ function openCartModal() {
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border);">
                 <div>
                     <div style="font-size: 15px; font-weight: 500;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">${item.cal} ?卡</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">${item.cal} ???/div>
                 </div>
                 <button class="btn-icon" style="color: #ff4757; border:none; width:32px; height:32px;" onclick="removeCartItem(${index})"><i class="fa-solid fa-minus-circle" style="font-size:20px;"></i></button>
             </div>
@@ -1467,10 +1467,10 @@ function copyYesterdayMeal() {
         });
         updateCartUI();
         
-        const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
-        alert(`已將昨日的 ${mealMap[currentAddingMeal]} 共 ${yestLogs.length} 項食物加入待選餐盤中！請點擊左下角「待選餐盤」確認送出。`);
+        const mealMap = { breakfast: '?��?', lunch: '?��?', dinner: '?��?', snack: '?��?' };
+        alert(`已�??�日??${mealMap[currentAddingMeal]} ??${yestLogs.length} ?��??��??��??��??�中！�?點�?左�?角「�??��??�」確認送出?�`);
     } else {
-        alert('昨日此餐無任何紀錄。');
+        alert('?�日此�??�任何�??��?);
     }
 }
 
@@ -1492,6 +1492,25 @@ function setupDailyTracking() {
         dailyData[todayDateStr].water = Math.max(0, dailyData[todayDateStr].water - 250);
         updateDailyData();
     });
+    const btnBurnedPlus = document.getElementById('btn-burned-plus');
+    if (btnBurnedPlus) {
+        btnBurnedPlus.addEventListener('click', (e) => {
+            e.stopPropagation(); // prevent clicking the card to edit
+            if (!dailyData[todayDateStr].burned) dailyData[todayDateStr].burned = 0;
+            dailyData[todayDateStr].burned += 50; 
+            updateDailyData();
+        });
+    }
+
+    const btnBurnedMinus = document.getElementById('btn-burned-minus');
+    if (btnBurnedMinus) {
+        btnBurnedMinus.addEventListener('click', (e) => {
+            e.stopPropagation(); // prevent clicking the card to edit
+            if (!dailyData[todayDateStr].burned) dailyData[todayDateStr].burned = 0;
+            dailyData[todayDateStr].burned = Math.max(0, dailyData[todayDateStr].burned - 50);
+            updateDailyData();
+        });
+    }
 
     inputDailyWeight.addEventListener('change', (e) => {
         const newWeight = parseFloat(e.target.value);
@@ -1596,22 +1615,22 @@ function showInfo(type) {
     const content = document.getElementById('info-modal-content');
     
     if (type === 'bmi') {
-        title.innerHTML = '<i class="fa-solid fa-weight-scale" style="color: var(--accent-primary); margin-right: 8px;"></i>BMI 計算公式';
+        title.innerHTML = '<i class="fa-solid fa-weight-scale" style="color: var(--accent-primary); margin-right: 8px;"></i>BMI 計�??��?';
         content.innerHTML = `
-            <p style="margin-bottom: 8px;"><strong>計算公式：</strong></p>
+            <p style="margin-bottom: 8px;"><strong>計�??��?�?/strong></p>
             <p style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-family: monospace; text-align: center; margin-bottom: 16px;">
-                BMI = 體重(kg) / (身高(m) × 身高(m))
+                BMI = 體�?(kg) / (身�?(m) ? 身�?(m))
             </p>
-            <p style="margin-bottom: 8px;"><strong>健康範圍參考：</strong></p>
+            <p style="margin-bottom: 8px;"><strong>?�康範�??�考�?</strong></p>
             <ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 12px;">
-                <li>體重過輕: BMI < 18.5</li>
-                <li>健康體重: 18.5 ≦ BMI < 24.0</li>
-                <li>過重範圍: 24.0 ≦ BMI < 27.0</li>
-                <li>肥胖警訊: BMI ≧ 27.0</li>
+                <li>體�??��?: BMI < 18.5</li>
+                <li>?�康體�?: 18.5 ??BMI < 24.0</li>
+                <li>?��?範�?: 24.0 ??BMI < 27.0</li>
+                <li>?��?警�?: BMI ??27.0</li>
             </ul>
             <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; background: rgba(255, 184, 108, 0.1); padding: 8px; border-radius: 8px; border-left: 3px solid #ffb86c;">
-                <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> <strong>性別與 BMI：</strong><br>
-                成人的 BMI 健康標準是<strong>不分性別</strong>的喔！不過，因為 BMI 無法分辨肌肉與脂肪的比例，男女性在同樣的 BMI 下，體脂率可能會有很大差異，因此建議搭配體脂率一起參考會更準確！
+                <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> <strong>?�別??BMI�?/strong><br>
+                ?�人??BMI ?�康標�???strong>不�??�別</strong>?��?！�??��??�為 BMI ?��??�辨?��??��??��?比�?，男女性在?�樣??BMI 下�?體�??�可?��??��?大差?��??�此建議?��?體�??��?起�??��??��?確�?
             </p>
         `;
     }
@@ -1619,27 +1638,27 @@ function showInfo(type) {
     if (type === 'water') {
         title.innerHTML = '<i class="fa-solid fa-droplet" style="color: var(--accent-secondary); margin-right: 8px;"></i>飲水建議';
         content.innerHTML = `
-            <p>每日建議飲水量 <strong style="color: var(--accent-secondary); font-size: 16px;">${TARGET_WATER} ml</strong></p>
+            <p>每日建議飲水??<strong style="color: var(--accent-secondary); font-size: 16px;">${TARGET_WATER} ml</strong></p>
             <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px;">
-                <p style="margin-bottom: 4px;"><strong>計算公式：</strong></p>
-                <p>體重 ${userProfile.weight} kg * 35 ml = <strong>${TARGET_WATER} ml</strong></p>
+                <p style="margin-bottom: 4px;"><strong>計�??��?�?/strong></p>
+                <p>體�? ${userProfile.weight} kg * 35 ml = <strong>${TARGET_WATER} ml</strong></p>
             </div>
-            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 建議分次小口飲用，若流汗多可適度增加。</p>
+            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 建議?�次小口飲用，若流�?多可?�度增�???/p>
         `;
     } else if (type === 'burned') {
-        title.innerHTML = '<i class="fa-solid fa-fire" style="color: #ff9ff3; margin-right: 8px;"></i>運動消耗紀錄';
+        title.innerHTML = '<i class="fa-solid fa-fire" style="color: #ff9ff3; margin-right: 8px;"></i>?��?消耗�???;
         content.innerHTML = `
-            <p><strong>這僅為純打卡紀錄，不影響每日可吃熱量上限。</strong></p>
+            <p><strong>?��??��??�卡紀?��?不影?��??�可?�熱?��??��?/strong></p>
             <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px; line-height: 1.5;">
-                <p style="color: #ffb86c; font-weight: 600; margin-bottom: 8px;"><i class="fa-solid fa-triangle-exclamation"></i> 為什麼不增加可吃熱量？</p>
-                <p>因為你的「TDEE 每日總消耗」已經包含了你選擇的<strong>活動係數</strong> (例如每週運動 3 次)。如果運動後又額外增加攝取熱量，會導致<strong>重複計算 (Double Counting)</strong>，破壞熱量缺口哦！</p>
+                <p style="color: #ffb86c; font-weight: 600; margin-bottom: 8px;"><i class="fa-solid fa-triangle-exclamation"></i> ?��?麼�?增�??��??��?�?/p>
+                <p>?�為你�??�TDEE 每日總�??�」已經�??��?你選?��?<strong>活�?係數</strong> (例�?每週�???3 �??��??��??��??��?外�??��??�熱?��??��???strong>?��?計�? (Double Counting)</strong>，破壞熱?�缺??���?/p>
             </div>
-            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 請直接照著「剩餘 kcal」安心吃，有去運動就來這裡記上一筆即可！</p>
+            <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 請直?�照?�「剩�?kcal?��?心�?，�??��??�就來這裡記�?一筆即?��?</p>
         `;
     } else if (type === 'cals') {
         let bmr = 0;
         let bmrFormula = '';
-        let genderConstant = userProfile.gender === 'male' ? '+ 5 (男性常數)' : '- 161 (女性常數)';
+        let genderConstant = userProfile.gender === 'male' ? '+ 5 (?�性常??' : '- 161 (女性常??';
         let constantVal = userProfile.gender === 'male' ? '+ 5' : '- 161';
         
         if (userProfile.gender === 'male') {
@@ -1650,7 +1669,7 @@ function showInfo(type) {
         
         bmrFormula = `
             <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px; line-height: 1.5;">
-                <span style="color: var(--text-main);">10</span> × 體重(kg) + <span style="color: var(--text-main);">6.25</span> × 身高(cm) - <span style="color: var(--text-main);">5</span> × 年齡 <span style="color: var(--text-main);">${genderConstant}</span>
+                <span style="color: var(--text-main);">10</span> ? 體�?(kg) + <span style="color: var(--text-main);">6.25</span> ? 身�?(cm) - <span style="color: var(--text-main);">5</span> ? 年齡 <span style="color: var(--text-main);">${genderConstant}</span>
             </div>
             <div>
                 10 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.weight}</span> + 6.25 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.height}</span> - 5 * <span style="color: var(--accent-secondary); font-weight: bold;">${userProfile.age}</span> <span style="color: var(--accent-secondary); font-weight: bold;">${constantVal}</span> = <strong>${Math.round(bmr)}</strong>
@@ -1659,54 +1678,54 @@ function showInfo(type) {
 
         let tdee = bmr * parseFloat(userProfile.activity);
         
-        let goalText = '維持現狀 (無調整)';
+        let goalText = '維�??��? (?�調??';
         let targetCalText = `TDEE = <strong>${TARGET_CALS} kcal</strong>`;
         let pace = userProfile.pace || 'standard';
         
         if(userProfile.goal === 'cut' || userProfile.goal === 'lose') {
             if (pace === 'conservative') {
-                goalText = '穩健減脂 (-10%)';
+                goalText = '穩健減�? (-10%)';
                 targetCalText = `${Math.round(tdee)} * 0.9 = <strong>${TARGET_CALS} kcal</strong>`;
             } else {
-                goalText = '穩健減脂 (-15%)';
+                goalText = '穩健減�? (-15%)';
                 targetCalText = `${Math.round(tdee)} * 0.85 = <strong>${TARGET_CALS} kcal</strong>`;
             }
         } else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
             if (pace === 'conservative') {
-                goalText = '乾淨增肌 (+5%)';
+                goalText = '乾淨增�? (+5%)';
                 targetCalText = `${Math.round(tdee)} * 1.05 = <strong>${TARGET_CALS} kcal</strong>`;
             } else {
-                goalText = '乾淨增肌 (+10%)';
+                goalText = '乾淨增�? (+10%)';
                 targetCalText = `${Math.round(tdee)} * 1.10 = <strong>${TARGET_CALS} kcal</strong>`;
             }
         } else if (userProfile.goal === 'recomp') {
-            goalText = '身體重組 (-5%)';
+            goalText = '身�??��? (-5%)';
             targetCalText = `${Math.round(tdee)} * 0.95 = <strong>${TARGET_CALS} kcal</strong>`;
         }
 
         let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
         if (TARGET_CALS === minCals) {
-            targetCalText += ` <br><span style="color:#ff6b6b; font-size:11px;">(已觸發最低安全熱量防護 ${minCals} kcal)</span>`;
+            targetCalText += ` <br><span style="color:#ff6b6b; font-size:11px;">(已觸?��?低�??�熱?�防�?${minCals} kcal)</span>`;
         }
 
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標熱量說明';
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?��??��?說�?';
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 1: 基礎代謝率 (BMR)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">維持生命所需的最低熱量消耗。使用 Mifflin-St Jeor 公式：</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 1: ?��?�????(BMR)</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">維�??�命?�?�?��?低熱?��??�。使??Mifflin-St Jeor ?��?�?/p>
                     <p>${bmrFormula}</p>
                 </div>
                 
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 2: 每日總消耗熱量 (TDEE)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">BMR 乘上活動係數得出每日總消耗熱量。</p>
-                    <p>${Math.round(bmr)} * ${userProfile.activity} (活動係數) = <strong>${Math.round(tdee)} kcal</strong></p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 2: 每日總�??�熱??(TDEE)</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">BMR 乘�?活�?係數得出每日總�??�熱?��?/p>
+                    <p>${Math.round(bmr)} * ${userProfile.activity} (活�?係數) = <strong>${Math.round(tdee)} kcal</strong></p>
                 </div>
 
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: 目標熱量</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">根據目標調整總熱量：${goalText}</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: ?��??��?</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">?��??��?調整總熱?��?${goalText}</p>
                     <p>${targetCalText}</p>
                 </div>
             </div>
@@ -1722,23 +1741,23 @@ function showInfo(type) {
             fatMultiplier = 0.8;
         }
 
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明';
+        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>?��??��?素說??;
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
-                    <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準計算蛋白質與脂肪，並用碳水填滿剩餘熱量。</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大?��?素�???/p>
+                    <p style="color: var(--text-muted); margin-bottom: 8px;">以�??�為?��?計�??�白質�??�肪，並?�碳水填滿剩餘熱?��?/p>
                     
-                    <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>?�白�?(每公?��???* ${proMultiplier}g)</strong></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${TARGET_PRO} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_PRO * 4} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>?�肪 (每公?��???* ${fatMultiplier}g)</strong></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${fatMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${TARGET_FAT} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_FAT * 9} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong></p>
-                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
+                    <p style="margin-bottom: 4px;"><strong>碳水 (?��?填滿)</strong></p>
+                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - ?�白質熱??- ?�肪?��?) ÷ 4</p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
                 </div>
             </div>
@@ -1757,7 +1776,7 @@ function renderDateStrip() {
     const strips = document.querySelectorAll('.date-strip');
     const baseDate = new Date(selectedLogDate || todayDateStr);
     const currentDayOfWeek = baseDate.getDay();
-    const days = ['日', '一', '二', '三', '四', '五', '六'];
+    const days = ['??, '一', '�?, '�?, '??, '�?, '??];
     
     let html = '';
     for(let i=0; i<7; i++) {
@@ -1765,7 +1784,7 @@ function renderDateStrip() {
         d.setDate(baseDate.getDate() - currentDayOfWeek + i);
         
         const dateStr = formatDate(d);
-        const dayName = (dateStr === todayDateStr) ? '今' : days[i];
+        const dayName = (dateStr === todayDateStr) ? '�? : days[i];
         const dateNum = d.getDate();
         
         const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
@@ -1790,7 +1809,7 @@ function selectLogDate(dateStr) {
     const d = new Date(dateStr);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
-    document.getElementById('log-view-title').innerText = `紀錄 (${m}/${dt})`;
+    document.getElementById('log-view-title').innerText = `紀??(${m}/${dt})`;
     
     // Also update workout tab if it's active
     renderWorkout();
@@ -1799,10 +1818,10 @@ function selectLogDate(dateStr) {
 function renderLogs() {
     const container = document.getElementById('all-logs');
     const mealMap = { 
-        breakfast: '<span class="iconify" data-icon="fluent-emoji-flat:cooking" style="margin-right:8px; font-size:18px;"></span>早餐', 
-        lunch: '<span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="margin-right:8px; font-size:18px;"></span>午餐', 
-        dinner: '<span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="margin-right:8px; font-size:18px;"></span>晚餐', 
-        snack: '<span class="iconify" data-icon="fluent-emoji-flat:cookie" style="margin-right:8px; font-size:18px;"></span>加餐' 
+        breakfast: '<span class="iconify" data-icon="fluent-emoji-flat:cooking" style="margin-right:8px; font-size:18px;"></span>?��?', 
+        lunch: '<span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="margin-right:8px; font-size:18px;"></span>?��?', 
+        dinner: '<span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="margin-right:8px; font-size:18px;"></span>?��?', 
+        snack: '<span class="iconify" data-icon="fluent-emoji-flat:cookie" style="margin-right:8px; font-size:18px;"></span>?��?' 
     };
     
     let html = '';
@@ -1852,7 +1871,7 @@ function renderLogs() {
                     if (item.subItems && item.subItems.length > 0) {
                         let subHTML = '';
                         item.subItems.forEach(sub => {
-                            let sIconHtml = '🍽️';
+                            let sIconHtml = '?���?;
                             let sIconStyle = 'width:28px; height:28px; background:var(--bg-main); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size: 14px;';
                             const sBaseName = sub.name.split(' (')[0];
                             const sDbFood = foodDatabase.foods.find(f => f.name.includes(sBaseName));
@@ -1869,7 +1888,7 @@ function renderLogs() {
                                         <div style="${sIconStyle}">${sIconHtml}</div>
                                         <div>
                                             <div style="font-size:13px; font-weight:500;">${sBaseName}</div>
-                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • 碳${Math.round(sub.carb*10)/10} 蛋${Math.round(sub.pro*10)/10} 脂${Math.round(sub.fat*10)/10}</div>
+                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g ??�?{Math.round(sub.carb*10)/10} ??{Math.round(sub.pro*10)/10} ??{Math.round(sub.fat*10)/10}</div>
                                         </div>
                                     </div>
                                     <div style="font-size:13px; font-weight:600; color:var(--text-main);">${sub.cal}kcal</div>
@@ -1885,9 +1904,9 @@ function renderLogs() {
                                         <div class="meal-item-info">
                                             <div class="meal-item-name">${item.name}</div>
                                             <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                                <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
-                                                <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
-                                                <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
+                                                <span><span style="color: var(--carb-color); font-weight: bold;">�?/span> ${Math.round(item.carb*10)/10}g</span>
+                                                <span><span style="color: var(--pro-color); font-weight: bold;">??/span> ${Math.round(item.pro*10)/10}g</span>
+                                                <span><span style="color: var(--fat-color); font-weight: bold;">??/span> ${Math.round(item.fat*10)/10}g</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1905,9 +1924,9 @@ function renderLogs() {
                             </div>
                         `;
                     } else {
-                        let iconHtml = '🍽️';
+                        let iconHtml = '?���?;
                         let iconStyle = '';
-                        let desc = '1項';
+                        let desc = '1??;
                         if(item.name.includes('(')) {
                             let match = item.name.match(/\(([^)]+)\)/);
                             if(match) desc = match[1];
@@ -1928,9 +1947,9 @@ function renderLogs() {
                                     <div class="meal-item-name">${baseName}</div>
                                     <div class="meal-item-desc">${desc}</div>
                                     <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                        <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
-                                        <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
-                                        <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
+                                        <span><span style="color: var(--carb-color); font-weight: bold;">�?/span> ${Math.round(item.carb*10)/10}g</span>
+                                        <span><span style="color: var(--pro-color); font-weight: bold;">??/span> ${Math.round(item.pro*10)/10}g</span>
+                                        <span><span style="color: var(--fat-color); font-weight: bold;">??/span> ${Math.round(item.fat*10)/10}g</span>
                                     </div>
                                 </div>
                                 <div class="meal-item-cal" style="display:flex; align-items:center; gap:12px;">
@@ -1972,7 +1991,7 @@ function renderLogs() {
 }
 
 document.getElementById('btn-clear').addEventListener('click', () => {
-    if(confirm('確定要清空今天的飲食紀錄嗎？')) {
+    if(confirm('確�?要�?空�?天�?飲�?紀?��?�?)) {
         logs = [];
         localStorage.removeItem('fitness_logs');
         if (typeof triggerAutoSync === 'function') triggerAutoSync();
@@ -2013,24 +2032,24 @@ function setupProfile() {
         const tdee = getPreviewTDEE();
         const paceOptions = {
             cut: [
-                { value: 'conservative', text: `🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)` },
-                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)` }
+                { value: 'conservative', text: `?�� 保�?減�? (-10% / �?-${Math.round(tdee * 0.1)} kcal)` },
+                { value: 'standard', text: `??標�?減�? �?(-15% / �?-${Math.round(tdee * 0.15)} kcal)` }
             ],
             bulk: [
-                { value: 'conservative', text: `🐢 保守增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)` },
-                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)` }
+                { value: 'conservative', text: `?�� 保�?增�? (+5% / �?+${Math.round(tdee * 0.05)} kcal)` },
+                { value: 'standard', text: `??標�?增�? �?(+10% / �?+${Math.round(tdee * 0.1)} kcal)` }
             ],
             maintain: [
-                { value: 'standard', text: '標準維持 (0% / 完美打平)' }
+                { value: 'standard', text: '標�?維�? (0% / 完�??�平)' }
             ],
             recomp: [
-                { value: 'auto', text: `系統自動計算最佳缺口 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)` }
+                { value: 'auto', text: `系統?��?計�??�佳缺??(-5% / �?-${Math.round(tdee * 0.05)} kcal)` }
             ],
             lose: [
-                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)` }
+                { value: 'standard', text: `??標�?減�? �?(-15% / �?-${Math.round(tdee * 0.15)} kcal)` }
             ],
             gain: [
-                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)` }
+                { value: 'standard', text: `??標�?增�? �?(+10% / �?+${Math.round(tdee * 0.1)} kcal)` }
             ]
         };
 
@@ -2108,7 +2127,7 @@ function setupProfile() {
         setAndSync('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
         updateDashboard();
-        alert('儲存成功！已重新計算目標熱量。');
+        alert('?��??��?！已?�新計�??��??��???);
     });
 }
 
@@ -2147,11 +2166,11 @@ function saveCustomFood() {
     const f = parseFloat(document.getElementById('cf-fat').value) || 0;
 
     if (!name) {
-        alert("請填寫食物名稱！");
+        alert("請填寫�??��?稱�?");
         return;
     }
     if (isNaN(cals) || cals < 0) {
-        alert("請填寫正確的熱量數值！");
+        alert("請填寫正確�??��??�值�?");
         return;
     }
 
@@ -2161,7 +2180,7 @@ function saveCustomFood() {
         name: name,
         cals: cals,
         macros: { p, c, f },
-        icon: '❤️'
+        icon: '?��?'
     };
 
     // Save to local custom foods
@@ -2213,7 +2232,7 @@ window.toggleSubItems = function(id) {
 };
 
 window.deleteLogItem = function(id) {
-    if (!confirm("確定要刪除這筆紀錄嗎？")) return;
+    if (!confirm("確�?要刪?�這�?紀?��?�?)) return;
     logs = logs.filter(log => log.id !== id);
     setAndSync('fitness_logs', JSON.stringify(logs));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
@@ -2280,7 +2299,7 @@ function renderOverview() {
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     
-    const formatRange = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
+    const formatRange = (d) => `${d.getMonth()+1}??{d.getDate()}?�`;
     const rangeText = `${formatRange(startOfWeek)} - ${formatRange(endOfWeek)}`;
     document.getElementById('overview-weight-date-range').innerText = rangeText;
     document.getElementById('overview-cal-date-range').innerText = rangeText;
@@ -2288,7 +2307,7 @@ function renderOverview() {
     const burnedRangeEl = document.getElementById('overview-burned-date-range');
     if (burnedRangeEl) burnedRangeEl.innerText = rangeText;
     
-    const labels = ['一', '二', '三', '四', '五', '六', '日'];
+    const labels = ['一', '�?, '�?, '??, '�?, '??, '??];
     const subLabels = [];
     const weightData = [];
     const calorieData = [];
@@ -2360,7 +2379,7 @@ function renderOverview() {
     const elAvgBurned = document.getElementById('overview-avg-burned');
     if (elAvgBurned) {
         if (avgBurnedTime > 0) {
-            elAvgBurned.innerText = `${avgBurned} kcal, ${avgBurnedTime} 分鐘`;
+            elAvgBurned.innerText = `${avgBurned} kcal, ${avgBurnedTime} ?��?`;
         } else {
             elAvgBurned.innerText = `${avgBurned} kcal`;
         }
@@ -2378,7 +2397,7 @@ function renderOverview() {
                 callbacks: {
                     title: function(context) {
                         const idx = context[0].dataIndex;
-                        return `星期${labels[idx]} (${subLabels[idx]})`;
+                        return `?��?${labels[idx]} (${subLabels[idx]})`;
                     }
                 }
             }
@@ -2513,7 +2532,7 @@ function renderOverview() {
                                 const val = context.raw;
                                 const time = burnedTimeData[context.dataIndex];
                                 if (time > 0) {
-                                    return `${val} kcal (${time} 分鐘)`;
+                                    return `${val} kcal (${time} ?��?)`;
                                 }
                                 return `${val} kcal`;
                             }
@@ -2580,7 +2599,7 @@ function renderCalendar() {
         
         const titleEl = document.getElementById('calendar-month-title');
         if (titleEl) {
-            titleEl.innerText = year + '年 ' + String(month + 1).padStart(2, '0') + '月';
+            titleEl.innerText = year + '�?' + String(month + 1).padStart(2, '0') + '??;
         }
         
         const firstDay = new Date(year, month, 1).getDay();
@@ -2675,10 +2694,10 @@ document.addEventListener('touchmove', (e) => {
         
         if (visualDistance > PTR_THRESHOLD * 0.4) {
             ptrIcon.style.transform = 'rotate(180deg)';
-            ptrText.innerText = '放開以重新整理';
+            ptrText.innerText = '?��?以�??�整??;
         } else {
             ptrIcon.style.transform = 'rotate(0deg)';
-            ptrText.innerText = '下拉以重新整理...';
+            ptrText.innerText = '下�?以�??�整??..';
         }
     }
 }, {passive: false});
@@ -2695,7 +2714,7 @@ document.addEventListener('touchend', () => {
     if (visualDistance > PTR_THRESHOLD * 0.4 && ptrCurrentY > ptrStartY) {
         ptrIndicator.style.transform = 'translateY(0px)';
         ptrIcon.className = 'fa-solid fa-spinner fa-spin';
-        ptrText.innerText = '更新中...';
+        ptrText.innerText = '?�新�?..';
         
         setTimeout(() => {
             window.location.reload(true);
@@ -2706,7 +2725,7 @@ document.addEventListener('touchend', () => {
             if(ptrIcon) {
                 ptrIcon.className = 'fa-solid fa-arrow-down';
                 ptrIcon.style.transform = 'rotate(0deg)';
-                ptrText.innerText = '下拉以重新整理...';
+                ptrText.innerText = '下�?以�??�整??..';
             }
         }, 300);
     }

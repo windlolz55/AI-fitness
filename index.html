@@ -42,7 +42,7 @@
                 <div style="width: 80px; height: 80px; background: var(--accent-primary); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: white; margin-bottom: 16px;">
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.18</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.19</span></h1>
                 <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             </div>
             
@@ -100,9 +100,12 @@
 
                         <!-- Right: Burned -->
                         <div style="text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
-                            <div style="cursor: pointer; display: inline-flex; align-items: baseline;" onclick="promptEditBurned()">
-                                <span id="cal-burned" style="font-size: 28px; font-weight: 800; color: white; border-bottom: 2px dashed #8e8e93;">0</span>
-                                <i class="fa-solid fa-pen" style="font-size: 10px; margin-left: 6px; color: #8e8e93;"></i>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                                <button id="btn-burned-minus" style="width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer;"><i class="fa-solid fa-minus" style="font-size: 12px;"></i></button>
+                                <div style="cursor: pointer; display: inline-flex; align-items: baseline;" onclick="promptEditBurned()">
+                                    <span id="cal-burned" style="font-size: 28px; font-weight: 800; color: white; border-bottom: 2px dashed #8e8e93;">0</span>
+                                </div>
+                                <button id="btn-burned-plus" style="width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer;"><i class="fa-solid fa-plus" style="font-size: 12px;"></i></button>
                             </div>
                             <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; cursor: pointer;" onclick="showInfo('burned')">
                                 <span>燃燒 kcal</span> <i class="fa-solid fa-circle-info" style="font-size: 11px;"></i>
@@ -381,7 +384,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.18 (Cloud Sync)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.19 (Cloud Sync)</p>
             </div>
         </div>
 
@@ -740,6 +743,6 @@
     </div>
 
     <script src="food_db.js?v=6"></script>
-    <script src="app.js?v=1.18"></script>
+    <script src="app.js?v=1.19"></script>
 </body>
 </html>
