@@ -147,14 +147,24 @@ function handleLogout() {
         const forceClearAndReload = () => {
             const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
-            window.location.reload(true);
+            
+            // Hard delete Firebase Auth IndexedDB to guarantee logout even if auth.signOut() hangs
+            indexedDB.deleteDatabase('firebaseLocalStorageDb');
+            
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 100);
         };
 
-        // Absolute Failsafe: No matter what happens with promises, force reload after 1.5s
-        setTimeout(forceClearAndReload, 1500);
+        // Extreme absolute failsafe: reload no matter what after 2.5 seconds
+        setTimeout(forceClearAndReload, 2500);
 
-        // Attempt graceful logout
-        saveToFirestore().finally(() => {
+        // Try to save, wait at most 1.5 seconds
+        const savePromise = saveToFirestore();
+        const saveTimeout = new Promise(resolve => setTimeout(resolve, 1500));
+        
+        Promise.race([savePromise, saveTimeout]).finally(() => {
+            // Then try to sign out (guaranteed to be called now)
             auth.signOut().finally(() => {
                 forceClearAndReload();
             });
