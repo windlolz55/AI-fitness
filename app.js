@@ -1440,12 +1440,16 @@ function showInfo(type) {
                 BMI = 體重(kg) / (身高(m) × 身高(m))
             </p>
             <p style="margin-bottom: 8px;"><strong>健康範圍參考：</strong></p>
-            <ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 0;">
+            <ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 12px;">
                 <li>體重過輕: BMI < 18.5</li>
-                <li>健康體重: 18.5 ≦ BMI < 24.9</li>
-                <li>過重範圍: 24.9 ≦ BMI < 30</li>
-                <li>肥胖警訊: BMI ≧ 30</li>
+                <li>健康體重: 18.5 ≦ BMI < 24.0</li>
+                <li>過重範圍: 24.0 ≦ BMI < 27.0</li>
+                <li>肥胖警訊: BMI ≧ 27.0</li>
             </ul>
+            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; background: rgba(255, 184, 108, 0.1); padding: 8px; border-radius: 8px; border-left: 3px solid #ffb86c;">
+                <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i> <strong>性別與 BMI：</strong><br>
+                成人的 BMI 健康標準是<strong>不分性別</strong>的喔！不過，因為 BMI 無法分辨肌肉與脂肪的比例，男女性在同樣的 BMI 下，體脂率可能會有很大差異，因此建議搭配體脂率一起參考會更準確！
+            </p>
         `;
     }
 
