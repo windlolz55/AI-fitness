@@ -2663,73 +2663,7 @@ try {
     alert("Startup error: " + e.message + "\n" + e.stack);
 }
 
-// Pull to Refresh Logic (For iOS PWAs)
-let ptrStartY = 0;
-let ptrCurrentY = 0;
-let isPtrPulling = false;
-const ptrIndicator = document.getElementById('ptr-indicator');
-const ptrIcon = document.getElementById('ptr-icon');
-const ptrText = document.getElementById('ptr-text');
-const PTR_THRESHOLD = 70;
-
-document.addEventListener('touchstart', (e) => {
-    if (window.scrollY === 0) {
-        ptrStartY = e.touches[0].clientY;
-        isPtrPulling = true;
-        if(ptrIndicator) ptrIndicator.style.transition = 'none';
-    }
-}, {passive: true});
-
-document.addEventListener('touchmove', (e) => {
-    if (!isPtrPulling || !ptrIndicator) return;
-    ptrCurrentY = e.touches[0].clientY;
-    let pullDistance = ptrCurrentY - ptrStartY;
-    
-    // Check if we are pulling down and are at the top of the page
-    if (pullDistance > 0 && window.scrollY <= 0) {
-        if (e.cancelable) e.preventDefault();
-        
-        let visualDistance = Math.min(pullDistance * 0.4, 100);
-        ptrIndicator.style.transform = `translateY(${visualDistance - 60}px)`;
-        
-        if (visualDistance > PTR_THRESHOLD * 0.4) {
-            ptrIcon.style.transform = 'rotate(180deg)';
-            ptrText.innerText = '放開以重新整理';
-        } else {
-            ptrIcon.style.transform = 'rotate(0deg)';
-            ptrText.innerText = '下拉以重新整理...';
-        }
-    }
-}, {passive: false});
-
-document.addEventListener('touchend', () => {
-    if (!isPtrPulling || !ptrIndicator) return;
-    isPtrPulling = false;
-    
-    let pullDistance = ptrCurrentY - ptrStartY;
-    ptrIndicator.style.transition = 'transform 0.3s';
-    
-    let visualDistance = pullDistance * 0.4;
-    
-    if (visualDistance > PTR_THRESHOLD * 0.4 && ptrCurrentY > ptrStartY) {
-        ptrIndicator.style.transform = 'translateY(0px)';
-        ptrIcon.className = 'fa-solid fa-spinner fa-spin';
-        ptrText.innerText = '更新中...';
-        
-        setTimeout(() => {
-            window.location.reload(true);
-        }, 500);
-    } else {
-        ptrIndicator.style.transform = 'translateY(-60px)';
-        setTimeout(() => {
-            if(ptrIcon) {
-                ptrIcon.className = 'fa-solid fa-arrow-down';
-                ptrIcon.style.transform = 'rotate(0deg)';
-                ptrText.innerText = '下拉以重新整理...';
-            }
-        }, 300);
-    }
-});
+// Removed Pull to Refresh Logic
 
 // Quick Weight Adjustment
 function adjustWeight(amount) {
