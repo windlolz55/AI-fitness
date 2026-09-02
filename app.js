@@ -1242,12 +1242,15 @@ let selectedFood = null;
 let currentCart = [];
 let activeCategory = 'custom';
 
-function openFoodDB(meal) {
+function openFoodDB(meal, targetDateStr) {
+    if (!targetDateStr) targetDateStr = todayDateStr;
+    window.currentAddingDate = targetDateStr;
     currentAddingMeal = meal;
     currentCart = [];
     updateCartUI();
     
-    const dateStr = new Date().toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }).replace('/', '月') + '日';
+    const d = new Date(targetDateStr);
+    const dateStr = d.toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }).replace('/', '月') + '日';
     document.getElementById('db-date-title').innerText = dateStr;
     document.getElementById('db-meal-selector').value = meal;
     changeAddingMeal(meal);
@@ -1397,7 +1400,7 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         id: Date.now() + Math.random(),
         img: '', 
         time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
-        date: todayDateStr,
+        date: window.currentAddingDate || todayDateStr,
         meal: currentAddingMeal,
         name: `${selectedFood.name} (${grams}g)`,
         cal: Math.round(selectedFood.cals * multi),
@@ -1478,7 +1481,7 @@ function copyYesterdayMeal() {
             currentCart.push({
                 ...log,
                 id: Date.now() + Math.random(),
-                date: todayDateStr
+                date: window.currentAddingDate || todayDateStr
             });
         });
         updateCartUI();
@@ -1972,7 +1975,7 @@ function renderLogs() {
             
             html += `
                 <div class="meal-group-card">
-                    <div class="meal-group-header">
+                    <div class="meal-group-header" onclick="openFoodDB('${meal}', '${selectedLogDate}')" style="cursor: pointer;">
                         <div style="display:flex; align-items:baseline;">
                             <h3>${mealMap[meal]}</h3>
                             <span class="suggestion">${suggestStr}</span>
