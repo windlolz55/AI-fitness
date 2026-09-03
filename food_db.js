@@ -41,6 +41,8 @@ const foodDatabase = {
         { id: 's27', categoryId: 'staple', name: '米粉 (炒/1份)', cals: 450, macros: { p: 8, c: 60, f: 20 }, icon: 'fluent-emoji-flat:steaming-bowl' },
         { id: 's28', categoryId: 'staple', name: '蘿蔔糕 (2片)', cals: 220, macros: { p: 4, c: 30, f: 10 }, icon: 'fluent-emoji-flat:fortune-cookie' },
         { id: 's29', categoryId: 'staple', name: '肉粽 (1顆)', cals: 550, macros: { p: 15, c: 60, f: 25 }, icon: 'fluent-emoji-flat:rice-ball' },
+        { id: 's30', categoryId: 'staple', name: '一片麵包 (約50g)', cals: 140, macros: { p: 4, c: 26, f: 2 }, icon: 'fluent-emoji-flat:bread' },
+        { id: 's31', categoryId: 'staple', name: '饅頭 (1顆)', cals: 280, macros: { p: 8, c: 60, f: 1 }, icon: 'fluent-emoji-flat:dumpling' },
         // ================= 肉類與海鮮 (Meat) =================
         { id: 'm1', categoryId: 'meat', name: '水煮雞胸肉 (100g)', cals: 110, macros: { p: 24, c: 0, f: 1 }, icon: 'fluent-emoji-flat:chicken' },
         { id: 'm2', categoryId: 'meat', name: '烤/煎雞腿排 (100g)', cals: 210, macros: { p: 18, c: 0, f: 15 }, icon: 'fluent-emoji-flat:poultry-leg' },
