@@ -3,10 +3,11 @@
 const foodDatabase = {
     categories: [
         { id: 'street', name: '街邊小吃', icon: 'fluent-emoji-flat:dumpling', color: '#FBBF24' },
-        { id: 'bento', name: '日常便當', icon: 'fluent-emoji-flat:bento-box', color: '#F59E0B' },
+        { id: 'bento', name: '日常主食', icon: 'fluent-emoji-flat:bento-box', color: '#F59E0B' },
         { id: 'breakfast', name: '台灣早餐', icon: 'fluent-emoji-flat:cooking', color: '#ff6b6b' },
         { id: 'store', name: '超商快充站', icon: 'fluent-emoji-flat:convenience-store', color: '#38BDF8' },
         { id: 'raw', name: '生鮮食材', icon: 'fluent-emoji-flat:leafy-green', color: '#1dd1a1' },
+        { id: 'fruit', name: '水果', icon: 'fluent-emoji-flat:red-apple', color: '#ff6b81' },
         { id: 'supp', name: '補劑', icon: 'fluent-emoji-flat:high-voltage', color: '#A78BFA' },
         { id: 'cheat', name: '舒壓餐', icon: 'fluent-emoji-flat:bubble-tea', color: '#ff9ff3' }
     ],
@@ -42,7 +43,7 @@ const foodDatabase = {
         { id: 'e36', categoryId: 'street', name: '蚵仔煎 (1份)', cals: 450, macros: { p: 15, c: 50, f: 20 }, icon: 'fluent-emoji-flat:oyster' },
         { id: 'e37', categoryId: 'street', name: '潤餅 (1捲)', cals: 300, macros: { p: 10, c: 45, f: 8 }, icon: 'fluent-emoji-flat:burrito' },
         
-        // ================= 日常便當 =================
+        // ================= 日常主食 =================
         { id: 'e1', categoryId: 'bento', name: '排骨便當 (炸/1個)', cals: 900, macros: { p: 35, c: 100, f: 40 }, icon: 'fluent-emoji-flat:bento-box' },
         { id: 'e2', categoryId: 'bento', name: '排骨便當 (滷/1個)', cals: 750, macros: { p: 35, c: 95, f: 25 }, icon: 'fluent-emoji-flat:bento-box' },
         { id: 'e3', categoryId: 'bento', name: '雞腿便當 (炸/1個)', cals: 850, macros: { p: 38, c: 95, f: 35 }, icon: 'fluent-emoji-flat:bento-box' },
@@ -160,16 +161,17 @@ const foodDatabase = {
         { id: 'v26', categoryId: 'raw', name: '燙青菜 (拌肉燥/1份)', cals: 100, macros: { p: 2, c: 5, f: 8 }, icon: 'fluent-emoji-flat:leafy-green' },
         { id: 'v27', categoryId: 'raw', name: '炒空心菜 (1份/100g)', cals: 70, macros: { p: 2, c: 4, f: 5 }, icon: 'fluent-emoji-flat:leafy-green' },
         { id: 'v28', categoryId: 'raw', name: '番茄炒蛋 (1份)', cals: 180, macros: { p: 8, c: 10, f: 12 }, icon: 'fluent-emoji-flat:tomato' },
-        { id: 'f1', categoryId: 'raw', name: '香蕉 (1根)', cals: 110, macros: { p: 1, c: 28, f: 0 }, icon: 'fluent-emoji-flat:banana' },
-        { id: 'f2', categoryId: 'raw', name: '蘋果 (1顆)', cals: 95, macros: { p: 0.5, c: 25, f: 0 }, icon: 'fluent-emoji-flat:red-apple' },
-        { id: 'f3', categoryId: 'raw', name: '奇異果 (1顆)', cals: 45, macros: { p: 1, c: 11, f: 0 }, icon: 'fluent-emoji-flat:kiwi-fruit' },
-        { id: 'f4', categoryId: 'raw', name: '橘子/柳丁 (1顆)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:tangerine' },
-        { id: 'f5', categoryId: 'raw', name: '芭樂 (1顆/200g)', cals: 75, macros: { p: 1, c: 17, f: 0 }, icon: 'fluent-emoji-flat:green-apple' },
-        { id: 'f6', categoryId: 'raw', name: '西瓜 (1碗切塊)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:watermelon' },
-        { id: 'f7', categoryId: 'raw', name: '鳳梨 (1碗切塊)', cals: 65, macros: { p: 0.5, c: 16, f: 0 }, icon: 'fluent-emoji-flat:pineapple' },
-        { id: 'f8', categoryId: 'raw', name: '木瓜 (1碗切塊)', cals: 55, macros: { p: 1, c: 14, f: 0 }, icon: 'fluent-emoji-flat:melon' },
-        { id: 'f9', categoryId: 'raw', name: '葡萄 (10顆)', cals: 60, macros: { p: 0.5, c: 15, f: 0 }, icon: 'fluent-emoji-flat:grapes' },
-        { id: 'f10', categoryId: 'raw', name: '草莓 (10顆)', cals: 40, macros: { p: 1, c: 9, f: 0 }, icon: 'fluent-emoji-flat:strawberry' },
+        // ================= 水果 =================
+        { id: 'f1', categoryId: 'fruit', name: '香蕉 (1根)', cals: 110, macros: { p: 1, c: 28, f: 0 }, icon: 'fluent-emoji-flat:banana' },
+        { id: 'f2', categoryId: 'fruit', name: '蘋果 (1顆)', cals: 95, macros: { p: 0.5, c: 25, f: 0 }, icon: 'fluent-emoji-flat:red-apple' },
+        { id: 'f3', categoryId: 'fruit', name: '奇異果 (1顆)', cals: 45, macros: { p: 1, c: 11, f: 0 }, icon: 'fluent-emoji-flat:kiwi-fruit' },
+        { id: 'f4', categoryId: 'fruit', name: '橘子/柳丁 (1顆)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:tangerine' },
+        { id: 'f5', categoryId: 'fruit', name: '芭樂 (1顆/200g)', cals: 75, macros: { p: 1, c: 17, f: 0 }, icon: 'fluent-emoji-flat:green-apple' },
+        { id: 'f6', categoryId: 'fruit', name: '西瓜 (1碗切塊)', cals: 60, macros: { p: 1, c: 15, f: 0 }, icon: 'fluent-emoji-flat:watermelon' },
+        { id: 'f7', categoryId: 'fruit', name: '鳳梨 (1碗切塊)', cals: 65, macros: { p: 0.5, c: 16, f: 0 }, icon: 'fluent-emoji-flat:pineapple' },
+        { id: 'f8', categoryId: 'fruit', name: '木瓜 (1碗切塊)', cals: 55, macros: { p: 1, c: 14, f: 0 }, icon: 'fluent-emoji-flat:melon' },
+        { id: 'f9', categoryId: 'fruit', name: '葡萄 (10顆)', cals: 60, macros: { p: 0.5, c: 15, f: 0 }, icon: 'fluent-emoji-flat:grapes' },
+        { id: 'f10', categoryId: 'fruit', name: '草莓 (10顆)', cals: 40, macros: { p: 1, c: 9, f: 0 }, icon: 'fluent-emoji-flat:strawberry' },
 
         // ================= 補劑 =================
         { id: 'd10', categoryId: 'supp', name: '高蛋白飲 (1匙+水)', cals: 120, macros: { p: 25, c: 2, f: 1 }, icon: 'fluent-emoji-flat:cup-with-straw' },
