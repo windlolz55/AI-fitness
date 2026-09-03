@@ -518,6 +518,13 @@ function calculateTargets() {
     let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
     if (TARGET_CALS < minCals) TARGET_CALS = minCals;
     
+    // 自訂營養素覆蓋
+    if (userProfile.customProMultiplier) {
+        TARGET_PRO = Math.round(userProfile.weight * userProfile.customProMultiplier);
+    }
+    if (userProfile.customFatMultiplier) {
+        TARGET_FAT = Math.round(userProfile.weight * userProfile.customFatMultiplier);
+    }
     let remainingCals = TARGET_CALS - (TARGET_PRO * 4) - (TARGET_FAT * 9);
     TARGET_CARB = Math.max(0, Math.round(remainingCals / 4));
     TARGET_WATER = userProfile.weight * 35;
@@ -1752,6 +1759,9 @@ function showInfo(type) {
             proMultiplier = 2.2;
             fatMultiplier = 0.8;
         }
+        
+        if (userProfile.customProMultiplier) proMultiplier = userProfile.customProMultiplier;
+        if (userProfile.customFatMultiplier) fatMultiplier = userProfile.customFatMultiplier;
 
         title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明';
         content.innerHTML = `
@@ -2023,6 +2033,8 @@ function setupProfile() {
     const act = document.getElementById('activity');
     const goal = document.getElementById('goal');
     const pace = document.getElementById('pace');
+    const customPro = document.getElementById('custom-pro-multiplier');
+    const customFat = document.getElementById('custom-fat-multiplier');
 
     function getPreviewTDEE() {
         const gender = g.value || 'male';
@@ -2050,6 +2062,11 @@ function setupProfile() {
             proMultiplier = 2.0;
         } else if (selectedGoal === 'recomp') {
             proMultiplier = 2.2;
+        }
+        
+        const customProInput = document.getElementById('custom-pro-multiplier');
+        if (customProInput && customProInput.value) {
+            proMultiplier = parseFloat(customProInput.value);
         }
         const targetPro = Math.round(weight * proMultiplier);
         
@@ -2110,6 +2127,14 @@ function setupProfile() {
     act.value = userProfile.activity || '1.2';
     goal.value = userProfile.goal || 'maintain';
     
+    if (customPro) {
+        customPro.value = userProfile.customProMultiplier || '';
+        customPro.addEventListener('input', updatePaceOptions);
+    }
+    if (customFat) {
+        customFat.value = userProfile.customFatMultiplier || '';
+    }
+    
     function updateBMI() {
         const height = parseFloat(h.value);
         const weight = parseFloat(w.value);
@@ -2150,7 +2175,9 @@ function setupProfile() {
             weight: parseInt(w.value),
             activity: parseFloat(act.value),
             goal: goal.value,
-            pace: pace.value
+            pace: pace.value,
+            customProMultiplier: customPro && customPro.value ? parseFloat(customPro.value) : null,
+            customFatMultiplier: customFat && customFat.value ? parseFloat(customFat.value) : null
         };
         setAndSync('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();

@@ -38,7 +38,7 @@
                 <div style="width: 80px; height: 80px; background: var(--accent-primary); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: white; margin-bottom: 16px;">
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.38</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.39</span></h1>
                 <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             </div>
             
@@ -392,6 +392,25 @@
                         <!-- Options populated dynamically -->
                     </select>
                 </div>
+                
+                <!-- Custom Macro Multipliers -->
+                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; margin-top: 16px; margin-bottom: 16px;">
+                    <div style="font-size: 13px; font-weight: 500; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                        <span>營養素分配 (每公斤體重)</span>
+                        <button class="btn-icon" style="font-size: 12px; color: var(--accent-primary); border: none; background: transparent;" onclick="document.getElementById('custom-pro-multiplier').value=''; document.getElementById('custom-fat-multiplier').value='';">重置為系統建議</button>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 11px; color: var(--text-muted);">蛋白質 (g/kg)</label>
+                            <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="系統自動">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-size: 11px; color: var(--text-muted);">脂肪 (g/kg)</label>
+                            <input type="number" id="custom-fat-multiplier" class="input-field" step="0.1" placeholder="系統自動">
+                        </div>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin: 0;">* 碳水將自動填滿剩餘熱量。留空則由系統全自動計算。</p>
+                </div>
 
                 <button id="btn-save-profile" class="btn-primary">儲存資料並計算</button>
             </div>
@@ -401,7 +420,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.38 (Cloud Sync)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.39 (Cloud Sync)</p>
             </div>
         </div>
 
@@ -760,6 +779,6 @@
     </div>
 
     <script src="food_db.js?v=6"></script>
-    <script src="app.js?v=1.38"></script>
+    <script src="app.js?v=1.39"></script>
 </body>
 </html>
