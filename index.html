@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>AI ?箄憌脤?蝝??/title>
+    <title>AI 智能飲食紀錄</title>
     <link rel="stylesheet" href="style.css?v=1.46">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
@@ -35,28 +35,28 @@
         
         <!-- Auth View -->
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
-            <div style="text-align: center; margin-bottom: 32px;">
-                <div style="width: 80px; height: 80px; background: var(--accent-primary); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: white; margin-bottom: 16px;">
-                    <i class="fa-solid fa-dumbbell"></i>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(29, 209, 161, 0.3);">
+                    <i class="fa-solid fa-leaf" style="color: white; font-size: 20px;"></i>
                 </div>
                 <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.60</span></h1>
-                <p style="color: var(--text-muted); margin-top: 8px;">?餃隞亙?甇交??撅祉???/p>
             </div>
+            <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
             <div class="card" style="width: 100%; padding: 24px;">
                 <div class="input-group">
-                    <label>?餃?靽∠拳</label>
+                    <label>電子信箱</label>
                     <input type="email" id="auth-email" class="input-field" placeholder="example@email.com" onkeydown="if(event.key === 'Enter') handleLogin()">
                 </div>
                 <div class="input-group">
-                    <label>撖Ⅳ</label>
-                    <input type="password" id="auth-password" class="input-field" placeholder="隢撓?亙?蝣? onkeydown="if(event.key === 'Enter') handleLogin()">
+                    <label>密碼</label>
+                    <input type="password" id="auth-password" class="input-field" placeholder="請輸入密碼" onkeydown="if(event.key === 'Enter') handleLogin()">
                 </div>
                 
                 <div id="auth-error" style="color: #ff4757; font-size: 14px; margin-bottom: 16px; display: none;"></div>
                 
-                <button class="btn-primary" style="width: 100%; margin-bottom: 12px;" onclick="handleLogin()">?餃</button>
-                <button class="btn-secondary" style="width: 100%;" onclick="handleSignup()">閮餃??啣董??/button>
+                <button class="btn-primary" style="width: 100%; margin-bottom: 12px;" onclick="handleLogin()">登入</button>
+                <button class="btn-secondary" style="width: 100%;" onclick="handleSignup()">註冊新帳號</button>
             </div>
         </div>
         
@@ -66,7 +66,7 @@
         <div id="view-dashboard" class="view active">
             <header class="dashboard-header">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin: 0; padding-left: 8px; font-weight: 500;">頛銝?..</p>
+                    <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin: 0; padding-left: 8px; font-weight: 500;">載入中...</p>
                     <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
                 
@@ -77,7 +77,7 @@
                         <!-- Left: Eaten -->
                         <div style="text-align: center; flex: 1;">
                             <div id="cal-eaten" style="font-size: 28px; font-weight: 800; color: white;">0</div>
-                            <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px;">?? kcal</div>
+                            <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px;">攝取 kcal</div>
                         </div>
                         
                         <!-- Center: Arc -->
@@ -93,7 +93,7 @@
                                 </defs>
                             </svg>
                             <div id="cal-remaining" style="position: relative; z-index: 10; font-size: 34px; font-weight: 800; color: white; line-height: 1; margin-bottom: 2px;">0</div>
-                            <div style="position: relative; z-index: 10; font-size: 13px; font-weight: 500; color: #8e8e93; display: flex; align-items: center; cursor: pointer;" onclick="showInfo('cals')">?拚? kcal <i class="fa-solid fa-circle-info" style="margin-left: 4px; font-size: 11px;"></i></div>
+                            <div style="position: relative; z-index: 10; font-size: 13px; font-weight: 500; color: #8e8e93; display: flex; align-items: center; cursor: pointer;" onclick="showInfo('cals')">剩餘 kcal <i class="fa-solid fa-circle-info" style="margin-left: 4px; font-size: 11px;"></i></div>
                         </div>
 
                         <!-- Right: Burned -->
@@ -103,7 +103,7 @@
                                 <i class="fa-solid fa-pen" style="font-size: 10px; margin-left: 6px; color: #8e8e93;"></i>
                             </div>
                             <div style="font-size: 13px; font-weight: 500; color: #8e8e93; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; cursor: pointer;" onclick="showInfo('burned')">
-                                <span>?? kcal</span> <i class="fa-solid fa-circle-info" style="font-size: 11px;"></i>
+                                <span>燃燒 kcal</span> <i class="fa-solid fa-circle-info" style="font-size: 11px;"></i>
                                 <div id="cal-burned-time" style="font-size: 11px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 8px; display: none; align-items: center;"><i class="fa-regular fa-clock" style="margin-right: 3px;"></i><span id="cal-burned-time-val">0</span>m</div>
                             </div>
                         </div>
@@ -117,7 +117,7 @@
                         <div style="display: flex; justify-content: space-between; gap: 12px; cursor: pointer;" onclick="showInfo('macros')">
                             <!-- Carbs -->
                         <div style="flex: 1; text-align: center;">
-                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">蝣單偌</div>
+                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">碳水</div>
                             <div style="background: rgba(251, 191, 36, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
                                 <div id="bar-carb" style="background: var(--carb-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
@@ -126,7 +126,7 @@
 
                         <!-- Protein -->
                         <div style="flex: 1; text-align: center;">
-                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">?鞈?/div>
+                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">蛋白質</div>
                             <div style="background: rgba(56, 189, 248, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
                                 <div id="bar-pro" style="background: var(--pro-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
@@ -135,7 +135,7 @@
                         
                         <!-- Fat -->
                         <div style="flex: 1; text-align: center;">
-                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">?</div>
+                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">脂肪</div>
                             <div style="background: rgba(167, 139, 250, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
                                 <div id="bar-fat" style="background: var(--fat-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
@@ -150,23 +150,23 @@
             <div class="quick-actions">
                 <button class="action-btn" onclick="openFoodDB('breakfast')">
                     <div class="action-icon" style="background: rgba(251, 191, 36, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:cooking" style="font-size: 28px;"></span></div>
-                    <span>?拚?</span>
+                    <span>早餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('lunch')">
                     <div class="action-icon" style="background: rgba(56, 189, 248, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="font-size: 28px;"></span></div>
-                    <span>??</span>
+                    <span>午餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('dinner')">
                     <div class="action-icon" style="background: rgba(167, 139, 250, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="font-size: 28px;"></span></div>
-                    <span>??</span>
+                    <span>晚餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('snack')">
                     <div class="action-icon" style="background: rgba(255, 107, 107, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:cookie" style="font-size: 28px;"></span></div>
-                    <span>??</span>
+                    <span>加餐</span>
                 </button>
                 <button class="action-btn" onclick="openScanner()">
                     <div class="action-icon" style="background: var(--accent-primary); color: white;"><i class="fa-solid fa-camera"></i></div>
-                    <span>??</span>
+                    <span>掃描</span>
                 </button>
             </div>
 
@@ -174,7 +174,7 @@
             <div class="tracking-cards" style="margin-bottom: 16px;">
                 <div class="card track-card" style="position: relative;">
                     <button class="btn-icon" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border: none; font-size: 14px; color: var(--text-muted);" onclick="showInfo('water')"><i class="fa-solid fa-circle-info"></i></button>
-                    <h3 style="color: var(--accent-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=&quot;view-log&quot;]').click()"><i class="fa-solid fa-droplet" style="margin-right: 6px;"></i> ?偌 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
+                    <h3 style="color: var(--accent-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=&quot;view-log&quot;]').click()"><i class="fa-solid fa-droplet" style="margin-right: 6px;"></i> 喝水 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
                     <div style="cursor: pointer; margin: 8px 0 12px 0; display: flex; flex-direction: column; align-items: center;" onclick="promptEditWater()">
                         <div style="font-size: 24px; font-weight: 700; display: inline-flex; align-items: baseline;">
                             <span id="water-val" style="border-bottom: 2px dashed var(--accent-secondary); padding-bottom: 2px;">0</span>
@@ -188,7 +188,7 @@
                     </div>
                 </div>
                 <div class="card track-card" style="position: relative;">
-                    <h3 style="color: #ffb86c; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-weight-scale" style="margin-right: 6px;"></i> 擃? <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
+                    <h3 style="color: #ffb86c; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-weight-scale" style="margin-right: 6px;"></i> 體重 <i class="fa-solid fa-chevron-right" style="font-size: 12px; margin-left: 6px;"></i></h3>
                     <button class="btn-icon" style="position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border: none; font-size: 14px; color: #ffb86c;" onclick="document.querySelector('[data-target=\'view-overview\']').click()"><i class="fa-solid fa-chart-line"></i></button>
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 12px;">
                         <style>
@@ -199,7 +199,7 @@
                             }
                         </style>
                         <div style="display: flex; align-items: baseline; justify-content: center; margin-bottom: 12px;">
-                            <input type="number" step="0.1" id="daily-weight" class="input-field no-spinners" placeholder="頛詨" style="text-align: center; font-weight: 700; font-size: 24px; background: transparent; border: none; border-bottom: 2px solid var(--card-border); border-radius: 0; padding: 4px; width: 100px; margin: 0; -moz-appearance: textfield;">
+                            <input type="number" step="0.1" id="daily-weight" class="input-field no-spinners" placeholder="輸入" style="text-align: center; font-weight: 700; font-size: 24px; background: transparent; border: none; border-bottom: 2px solid var(--card-border); border-radius: 0; padding: 4px; width: 100px; margin: 0; -moz-appearance: textfield;">
                             <span style="font-size: 14px; color: var(--text-muted); margin-left: 8px;">kg</span>
                         </div>
                         <div style="display: flex; gap: 8px; justify-content: center;">
@@ -216,7 +216,7 @@
             <header style="padding: 16px 0; position: sticky; top: 0; background: var(--bg-main); z-index: 10; margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <h2 id="log-view-title" style="font-size: 18px; margin: 0;">憌脤?蝝??(隞予)</h2>
+                        <h2 id="log-view-title" style="font-size: 18px; margin: 0;">飲食紀錄 (今天)</h2>
                         <button class="btn-icon" style="border: none; background: transparent; font-size: 16px; color: var(--accent-primary); outline: none; padding: 4px;" onclick="openCalendarModal()"><i class="fa-regular fa-calendar"></i></button>
                     </div>
                     <div style="display: flex; gap: 4px; align-items: center;">
@@ -239,11 +239,11 @@
             <header style="padding: 16px 0; position: sticky; top: 0; background: var(--bg-main); z-index: 10; margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <h2 style="font-size: 18px; margin: 0;">??隤脰”</h2>
+                        <h2 style="font-size: 18px; margin: 0;">運動課表</h2>
                         <button class="btn-icon" style="border: none; background: transparent; font-size: 16px; color: var(--accent-primary); outline: none; padding: 4px;" onclick="openCalendarModal()"><i class="fa-regular fa-calendar"></i></button>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <p id="workout-day-title" style="margin: 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">頛銝?..</p>
+                        <p id="workout-day-title" style="margin: 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">載入中...</p>
                         <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
                     </div>
                 </div>
@@ -258,11 +258,11 @@
             </div>
             
             <button class="btn-secondary" style="width: 100%; margin-top: 16px; padding: 16px; border-radius: 16px; border: 1px dashed var(--card-border); background: transparent;" onclick="openAddExerciseModal()">
-                <i class="fa-solid fa-plus"></i> ???啣???
+                <i class="fa-solid fa-plus"></i> 手動新增動作
             </button>
             
             <div style="text-align: center; margin-top: 16px;">
-                <p style="font-size: 12px; color: var(--text-muted);">暺?隤脰”??嚗????啣?靘???/p>
+                <p style="font-size: 12px; color: var(--text-muted);">點擊課表動作，或手動新增來記錄</p>
             </div>
         </div>
 
@@ -270,16 +270,16 @@
         <div id="view-overview" class="view">
             <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
-                    <h2 id="overview-greeting" style="font-size: 24px; font-weight: 700; color: var(--text-main); margin: 0;">蝮質汗</h2>
-                    <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">???函?憌脤???????/p>
+                    <h2 id="overview-greeting" style="font-size: 24px; font-weight: 700; color: var(--text-main); margin: 0;">總覽</h2>
+                    <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">取得您的飲食與運動分析</p>
                 </div>
                 <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
             </header>
 
             <div class="card" style="margin-bottom: 16px; padding: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                    <h3 style="font-size: 16px;">擃?</h3>
-                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-current-weight" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- kg</span> <span style="opacity: 0.6;">/ ?桀?擃?</span></div>
+                    <h3 style="font-size: 16px;">體重</h3>
+                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-current-weight" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- kg</span> <span style="opacity: 0.6;">/ 目前體重</span></div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-muted); font-size: 13px;">
@@ -295,8 +295,8 @@
 
             <div class="card" style="margin-bottom: 16px; padding: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                    <h3 style="font-size: 16px;">?∟楝??/h3>
-                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-avg-cal" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- 憭批</span> <span style="opacity: 0.6;">/ 瘥撟喳?</span></div>
+                    <h3 style="font-size: 16px;">卡路里</h3>
+                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-avg-cal" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- 大卡</span> <span style="opacity: 0.6;">/ 每日平均</span></div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-muted); font-size: 13px;">
@@ -313,8 +313,8 @@
             <!-- Burned Chart -->
             <div class="card" style="margin-bottom: 16px; padding: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                    <h3 style="font-size: 16px;">??瘨?/h3>
-                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-avg-burned" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- kcal</span> <span style="opacity: 0.6;">/ 瘥撟喳?</span></div>
+                    <h3 style="font-size: 16px;">運動消耗</h3>
+                    <div style="font-size: 12px; color: var(--text-muted);"><span id="overview-avg-burned" style="font-size: 16px; font-weight: bold; color: var(--text-main);">-- kcal</span> <span style="opacity: 0.6;">/ 每日平均</span></div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-muted); font-size: 13px;">
@@ -332,12 +332,12 @@
         <!-- Profile View -->
         <div id="view-profile" class="view">
             <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin: 0;">??閮剖?</h2>
+                <h2 style="margin: 0;">我的設定</h2>
                 <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
             </header>
 
             <div class="card" style="padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 500;">瘛梯璅∪? (Dark Mode)</span>
+                <span style="font-weight: 500;">深色模式 (Dark Mode)</span>
                 <label style="position: relative; display: inline-block; width: 50px; height: 28px;">
                     <input type="checkbox" id="theme-toggle" style="opacity: 0; width: 0; height: 0;">
                     <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--card-border); transition: .4s; border-radius: 34px;">
@@ -347,49 +347,49 @@
             </div>
 
             <div class="card" style="padding: 16px;">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">?箸鞈?</h3>
-                <label style="font-size: 12px; color: var(--text-muted);">?梁迂</label>
-                <input type="text" id="nickname" class="input-field" placeholder="頛詨?函??梁迂 (?詨‵)">
+                <h3 style="margin-bottom: 12px; font-size: 16px;">基本資料</h3>
+                <label style="font-size: 12px; color: var(--text-muted);">暱稱</label>
+                <input type="text" id="nickname" class="input-field" placeholder="輸入您的暱稱 (選填)">
                 
-                <label style="font-size: 12px; color: var(--text-muted);">?批</label>
+                <label style="font-size: 12px; color: var(--text-muted);">性別</label>
                 <select id="gender" class="input-field">
-                    <option value="male">?瑟?/option>
-                    <option value="female">憟單?/option>
+                    <option value="male">男性</option>
+                    <option value="female">女性</option>
                 </select>
                 
-                <label style="font-size: 12px; color: var(--text-muted);">撟湧翩</label>
-                <input type="number" id="age" class="input-field" placeholder="撟湧翩">
+                <label style="font-size: 12px; color: var(--text-muted);">年齡</label>
+                <input type="number" id="age" class="input-field" placeholder="年齡">
                 
-                <label style="font-size: 12px; color: var(--text-muted);">頨恍? (cm)</label>
-                <input type="number" id="height" class="input-field" placeholder="頨恍? (cm)">
+                <label style="font-size: 12px; color: var(--text-muted);">身高 (cm)</label>
+                <input type="number" id="height" class="input-field" placeholder="身高 (cm)">
                 
-                <label style="font-size: 12px; color: var(--text-muted);">擃? (kg)</label>
-                <input type="number" id="weight" class="input-field" placeholder="擃? (kg)">
+                <label style="font-size: 12px; color: var(--text-muted);">體重 (kg)</label>
+                <input type="number" id="weight" class="input-field" placeholder="體重 (kg)">
                 <div id="inline-bmi-display" style="display: none; margin-top: -8px; margin-bottom: 16px; font-size: 13px; color: var(--text-muted); align-items: center; justify-content: space-between; padding: 0 4px;">
                     <span>BMI: <strong id="inline-bmi-val" style="color: var(--accent-primary); font-size: 15px;">--</strong></span>
                     <button class="btn-icon" style="border: none; background: none; font-size: 16px; padding: 4px; color: var(--accent-primary);" onclick="showInfo('bmi')"><i class="fa-solid fa-circle-info"></i></button>
                 </div>
                 
-                <label style="font-size: 12px; color: var(--text-muted);">瘣餃???/label>
+                <label style="font-size: 12px; color: var(--text-muted);">活動量</label>
                 <select id="activity" class="input-field">
-                    <option value="1.2">銋? (?⊿????豢????? x 1.2</option>
-                    <option value="1.375">頛漲 (瘥?-3甈∴?瘥活30?凝?? x 1.375</option>
-                    <option value="1.55">銝剖漲 (瘥?-5甈∴?瘥活30-60??瘙? x 1.55</option>
-                    <option value="1.725">擃漲 (瘥?-7憭抬?擃撥摨西?蝺? x 1.725</option>
-                    <option value="1.9">璆菟? (憭拙予擃撥摨西?蝺湔????極雿? x 1.9</option>
+                    <option value="1.2">久坐 (無運動、多數時間坐著) x 1.2</option>
+                    <option value="1.375">輕度 (每週1-3次，每次30分微喘) x 1.375</option>
+                    <option value="1.55">中度 (每週3-5次，每次30-60分流汗) x 1.55</option>
+                    <option value="1.725">高度 (每週6-7天，高強度訓練) x 1.725</option>
+                    <option value="1.9">極高 (天天高強度訓練或重勞力工作) x 1.9</option>
                 </select>
 
                 <div style="margin-bottom: 24px;">
                     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
-                        <label id="goal-label" style="font-size: 12px; color: var(--text-muted); margin: 0;">雿??格???憟?</label>
+                        <label id="goal-label" style="font-size: 12px; color: var(--text-muted); margin: 0;">你的目標與節奏？</label>
                         <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted);">
-                            ??鞈?<span id="pro-recommend-label" style="color: var(--accent-primary); font-weight: bold;">(撱箄降 1.8)</span>: <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="蝟餌絞" style="width: 48px; height: 24px; padding: 0 4px; text-align: center; font-size: 11px; border-radius: 4px; min-height: 24px;"> g/kg
+                            攝入蛋白質 <span id="pro-recommend-label" style="color: var(--accent-primary); font-weight: bold;">(建議 1.8)</span>: <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="系統" style="width: 48px; height: 24px; padding: 0 4px; text-align: center; font-size: 11px; border-radius: 4px; min-height: 24px;"> g/kg
                         </div>
                     </div>
                     <div class="custom-select-container" style="position: relative; width: 100%;">
                         <input type="hidden" id="goal" value="">
                         <div id="goal-display" class="input-field" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; cursor: pointer; white-space: normal; line-height: 1.4;" onclick="document.getElementById('goal-options').style.display = document.getElementById('goal-options').style.display === 'block' ? 'none' : 'block'">
-                            <span id="goal-display-text">隢?璅?..</span>
+                            <span id="goal-display-text">請選擇目標...</span>
                             <i class="fa-solid fa-caret-down" style="color: var(--text-muted); margin-left: 8px; flex-shrink: 0;"></i>
                         </div>
                         <div id="goal-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-top: 4px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 250px; overflow-y: auto;">
@@ -398,10 +398,10 @@
                     </div>
                 </div>
 
-                <button id="btn-save-profile" class="btn-primary">?脣?鞈?銝西?蝞?/button>
+                <button id="btn-save-profile" class="btn-primary">儲存資料並計算</button>
             </div>
             
-            <button class="btn-secondary" style="width: 100%; margin-top: 48px; color: #ff4757; border-color: #ff4757;" onclick="handleLogout()">?餃撣唾?</button>
+            <button class="btn-secondary" style="width: 100%; margin-top: 48px; color: #ff4757; border-color: #ff4757;" onclick="handleLogout()">登出帳號</button>
 
 
             
@@ -419,10 +419,10 @@
                 <div style="position: relative; display: inline-flex; align-items: center; justify-content: center;">
                     <span id="db-date-title" style="font-size: 16px; font-weight: 600; margin-right: 4px;"></span>
                     <select id="db-meal-selector" onchange="changeAddingMeal(this.value)" style="border:none; background:transparent; font-size:16px; font-weight:600; color:var(--text-main); outline:none; -webkit-appearance:none; padding-right:14px; cursor:pointer;">
-                        <option value="breakfast" style="background: var(--card-bg); color: var(--text-main);">?拚?</option>
-                        <option value="lunch" style="background: var(--card-bg); color: var(--text-main);">??</option>
-                        <option value="dinner" style="background: var(--card-bg); color: var(--text-main);">??</option>
-                        <option value="snack" style="background: var(--card-bg); color: var(--text-main);">??</option>
+                        <option value="breakfast" style="background: var(--card-bg); color: var(--text-main);">早餐</option>
+                        <option value="lunch" style="background: var(--card-bg); color: var(--text-main);">午餐</option>
+                        <option value="dinner" style="background: var(--card-bg); color: var(--text-main);">晚餐</option>
+                        <option value="snack" style="background: var(--card-bg); color: var(--text-main);">加餐</option>
                     </select>
                     <i class="fa-solid fa-caret-down" style="position: absolute; right: 0; font-size: 12px; color: var(--text-muted); pointer-events: none;"></i>
                 </div>
@@ -435,12 +435,12 @@
             <div style="padding: 12px 16px;">
                 <div style="position: relative; margin-bottom: 12px;">
                     <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--accent-primary);"></i>
-                    <input type="text" id="food-search-input" class="input-field" placeholder="??憌?迂..." style="padding-left: 40px; border-radius: 24px; margin-bottom: 0; border: 1px solid var(--accent-primary);">
+                    <input type="text" id="food-search-input" class="input-field" placeholder="搜尋食物名稱..." style="padding-left: 40px; border-radius: 24px; margin-bottom: 0; border: 1px solid var(--accent-primary);">
                 </div>
                 <div style="display: flex; gap: 8px; justify-content: space-between;">
-                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="copyYesterdayMeal()"><i class="fa-regular fa-copy"></i> 銴ˊ?冽</button>
-                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openScanner()"><i class="fa-solid fa-camera"></i> ??憌</button>
-                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openCustomFood()"><i class="fa-solid fa-plus"></i> ?芾?憌</button>
+                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="copyYesterdayMeal()"><i class="fa-regular fa-copy"></i> 複製昨日</button>
+                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openScanner()"><i class="fa-solid fa-camera"></i> 掃描食物</button>
+                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openCustomFood()"><i class="fa-solid fa-plus"></i> 自訂食物</button>
                 </div>
             </div>
 
@@ -452,7 +452,7 @@
                 </div>
                 <!-- Content -->
                 <div id="db-content" style="flex: 1; background: var(--card-bg); overflow-y: auto; padding: 0 16px;">
-                    <h4 id="db-category-title" style="margin: 16px 0; font-size: 14px; color: var(--text-main);">撣貉?憌</h4>
+                    <h4 id="db-category-title" style="margin: 16px 0; font-size: 14px; color: var(--text-main);">常見食物</h4>
                     <div id="db-food-list">
                         <!-- Foods injected via JS -->
                     </div>
@@ -463,12 +463,12 @@
             <div style="padding: 12px 16px; border-top: 1px solid var(--card-border); background: var(--card-bg); display: flex; justify-content: space-between; align-items: center;">
                 <div style="position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="openCartModal()">
                     <div style="position: relative;">
-                        <div style="font-size: 32px;">?儭?/div>
+                        <div style="font-size: 32px;">🍽️</div>
                         <div id="cart-badge" style="position: absolute; top: -4px; right: -8px; background: #ff4757; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; display: none;">0</div>
                     </div>
-                    <div style="font-size: 14px; font-weight: 600;" id="cart-meal-label">?拚? <i class="fa-solid fa-caret-up" style="font-size: 10px; margin-left: 2px;"></i></div>
+                    <div style="font-size: 14px; font-weight: 600;" id="cart-meal-label">早餐 <i class="fa-solid fa-caret-up" style="font-size: 10px; margin-left: 2px;"></i></div>
                 </div>
-                <button class="btn-primary" style="width: 120px; padding: 10px;" onclick="commitCart()">摰?</button>
+                <button class="btn-primary" style="width: 120px; padding: 10px;" onclick="commitCart()">完成</button>
             </div>
         </div>
 
@@ -477,7 +477,7 @@
             <div style="background: var(--card-bg); border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px; max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);">
                 <div style="width: 40px; height: 5px; background: var(--card-border); border-radius: 3px; margin: 0 auto 20px auto;"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h3 style="font-size: 16px;">敺擗</h3>
+                    <h3 style="font-size: 16px;">待選餐盤</h3>
                     <button class="btn-icon" onclick="closeCartModal()" style="border:none;"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
                 <div id="cart-items-container" style="flex: 1; overflow-y: auto;">
@@ -490,7 +490,7 @@
         <div id="food-setup-modal">
             <div style="width: 40px; height: 5px; background: var(--card-border); border-radius: 3px; margin: -12px auto 20px auto;"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 id="setup-food-name">?賡ㄞ</h3>
+                <h3 id="setup-food-name">白飯</h3>
                 <button class="btn-icon" onclick="closeFoodSetup()"><i class="fa-solid fa-chevron-down"></i></button>
             </div>
             <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 24px;">
@@ -498,14 +498,14 @@
                 <span style="font-weight: 600; width: 40px;">g</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">?梢?</div><strong id="setup-cal">0</strong> kcal</div>
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">蝣單偌</div><strong id="setup-carb">0</strong> g</div>
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">?鞈?/div><strong id="setup-pro">0</strong> g</div>
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">?</div><strong id="setup-fat">0</strong> g</div>
+                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">熱量</div><strong id="setup-cal">0</strong> kcal</div>
+                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">碳水</div><strong id="setup-carb">0</strong> g</div>
+                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">蛋白質</div><strong id="setup-pro">0</strong> g</div>
+                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">脂肪</div><strong id="setup-fat">0</strong> g</div>
             </div>
             <div style="display: flex; gap: 12px;">
-                <button class="btn-secondary" style="flex: 1; padding: 16px;" onclick="closeFoodSetup()">??</button>
-                <button id="btn-add-food" class="btn-primary" style="flex: 1; padding: 16px;">蝣箄??</button>
+                <button class="btn-secondary" style="flex: 1; padding: 16px;" onclick="closeFoodSetup()">取消</button>
+                <button id="btn-add-food" class="btn-primary" style="flex: 1; padding: 16px;">確認加入</button>
             </div>
         </div>
 
@@ -513,48 +513,48 @@
         <div id="custom-food-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 1000; display: none; flex-direction: column;">
             <div class="dashboard-header" style="justify-content: space-between; margin-bottom: 24px;">
                 <button class="btn-icon" onclick="closeCustomFood()"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2>?啣??芾?憌</h2>
+                <h2>新增自訂食物</h2>
                 <div style="width: 40px;"></div>
             </div>
             
             <div style="padding: 0 20px; overflow-y: auto; padding-bottom: 100px;">
-                <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">憌?迂 <span style="color:red">*</span></label>
-                <input type="text" id="cf-name" class="input-field" placeholder="靘?嚗憪函鋆賜?輯?擗?>
+                <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">食物名稱 <span style="color:red">*</span></label>
+                <input type="text" id="cf-name" class="input-field" placeholder="例如：阿姨特製火腿蛋餅">
                 
-                <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; margin-top: 16px;">瘥?100g ??瘥遢 ???(kcal) <span style="color:red">*</span></label>
-                <input type="number" id="cf-cal" class="input-field" placeholder="靘?嚗?50">
+                <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; margin-top: 16px;">每 100g 或 每份 的熱量 (kcal) <span style="color:red">*</span></label>
+                <input type="number" id="cf-cal" class="input-field" placeholder="例如：350">
                 
                 <div style="display: flex; gap: 12px; margin-top: 16px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">?鞈?(g)</label>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">蛋白質 (g)</label>
                         <input type="number" id="cf-pro" class="input-field" placeholder="0">
                     </div>
                     <div style="flex: 1;">
-                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">蝣單偌 (g)</label>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">碳水 (g)</label>
                         <input type="number" id="cf-carb" class="input-field" placeholder="0">
                     </div>
                     <div style="flex: 1;">
-                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">? (g)</label>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">脂肪 (g)</label>
                         <input type="number" id="cf-fat" class="input-field" placeholder="0">
                     </div>
                 </div>
                 
-                <button class="btn-primary" style="margin-top: 32px;" onclick="saveCustomFood()">?脣?銝血??交?????/button>
+                <button class="btn-primary" style="margin-top: 32px;" onclick="saveCustomFood()">儲存並加入我的最愛</button>
             </div>
         </div>
 
         <!-- Scanner View -->
         <div id="view-scanner" class="view">
             <header style="margin-bottom: 24px; display: flex; justify-content: space-between;">
-                <h2>AI ?颲刻?</h2>
+                <h2>AI 拍照辨識</h2>
                 <button class="btn-icon" onclick="closeScanner()"><i class="fa-solid fa-xmark"></i></button>
             </header>
             
             <div id="api-key-setup" class="card" style="padding: 16px; text-align: center; margin-bottom: 16px; display: none;">
-                <h3 style="color: var(--accent-primary); margin-bottom: 8px;">?? 蝬? Gemini API</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">隢撓?交??Gemini API Key 隞亙??函?撖?AI 颲刻?? (??摮?函?鋆蔭)</p>
+                <h3 style="color: var(--accent-primary); margin-bottom: 8px;">🔑 綁定 Gemini API</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">請輸入您的 Gemini API Key 以啟用真實 AI 辨識功能 (金鑰僅儲存於您的裝置)</p>
                 <input type="password" id="gemini-api-key" class="input-field" placeholder="AIzaSy...">
-                <button class="btn-primary" onclick="saveGeminiKey()">?脣??銝血???/button>
+                <button class="btn-primary" onclick="saveGeminiKey()">儲存金鑰並啟用</button>
             </div>
             
             <div class="card" style="padding: 16px; text-align: center;">
@@ -566,7 +566,7 @@
                     
                     <div id="scan-progress-container" style="display: none; margin-bottom: 16px; text-align: left;">
                         <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-primary); margin-bottom: 4px; font-weight: bold;">
-                            <span><i class="fa-solid fa-spinner fa-spin" style="margin-right: 4px;"></i> AI 颲刻?銝?..</span>
+                            <span><i class="fa-solid fa-spinner fa-spin" style="margin-right: 4px;"></i> AI 辨識中...</span>
                             <span id="scan-progress-text">0%</span>
                         </div>
                         <div style="height: 6px; background: var(--card-border); border-radius: 3px; overflow: hidden;">
@@ -575,33 +575,33 @@
                     </div>
                     
                     <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="callGeminiVisionAPI(this)" onclick="this.value=null;">
-                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px;" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image" style="margin-right: 8px;"></i>?????/button>
+                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px;" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image" style="margin-right: 8px;"></i>拍照或選取照片</button>
                 </div>
             </div>
 
             <div id="scan-result" class="card hidden" style="padding: 24px; margin-top: 16px;">
-                <h3 style="text-align: center; margin-bottom: 16px; color: var(--accent-primary); font-size: 18px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI ??蝯?</h3>
+                <h3 style="text-align: center; margin-bottom: 16px; color: var(--accent-primary); font-size: 18px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 分析結果</h3>
                 
                 <div style="margin-bottom: 16px;">
-                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: left;">撟恍?????摮?(靘?嚗?撉其噶??</label>
-                    <input type="text" id="scan-meal-name" class="input-field" placeholder="?身嚗I ?箸蝯?擗?>
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: left;">幫這個組合取個名字 (例如：排骨便當)</label>
+                    <input type="text" id="scan-meal-name" class="input-field" placeholder="預設：AI 智慧組合餐">
                 </div>
                 
-                <p style="text-align: left; font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">???暸雿??唾????殷?</p>
+                <p style="text-align: left; font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">取消勾選你不想要的項目：</p>
                 
                 <div id="scan-checklist" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
                     <!-- Checkbox items injected here by JS -->
                 </div>
                 
                 <select id="scan-meal-type" class="input-field" style="margin-bottom: 12px; text-align: center;">
-                    <option value="breakfast">?拚?</option>
-                    <option value="lunch">??</option>
-                    <option value="dinner">??</option>
-                    <option value="snack">??</option>
+                    <option value="breakfast">早餐</option>
+                    <option value="lunch">午餐</option>
+                    <option value="dinner">晚餐</option>
+                    <option value="snack">加餐</option>
                 </select>
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn-secondary" style="flex: 1; border: 1px solid var(--card-border); color: var(--text-muted); background: var(--bg-main); padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="resetScanner()">??</button>
-                    <button id="btn-confirm-scan" class="btn-primary" style="flex: 2;" onclick="confirmScanResults()">蝣箄?銝血???/button>
+                    <button class="btn-secondary" style="flex: 1; border: 1px solid var(--card-border); color: var(--text-muted); background: var(--bg-main); padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;" onclick="resetScanner()">取消</button>
+                    <button id="btn-confirm-scan" class="btn-primary" style="flex: 2;" onclick="confirmScanResults()">確認並加入</button>
                 </div>
             </div>
         </div>
@@ -610,23 +610,23 @@
         <nav class="bottom-nav">
             <a href="#" class="nav-item active" data-target="view-dashboard">
                 <i class="fa-solid fa-chart-pie"></i>
-                <span>瘥</span>
+                <span>每日</span>
             </a>
             <a href="#" class="nav-item" data-target="view-log">
                 <i class="fa-solid fa-utensils"></i>
-                <span>憌脤?</span>
+                <span>飲食</span>
             </a>
             <a href="#" class="nav-item" data-target="view-workout">
                 <i class="fa-solid fa-dumbbell"></i>
-                <span>??</span>
+                <span>運動</span>
             </a>
             <a href="#" class="nav-item" data-target="view-overview">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>璁汗</span>
+                <span>概覽</span>
             </a>
             <a href="#" class="nav-item" data-target="view-profile">
                 <i class="fa-solid fa-user"></i>
-                <span>??</span>
+                <span>我的</span>
             </a>
         </nav>
 
@@ -652,7 +652,7 @@
                 
                 <div>
                     <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-                        <div>??/div><div>銝</div><div>鈭?/div><div>銝?/div><div>??/div><div>鈭?/div><div>??/div>
+                        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
                     </div>
                     <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px 0; text-align: center; margin-bottom: 20px;">
                         <!-- Days injected via JS -->
@@ -660,8 +660,8 @@
                 </div>
                 
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn-secondary" onclick="selectLogDate(todayDateStr); closeCalendarModal();" style="flex: 1; color: var(--accent-secondary); background: rgba(0, 210, 211, 0.1); border: none;">?隞予</button>
-                    <button class="btn-primary" onclick="closeCalendarModal()" style="flex: 1;">??</button>
+                    <button class="btn-secondary" onclick="selectLogDate(todayDateStr); closeCalendarModal();" style="flex: 1; color: var(--accent-secondary); background: rgba(0, 210, 211, 0.1); border: none;">回到今天</button>
+                    <button class="btn-primary" onclick="closeCalendarModal()" style="flex: 1;">關閉</button>
                 </div>
             </div>
         </div>
@@ -670,14 +670,14 @@
         <div id="water-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
             <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
                 <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeWaterModal()"><i class="fa-solid fa-xmark"></i></button>
-                <h2 style="margin-bottom: 8px;">蝺刻摩蝮賣偌??/h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">隢撓?乩?憭拍?蝮賢?瘞湧? (ml)</p>
+                <h2 style="margin-bottom: 8px;">編輯總水量</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">請輸入今天的總喝水量 (ml)</p>
                 
-                <input type="number" id="water-input-val" class="input-field" placeholder="靘?: 1500" style="font-size: 24px; font-weight: bold; text-align: center; height: 60px;">
+                <input type="number" id="water-input-val" class="input-field" placeholder="例如: 1500" style="font-size: 24px; font-weight: bold; text-align: center; height: 60px;">
                 
                 <div style="display: flex; gap: 12px; margin-top: 24px;">
-                    <button class="btn-secondary" style="flex: 1;" onclick="closeWaterModal()">??</button>
-                    <button class="btn-primary" style="flex: 1;" onclick="confirmWaterEdit()">蝣箄?</button>
+                    <button class="btn-secondary" style="flex: 1;" onclick="closeWaterModal()">取消</button>
+                    <button class="btn-primary" style="flex: 1;" onclick="confirmWaterEdit()">確認</button>
                 </div>
             </div>
         </div>
@@ -688,33 +688,33 @@
     <div id="burned-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
         <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
             <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeBurnedModal()"><i class="fa-solid fa-xmark"></i></button>
-            <h2 style="margin-bottom: 8px;">閮???瘨?/h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">????函?蝝???銝?憓??拚??梢??格?嚗?脫迫??閮?嚗?/p>
+            <h2 style="margin-bottom: 8px;">記錄運動消耗</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">這僅做為您的純紀錄，不會增加剩餘熱量目標（為防止重複計算）。</p>
             
             <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                 <div style="flex: 1;">
-                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">瘨??(kcal)</label>
-                    <input type="number" id="burned-input-val" class="input-field" placeholder="靘?: 300" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">消耗熱量 (kcal)</label>
+                    <input type="number" id="burned-input-val" class="input-field" placeholder="例如: 300" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
                 </div>
                 <div style="flex: 1;">
-                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">???? (??)</label>
-                    <input type="number" id="burned-time-input-val" class="input-field" placeholder="靘?: 60" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">運動時間 (分鐘)</label>
+                    <input type="number" id="burned-time-input-val" class="input-field" placeholder="例如: 60" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
                 </div>
             </div>
             
             <div style="margin-top: 16px;">
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">敹恍摯蝞?(?芸?蝝臬?)嚗?/p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">快速估算 (自動累加)：</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(200, 60)"><i class="fa-solid fa-dumbbell" style="margin-right: 4px;"></i>?? 1hr (+200)</button>
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(300, 30)"><i class="fa-solid fa-person-running" style="margin-right: 4px;"></i>頝郊 30min (+300)</button>
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(150, 60)"><i class="fa-solid fa-person-walking" style="margin-right: 4px;"></i>韏啗楝 1hr (+150)</button>
-                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(100, 60)"><i class="fa-solid fa-child-reaching" style="margin-right: 4px;"></i>?? 1hr (+100)</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(200, 60)"><i class="fa-solid fa-dumbbell" style="margin-right: 4px;"></i>重訓 1hr (+200)</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(300, 30)"><i class="fa-solid fa-person-running" style="margin-right: 4px;"></i>跑步 30min (+300)</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(150, 60)"><i class="fa-solid fa-person-walking" style="margin-right: 4px;"></i>走路 1hr (+150)</button>
+                    <button class="btn-secondary" style="font-size: 12px; padding: 6px 12px; border-radius: 16px;" onclick="addBurnedKcal(100, 60)"><i class="fa-solid fa-child-reaching" style="margin-right: 4px;"></i>瑜珈 1hr (+100)</button>
                 </div>
             </div>
             
             <div style="display: flex; gap: 12px; margin-top: 24px;">
-                <button class="btn-secondary" style="flex: 1;" onclick="closeBurnedModal()">??</button>
-                <button class="btn-primary" style="flex: 1;" onclick="confirmBurnedEdit()">蝣箄?</button>
+                <button class="btn-secondary" style="flex: 1;" onclick="closeBurnedModal()">取消</button>
+                <button class="btn-primary" style="flex: 1;" onclick="confirmBurnedEdit()">確認</button>
             </div>
         </div>
     </div>
@@ -723,50 +723,50 @@
     </div><!-- End Main App Wrapper --><div id="workout-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
         <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
             <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeWorkoutModal()"><i class="fa-solid fa-xmark"></i></button>
-            <h2 id="workout-modal-title" style="margin-bottom: 8px;">閮???</h2>
+            <h2 id="workout-modal-title" style="margin-bottom: 8px;">記錄動作</h2>
             
             <!-- For custom exercises -->
             <div id="workout-custom-name-container" style="display: none; margin-bottom: 16px;">
-                <input type="text" id="workout-custom-name-val" class="input-field" placeholder="???迂 (靘?: 瘛梯僕)" style="font-size: 16px; font-weight: bold; width: 100%;">
+                <input type="text" id="workout-custom-name-val" class="input-field" placeholder="動作名稱 (例如: 深蹲)" style="font-size: 16px; font-weight: bold; width: 100%;">
             </div>
             <div id="workout-custom-type-container" style="display: none; margin-bottom: 16px;">
-                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">??憿?</label>
+                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">動作類型</label>
                 <select id="workout-custom-type-val" class="input-field" style="width: 100%; padding: 12px;" onchange="toggleWorkoutModalType()">
-                    <option value="weight">??閮毀 (?憛恍???</option>
-                    <option value="cardio">?飢/敺?/?? (銝???)</option>
+                    <option value="weight">重量訓練 (需填重量)</option>
+                    <option value="cardio">有氧/徒手/時間 (不需重量)</option>
                 </select>
             </div>
 
-            <p id="workout-modal-last-record" style="font-size: 13px; color: var(--accent-secondary); margin-bottom: 16px; display: none;">銝活蝝?? 18kg, 6蝯? 12銝?/p>
+            <p id="workout-modal-last-record" style="font-size: 13px; color: var(--accent-secondary); margin-bottom: 16px; display: none;">上次紀錄: 18kg, 6組, 12下</p>
             
             <input type="hidden" id="workout-index-val">
             <input type="hidden" id="workout-name-val">
             
             <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                 <div style="flex: 1;" id="workout-weight-container">
-                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">?? (kg)</label>
-                    <input type="number" id="workout-weight-val" class="input-field" placeholder="靘?: 18" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">重量 (kg)</label>
+                    <input type="number" id="workout-weight-val" class="input-field" placeholder="例如: 18" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
                 </div>
                 <div style="flex: 1;" id="workout-sets-container">
-                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">蝯</label>
-                    <input type="number" id="workout-sets-val" class="input-field" placeholder="靘?: 4" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">組數</label>
+                    <input type="number" id="workout-sets-val" class="input-field" placeholder="例如: 4" style="font-size: 20px; font-weight: bold; text-align: center; height: 50px;">
                 </div>
             </div>
             
             <div style="margin-bottom: 24px;" id="workout-reps-container">
-                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">甈⊥ / ?? (?芸‵??)</label>
-                <input type="text" id="workout-reps-val" class="input-field" placeholder="靘?: 10銝???1??" style="font-size: 16px; text-align: center; height: 44px;">
+                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">次數 / 時間 (自填文字)</label>
+                <input type="text" id="workout-reps-val" class="input-field" placeholder="例如: 10下 或 1分鐘" style="font-size: 16px; text-align: center; height: 44px;">
             </div>
             
             <div style="display: flex; gap: 12px;">
-                <button class="btn-secondary" style="flex: 1;" onclick="closeWorkoutModal()">??</button>
-                <button id="btn-delete-workout" class="btn-secondary" style="flex: 1; color: #ff4757; border-color: #ff4757; display: none;">?芷</button>
-                <button id="btn-save-workout" class="btn-primary" style="flex: 1;" onclick="confirmWorkoutEdit()">?脣?</button>
+                <button class="btn-secondary" style="flex: 1;" onclick="closeWorkoutModal()">取消</button>
+                <button id="btn-delete-workout" class="btn-secondary" style="flex: 1; color: #ff4757; border-color: #ff4757; display: none;">刪除</button>
+                <button id="btn-save-workout" class="btn-primary" style="flex: 1;" onclick="confirmWorkoutEdit()">儲存</button>
             </div>
         </div>
     </div>
 
-    <script src="food_db.js?v=1.59"></script>
-    <script src="app.js?v=1.59"></script>
+    <script src="food_db.js?v=1.60"></script>
+    <script src="app.js?v=1.60"></script>
 </body>
 </html>
