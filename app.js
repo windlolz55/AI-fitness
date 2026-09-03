@@ -1747,7 +1747,17 @@ function showInfo(type) {
     } else if (type === 'macros') {
         let proMultiplier = 1.8;
         let fatMultiplier = 1.0;
+        let goalText = '維持現狀';
         let pace = userProfile.pace || 'standard';
+        
+        if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
+            goalText = (pace === 'conservative') ? '保守減脂' : '標準減脂';
+        } else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
+            goalText = (pace === 'conservative') ? '溫和增肌' : '標準增肌';
+        } else if (userProfile.goal === 'recomp') {
+            goalText = '增肌減脂';
+        }
+        
         if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
             proMultiplier = 2.0;
         } else if (userProfile.goal === 'recomp') {
@@ -1756,7 +1766,7 @@ function showInfo(type) {
         
         if (userProfile.customProMultiplier) proMultiplier = userProfile.customProMultiplier;
 
-        title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明';
+        title.innerHTML = `<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-left: 4px;">(${goalText})</span>`;
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
