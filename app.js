@@ -489,7 +489,6 @@ function calculateTargets() {
             TARGET_CALS = Math.round(tdee * 0.85); // -15%
         }
         TARGET_PRO = Math.round(userProfile.weight * 2.0);
-        TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
     // 💪 增肌 (Lean Bulk)
     else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
@@ -499,20 +498,19 @@ function calculateTargets() {
             TARGET_CALS = Math.round(tdee * 1.10); // +10%
         }
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
-        TARGET_FAT = Math.round(userProfile.weight * 0.9);
     } 
     // 🔄 增肌減脂 (Body Recomposition)
     else if (userProfile.goal === 'recomp') {
         TARGET_CALS = Math.round(tdee * 0.95); // -5%
         TARGET_PRO = Math.round(userProfile.weight * 2.2);
-        TARGET_FAT = Math.round(userProfile.weight * 0.8);
     } 
     // ⚖️ 維持現狀 (Maintenance)
     else { 
         TARGET_CALS = Math.round(tdee);
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
-        TARGET_FAT = Math.round(userProfile.weight * 0.9);
     }
+
+    TARGET_FAT = Math.round(userProfile.weight * 1.0);
 
     // 最低安全熱量防呆 (Safety Limits)
     let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
@@ -521,9 +519,6 @@ function calculateTargets() {
     // 自訂營養素覆蓋
     if (userProfile.customProMultiplier) {
         TARGET_PRO = Math.round(userProfile.weight * userProfile.customProMultiplier);
-    }
-    if (userProfile.customFatMultiplier) {
-        TARGET_FAT = Math.round(userProfile.weight * userProfile.customFatMultiplier);
     }
     let remainingCals = TARGET_CALS - (TARGET_PRO * 4) - (TARGET_FAT * 9);
     TARGET_CARB = Math.max(0, Math.round(remainingCals / 4));
@@ -1751,17 +1746,15 @@ function showInfo(type) {
         `;
     } else if (type === 'macros') {
         let proMultiplier = 1.8;
-        let fatMultiplier = 0.9;
+        let fatMultiplier = 1.0;
         let pace = userProfile.pace || 'standard';
         if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
             proMultiplier = 2.0;
         } else if (userProfile.goal === 'recomp') {
             proMultiplier = 2.2;
-            fatMultiplier = 0.8;
         }
         
         if (userProfile.customProMultiplier) proMultiplier = userProfile.customProMultiplier;
-        if (userProfile.customFatMultiplier) fatMultiplier = userProfile.customFatMultiplier;
 
         title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明';
         content.innerHTML = `
@@ -2034,7 +2027,6 @@ function setupProfile() {
     const goal = document.getElementById('goal');
     const pace = document.getElementById('pace');
     const customPro = document.getElementById('custom-pro-multiplier');
-    const customFat = document.getElementById('custom-fat-multiplier');
 
     function getPreviewTDEE() {
         const gender = g.value || 'male';
@@ -2131,9 +2123,6 @@ function setupProfile() {
         customPro.value = userProfile.customProMultiplier || '';
         customPro.addEventListener('input', updatePaceOptions);
     }
-    if (customFat) {
-        customFat.value = userProfile.customFatMultiplier || '';
-    }
     
     function updateBMI() {
         const height = parseFloat(h.value);
@@ -2176,8 +2165,7 @@ function setupProfile() {
             activity: parseFloat(act.value),
             goal: goal.value,
             pace: pace.value,
-            customProMultiplier: customPro && customPro.value ? parseFloat(customPro.value) : null,
-            customFatMultiplier: customFat && customFat.value ? parseFloat(customFat.value) : null
+            customProMultiplier: customPro && customPro.value ? parseFloat(customPro.value) : null
         };
         setAndSync('fitness_profile', JSON.stringify(userProfile));
         calculateTargets();
