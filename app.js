@@ -1421,14 +1421,21 @@ function renderDBContent(searchQuery = '') {
 window.toggleFoodDBEditMode = function() {
     isFoodDBEditMode = !isFoodDBEditMode;
     const btn = document.getElementById('btn-edit-food-db');
+    const actionButtons = document.getElementById('db-action-buttons');
+    const bottomCartBar = document.getElementById('db-bottom-cart-bar');
+    
     if (isFoodDBEditMode) {
         btn.innerHTML = '完成';
         btn.style.color = 'var(--accent-primary)';
         btn.style.fontWeight = 'bold';
+        if (actionButtons) actionButtons.style.display = 'none';
+        if (bottomCartBar) bottomCartBar.style.display = 'none';
     } else {
         btn.innerHTML = '<i class="fa-solid fa-pen"></i>';
         btn.style.color = 'var(--text-muted)';
         btn.style.fontWeight = 'normal';
+        if (actionButtons) actionButtons.style.display = 'flex';
+        if (bottomCartBar) bottomCartBar.style.display = 'flex';
     }
     renderDBContent(document.getElementById('food-search-input').value);
 };
@@ -1454,6 +1461,9 @@ window.deleteFoodDbItem = function(e, id) {
 
 
 function closeFoodDB() {
+    if (isFoodDBEditMode) {
+        toggleFoodDBEditMode();
+    }
     document.getElementById('food-db-modal').classList.add('hidden');
 }
 
