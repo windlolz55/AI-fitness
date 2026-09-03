@@ -450,3 +450,6 @@ body {
     z-index: 1000;
 }
 #food-setup-modal.open { transform: translateY(0); }
+
+#theme-toggle:checked + span { background-color: var(--accent-primary) !important; }
+#theme-toggle:checked + span > #theme-slider { transform: translateX(22px); }
