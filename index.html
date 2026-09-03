@@ -39,7 +39,7 @@
                 <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(29, 209, 161, 0.3);">
                     <i class="fa-solid fa-leaf" style="color: white; font-size: 20px;"></i>
                 </div>
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.60</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.61</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -406,7 +406,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.60 (Cloud Sync)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.61 (Cloud Sync)</p>
             </div>
         </div>
 
@@ -437,7 +437,7 @@
                     <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--accent-primary);"></i>
                     <input type="text" id="food-search-input" class="input-field" placeholder="搜尋食物名稱..." style="padding-left: 40px; border-radius: 24px; margin-bottom: 0; border: 1px solid var(--accent-primary);">
                 </div>
-                <div style="display: flex; gap: 8px; justify-content: space-between;">
+                <div id="db-action-buttons" style="display: flex; gap: 8px; justify-content: space-between;">
                     <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="copyYesterdayMeal()"><i class="fa-regular fa-copy"></i> 複製昨日</button>
                     <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openScanner()"><i class="fa-solid fa-camera"></i> 掃描食物</button>
                     <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openCustomFood()"><i class="fa-solid fa-plus"></i> 自訂食物</button>
@@ -460,7 +460,7 @@
             </div>
 
             <!-- Bottom Cart Bar -->
-            <div style="padding: 12px 16px; border-top: 1px solid var(--card-border); background: var(--card-bg); display: flex; justify-content: space-between; align-items: center;">
+            <div id="db-bottom-cart-bar" style="padding: 12px 16px; border-top: 1px solid var(--card-border); background: var(--card-bg); display: flex; justify-content: space-between; align-items: center;">
                 <div style="position: relative; display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="openCartModal()">
                     <div style="position: relative;">
                         <div style="font-size: 32px;">🍽️</div>
@@ -766,7 +766,7 @@
         </div>
     </div>
 
-    <script src="food_db.js?v=1.60"></script>
-    <script src="app.js?v=1.60"></script>
+    <script src="food_db.js?v=1.61"></script>
+    <script src="app.js?v=1.61"></script>
 </body>
 </html>
