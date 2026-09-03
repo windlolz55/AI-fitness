@@ -1,5 +1,5 @@
-let hiddenFoodIds = [];
-let customFoodOrder = {};
+let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
 
