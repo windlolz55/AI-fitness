@@ -1773,8 +1773,8 @@ function showInfo(type) {
                     
                     <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
                     <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
+                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${(TARGET_CARB / userProfile.weight).toFixed(1)}</p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
-                    <p style="margin-top: 8px; font-size: 12px; color: var(--accent-secondary); text-align: right; font-weight: 500;">(相當於每公斤體重 ${(TARGET_CARB / userProfile.weight).toFixed(1)} g 碳水)</p>
                 </div>
             </div>
         `;
