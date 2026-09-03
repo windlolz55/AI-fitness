@@ -1361,6 +1361,14 @@ function renderDBContent(searchQuery = '') {
         const catColor = cat.color || 'var(--accent-primary)';
         const renderIcon = `<span class="iconify" data-icon="${food.icon}" style="font-size: 24px;"></span>`;
         
+        let displayName = food.name;
+        let unitName = "";
+        const match = food.name.match(/^(.*?)\s*(\(.*?\))$/);
+        if (match) {
+            displayName = match[1];
+            unitName = `<div style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">${match[2]}</div>`;
+        }
+
         if (isFoodDBEditMode) {
             return `
             <div class="food-db-item edit-mode" data-id="${food.id}" style="padding-left: 8px;">
@@ -1368,7 +1376,7 @@ function renderDBContent(searchQuery = '') {
                     <div style="margin-right: 12px; color: var(--text-muted); cursor: grab; font-size: 20px; padding: 10px;" class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
                     <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                     <div>
-                        <h4>${food.name}</h4>
+                        <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
                         <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
                     </div>
                 </div>
@@ -1383,7 +1391,7 @@ function renderDBContent(searchQuery = '') {
                 <div style="display:flex; align-items:center;">
                     <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                     <div>
-                        <h4>${food.name}</h4>
+                        <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
                         <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
                     </div>
                 </div>
