@@ -1804,7 +1804,7 @@ function showInfo(type) {
                     
                     <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
                     <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
-                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${(TARGET_CARB / userProfile.weight).toFixed(1)}</p>
+                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * <span style="color: var(--carb-color); font-weight: 600;">${(TARGET_CARB / userProfile.weight).toFixed(1)}</span> <span style="background: rgba(253, 203, 110, 0.2); color: var(--carb-color); font-size: 10px; padding: 2px 4px; border-radius: 4px; margin-left: 4px;">反推結果</span></p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
                 </div>
             </div>
