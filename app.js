@@ -1,3 +1,8 @@
+let hiddenFoodIds = [];
+let customFoodOrder = {};
+let isFoodDBEditMode = false;
+let dbSortable = null;
+
 // Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBr2YDukv10alEJMleNnSx7dA34jI65HVg",
@@ -145,7 +150,7 @@ function handleLogout() {
         }
 
         const forceClearAndReload = () => {
-            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'last_updated'];
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
             
             // Hard delete Firebase Auth IndexedDB to guarantee logout even if auth.signOut() hangs
@@ -185,6 +190,8 @@ function saveToFirestore() {
         fitness_routines: JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {}) || '{}',
         customFoods: JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []) || '[]',
         favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
+        hiddenFoodIds: JSON.stringify(typeof hiddenFoodIds !== 'undefined' ? hiddenFoodIds : []) || '[]',
+        customFoodOrder: JSON.stringify(typeof customFoodOrder !== 'undefined' ? customFoodOrder : {}) || '{}',
         fitness_theme: document.body.getAttribute('data-theme') || 'light',
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(err => {
@@ -200,7 +207,7 @@ window.setAndSync = function(key, value) {
     } catch(e) {
         console.warn('localStorage setItem failed, bypassing for cloud sync:', e);
     }
-    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder'];
     if (syncableKeys.includes(key) && auth.currentUser) {
         return saveToFirestore();
     }
@@ -259,8 +266,20 @@ function setupFirestoreListener(uid) {
                 changed = true;
             }
             
+            const currentHiddenFoodsStr = JSON.stringify(typeof hiddenFoodIds !== 'undefined' ? hiddenFoodIds : []);
+            if (data.hiddenFoodIds && data.hiddenFoodIds !== currentHiddenFoodsStr) {
+                hiddenFoodIds = JSON.parse(data.hiddenFoodIds);
+                changed = true;
+            }
+            
+            const currentCustomOrderStr = JSON.stringify(typeof customFoodOrder !== 'undefined' ? customFoodOrder : {});
+            if (data.customFoodOrder && data.customFoodOrder !== currentCustomOrderStr) {
+                customFoodOrder = JSON.parse(data.customFoodOrder);
+                changed = true;
+            }
+            
             // Best-effort save to localStorage (bypass quota crashes)
-            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder'];
             keys.forEach(k => {
                 try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
             });
@@ -1306,17 +1325,33 @@ function renderDBContent(searchQuery = '') {
     const list = document.getElementById('db-food-list');
     let filteredFoods = [];
     
+    // 1. Filter out hidden foods
+    let visibleFoods = foodDatabase.foods.filter(f => !hiddenFoodIds.includes(f.id));
+    
+    // 2. Search or Category
     if (searchQuery.trim() !== '') {
         document.getElementById('db-category-title').innerText = '搜尋結果';
-        filteredFoods = foodDatabase.foods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        filteredFoods = visibleFoods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
     } else {
         const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
         document.getElementById('db-category-title').innerText = title + '類';
         
         if (activeCategory === 'custom') {
-            filteredFoods = foodDatabase.foods.filter(f => f.categoryId === 'custom' || favoriteFoodIds.includes(f.id));
+            filteredFoods = visibleFoods.filter(f => f.categoryId === 'custom' || favoriteFoodIds.includes(f.id));
         } else {
-            filteredFoods = foodDatabase.foods.filter(f => f.categoryId === activeCategory);
+            filteredFoods = visibleFoods.filter(f => f.categoryId === activeCategory);
+        }
+        
+        // 3. Sort by customFoodOrder if exists
+        const order = customFoodOrder[activeCategory];
+        if (order && order.length > 0) {
+            filteredFoods.sort((a, b) => {
+                let idxA = order.indexOf(a.id);
+                let idxB = order.indexOf(b.id);
+                if(idxA === -1) idxA = 999999;
+                if(idxB === -1) idxB = 999999;
+                return idxA - idxB;
+            });
         }
     }
     
@@ -1326,25 +1361,97 @@ function renderDBContent(searchQuery = '') {
         const catColor = cat.color || 'var(--accent-primary)';
         const renderIcon = `<span class="iconify" data-icon="${food.icon}" style="font-size: 24px;"></span>`;
         
-        return `
-        <div class="food-db-item" onclick="selectFood('${food.id}')">
-            <div style="display:flex; align-items:center;">
-                <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
-                <div>
-                    <h4>${food.name}</h4>
-                    <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
+        if (isFoodDBEditMode) {
+            return `
+            <div class="food-db-item edit-mode" data-id="${food.id}" style="padding-left: 8px;">
+                <div style="display:flex; align-items:center;">
+                    <div style="margin-right: 12px; color: var(--text-muted); cursor: grab; font-size: 20px; padding: 10px;" class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
+                    <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
+                    <div>
+                        <h4>${food.name}</h4>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
+                    </div>
+                </div>
+                <button style="background:transparent; border:none; padding:8px 16px; font-size:18px; color: #ff4757;" onclick="deleteFoodDbItem(event, '${food.id}')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+            `;
+        } else {
+            return `
+            <div class="food-db-item" onclick="selectFood('${food.id}')">
+                <div style="display:flex; align-items:center;">
+                    <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
+                    <div>
+                        <h4>${food.name}</h4>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button style="background:transparent; border:none; padding:4px; font-size:16px;" onclick="toggleFavorite(event, '${food.id}')">
+                        ${isFav ? '<i class="fa-solid fa-heart" style="color:#ff6b6b;"></i>' : '<i class="fa-regular fa-heart" style="color:#ccc;"></i>'}
+                    </button>
+                    <div style="width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%;"></div>
+                    <button class="btn-add"><i class="fa-solid fa-plus" style="font-size: 12px;"></i></button>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <button style="background:transparent; border:none; padding:4px; font-size:16px;" onclick="toggleFavorite(event, '${food.id}')">
-                    ${isFav ? '<i class="fa-solid fa-heart" style="color:#ff6b6b;"></i>' : '<i class="fa-regular fa-heart" style="color:#ccc;"></i>'}
-                </button>
-                <div style="width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%;"></div>
-                <button class="btn-add"><i class="fa-solid fa-plus" style="font-size: 12px;"></i></button>
-            </div>
-        </div>
-    `}).join('');
+            `;
+        }
+    }).join('');
+
+    // Setup Sortable
+    if (dbSortable) {
+        dbSortable.destroy();
+        dbSortable = null;
+    }
+    if (isFoodDBEditMode) {
+        dbSortable = new Sortable(list, {
+            animation: 150,
+            handle: '.drag-handle',
+            onEnd: function (evt) {
+                const items = list.querySelectorAll('.food-db-item');
+                const newOrder = Array.from(items).map(item => item.getAttribute('data-id'));
+                customFoodOrder[activeCategory] = newOrder;
+                setAndSync('customFoodOrder', JSON.stringify(customFoodOrder));
+            }
+        });
+    }
 }
+
+window.toggleFoodDBEditMode = function() {
+    isFoodDBEditMode = !isFoodDBEditMode;
+    const btn = document.getElementById('btn-edit-food-db');
+    if (isFoodDBEditMode) {
+        btn.innerHTML = '完成';
+        btn.style.color = 'var(--accent-primary)';
+        btn.style.fontWeight = 'bold';
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.fontWeight = 'normal';
+    }
+    renderDBContent(document.getElementById('food-search-input').value);
+};
+
+window.deleteFoodDbItem = function(e, id) {
+    e.stopPropagation();
+    if(confirm('確定要刪除/隱藏此食物嗎？')) {
+        const customIdx = customFoods.findIndex(f => f.id === id);
+        if (customIdx >= 0) {
+            customFoods.splice(customIdx, 1);
+            setAndSync('customFoods', JSON.stringify(customFoods));
+            const dbIdx = foodDatabase.foods.findIndex(f => f.id === id);
+            if (dbIdx >= 0) foodDatabase.foods.splice(dbIdx, 1);
+        } else {
+            if (!hiddenFoodIds.includes(id)) {
+                hiddenFoodIds.push(id);
+                setAndSync('hiddenFoodIds', JSON.stringify(hiddenFoodIds));
+            }
+        }
+        renderDBContent(document.getElementById('food-search-input').value);
+    }
+};
+
 
 function closeFoodDB() {
     document.getElementById('food-db-modal').classList.add('hidden');
