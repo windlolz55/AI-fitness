@@ -2030,6 +2030,22 @@ function setupProfile() {
 
     function updatePaceOptions() {
         const tdee = getPreviewTDEE();
+        const selectedGoal = goal.value || 'maintain';
+        const weight = parseInt(w.value) || 70;
+        
+        let proMultiplier = 1.8;
+        if (selectedGoal === 'cut' || selectedGoal === 'lose') {
+            proMultiplier = 2.0;
+        } else if (selectedGoal === 'recomp') {
+            proMultiplier = 2.2;
+        }
+        const targetPro = Math.round(weight * proMultiplier);
+        
+        const paceLabel = document.querySelector('#pace-container label');
+        if (paceLabel) {
+            paceLabel.innerHTML = `你希望以什麼速度進行 <span style="color: var(--accent-primary); margin-left: 4px; font-weight: bold;">(建議蛋白質: ${targetPro}g)</span>`;
+        }
+
         const paceOptions = {
             cut: [
                 { value: 'conservative', text: `🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)` },
@@ -2054,7 +2070,6 @@ function setupProfile() {
         };
 
         const currentPace = pace.value;
-        const selectedGoal = goal.value || 'maintain';
         const options = paceOptions[selectedGoal] || paceOptions['maintain'];
         
         pace.innerHTML = '';
@@ -2068,6 +2083,7 @@ function setupProfile() {
         const exists = Array.from(pace.options).some(opt => opt.value === currentPace);
         if (exists) pace.value = currentPace;
     }
+
 
     [g, a, h, w, act, goal].forEach(input => {
         input.addEventListener('input', updatePaceOptions);
