@@ -453,3 +453,14 @@ body {
 
 #theme-toggle:checked + span { background-color: var(--accent-primary) !important; }
 #theme-toggle:checked + span > #theme-slider { transform: translateX(22px); }
+
+/* Hide Number Input Spinners */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
