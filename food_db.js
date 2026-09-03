@@ -2,14 +2,14 @@
 // 擴充版：包含近 250 筆台灣常見食物、小吃、與超商連鎖食品
 const foodDatabase = {
     categories: [
-        { id: 'street', name: '街邊小吃', icon: 'fluent-emoji-flat:dumpling', color: '#FBBF24' },
-        { id: 'bento', name: '日常主食', icon: 'fluent-emoji-flat:bento-box', color: '#F59E0B' },
-        { id: 'breakfast', name: '台灣早餐', icon: 'fluent-emoji-flat:cooking', color: '#ff6b6b' },
-        { id: 'store', name: '超商快充站', icon: 'fluent-emoji-flat:convenience-store', color: '#38BDF8' },
-        { id: 'raw', name: '生鮮食材', icon: 'fluent-emoji-flat:leafy-green', color: '#1dd1a1' },
-        { id: 'fruit', name: '水果', icon: 'fluent-emoji-flat:red-apple', color: '#ff6b81' },
-        { id: 'supp', name: '補劑', icon: 'fluent-emoji-flat:high-voltage', color: '#A78BFA' },
-        { id: 'cheat', name: '舒壓餐', icon: 'fluent-emoji-flat:bubble-tea', color: '#ff9ff3' }
+        { id: 'street', name: '🍱 街邊小吃', icon: 'fluent-emoji-flat:dumpling', color: '#FBBF24' },
+        { id: 'bento', name: '🍱 日常主食', icon: 'fluent-emoji-flat:bento-box', color: '#F59E0B' },
+        { id: 'breakfast', name: '🍳 台灣早餐', icon: 'fluent-emoji-flat:cooking', color: '#ff6b6b' },
+        { id: 'store', name: '🏪 超商快充站', icon: 'fluent-emoji-flat:convenience-store', color: '#38BDF8' },
+        { id: 'raw', name: '🥬 生鮮食材', icon: 'fluent-emoji-flat:leafy-green', color: '#1dd1a1' },
+        { id: 'fruit', name: '🍎 水果', icon: 'fluent-emoji-flat:red-apple', color: '#ff6b81' },
+        { id: 'supp', name: '⚡ 補劑', icon: 'fluent-emoji-flat:high-voltage', color: '#A78BFA' },
+        { id: 'cheat', name: '🧋 舒壓餐', icon: 'fluent-emoji-flat:bubble-tea', color: '#ff9ff3' }
     ],
     foods: [
         // ================= 街邊小吃 =================
