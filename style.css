@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     /* Light Theme (Default) */
     --bg-main: #f4f6f8;
     --text-main: #333333;
@@ -27,7 +27,7 @@
 }
 
 * {
-    margin: 0;
+    margin: 0 !important;
     padding: 0;
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -457,10 +457,10 @@ body {
 /* Hide Number Input Spinners */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+  -webkit-appearance: none !important; 
+  margin: 0 !important; 
 }
 input[type=number] {
-    -moz-appearance: textfield;
+    -moz-appearance: textfield !important;
 }
 
