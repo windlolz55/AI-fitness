@@ -394,7 +394,7 @@ body {
 
 /* Sidebar Item */
 .sidebar-item {
-    padding: 16px 8px;
+    padding: 16px 4px;
     text-align: center;
     font-size: 13px;
     color: var(--text-muted);
