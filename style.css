@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     /* Light Theme (Default) */
     --bg-main: #f4f6f8;
     --text-main: #333333;
@@ -27,7 +27,7 @@
 }
 
 * {
-    margin: 0 !important;
+    margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
