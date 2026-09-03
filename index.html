@@ -39,7 +39,7 @@
                 <div style="width: 80px; height: 80px; background: var(--accent-primary); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: white; margin-bottom: 16px;">
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.57</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.58</span></h1>
                 <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             </div>
             
@@ -386,9 +386,16 @@
                             攝入蛋白質: <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="系統" style="width: 48px; height: 24px; padding: 0 4px; text-align: center; font-size: 11px; border-radius: 4px; min-height: 24px;"> g/kg
                         </div>
                     </div>
-                    <select id="goal" class="input-field">
-                        <!-- Options populated dynamically -->
-                    </select>
+                    <div class="custom-select-container" style="position: relative; width: 100%;">
+                        <input type="hidden" id="goal" value="">
+                        <div id="goal-display" class="input-field" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; cursor: pointer; white-space: normal; line-height: 1.4;" onclick="document.getElementById('goal-options').style.display = document.getElementById('goal-options').style.display === 'block' ? 'none' : 'block'">
+                            <span id="goal-display-text">請選擇目標...</span>
+                            <i class="fa-solid fa-caret-down" style="color: var(--text-muted); margin-left: 8px; flex-shrink: 0;"></i>
+                        </div>
+                        <div id="goal-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-top: 4px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 250px; overflow-y: auto;">
+                            <!-- Options populated dynamically -->
+                        </div>
+                    </div>
                 </div>
 
                 <button id="btn-save-profile" class="btn-primary">儲存資料並計算</button>
@@ -399,7 +406,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.57 (Cloud Sync)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.58 (Cloud Sync)</p>
             </div>
         </div>
 
@@ -759,7 +766,7 @@
         </div>
     </div>
 
-    <script src="food_db.js?v=1.57"></script>
-    <script src="app.js?v=1.57"></script>
+    <script src="food_db.js?v=1.58"></script>
+    <script src="app.js?v=1.58"></script>
 </body>
 </html>

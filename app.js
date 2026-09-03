@@ -2209,28 +2209,41 @@ function setupProfile() {
         }
 
         const optionsHTML = `
-            <optgroup label="減脂 (Fat Loss)">
-                <option value="cut-conservative">🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)</option>
-                <option value="cut-standard">⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)</option>
-            </optgroup>
-            <optgroup label="增肌 (Muscle Gain)">
-                <option value="bulk-conservative">🐢 溫和增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)</option>
-                <option value="bulk-standard">⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)</option>
-            </optgroup>
-            <optgroup label="其他 (Others)">
-                <option value="recomp-standard">🔄 增肌減脂 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)</option>
-                <option value="maintain-standard">⚖️ 維持現狀 (0% / 完美打平)</option>
-            </optgroup>
+            <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">減脂 (Fat Loss)</div>
+            <div class="goal-option-item" data-val="cut-conservative" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)</div>
+            <div class="goal-option-item" data-val="cut-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)</div>
+            <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">增肌 (Muscle Gain)</div>
+            <div class="goal-option-item" data-val="bulk-conservative" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🐢 溫和增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)</div>
+            <div class="goal-option-item" data-val="bulk-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)</div>
+            <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">其他 (Others)</div>
+            <div class="goal-option-item" data-val="recomp-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🔄 增肌減脂 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)</div>
+            <div class="goal-option-item" data-val="maintain-standard" style="padding: 12px; cursor: pointer; white-space: normal; line-height: 1.4;">⚖️ 維持現狀 (0% / 完美打平)</div>
         `;
         
-        goal.innerHTML = optionsHTML;
+        const goalOptionsContainer = document.getElementById('goal-options');
+        goalOptionsContainer.innerHTML = optionsHTML;
 
-        const exists = Array.from(goal.options).some(opt => opt.value === currentCombinedGoal);
+        const optionItems = goalOptionsContainer.querySelectorAll('.goal-option-item');
+        
+        const exists = Array.from(optionItems).find(opt => opt.getAttribute('data-val') === currentCombinedGoal);
         if (exists) {
             goal.value = currentCombinedGoal;
+            document.getElementById('goal-display-text').innerText = exists.innerText;
         } else {
             goal.value = 'maintain-standard';
+            document.getElementById('goal-display-text').innerText = '⚖️ 維持現狀 (0% / 完美打平)';
         }
+
+        // Add click listeners to items
+        optionItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                goal.value = item.getAttribute('data-val');
+                document.getElementById('goal-display-text').innerText = item.innerText;
+                goalOptionsContainer.style.display = 'none';
+                updateGoalOptions();
+            });
+        });
     }
 
 
@@ -2238,7 +2251,6 @@ function setupProfile() {
         input.addEventListener('input', updateGoalOptions);
         input.addEventListener('change', updateGoalOptions);
     });
-    goal.addEventListener('change', updateGoalOptions);
 
     if (nickname) nickname.value = userProfile.nickname || '';
     g.value = userProfile.gender || 'male';
