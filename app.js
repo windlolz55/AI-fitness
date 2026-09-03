@@ -1782,7 +1782,12 @@ function showInfo(type) {
         
         if (userProfile.customProMultiplier) proMultiplier = userProfile.customProMultiplier;
 
-        title.innerHTML = `<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明 <span style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-left: 4px;">(${goalText})</span>`;
+        title.innerHTML = `
+            <div style="display: flex; flex-direction: column;">
+                <div><i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明</div>
+                <div style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">${goalText}</div>
+            </div>
+        `;
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
