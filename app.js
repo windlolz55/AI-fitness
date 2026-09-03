@@ -2385,6 +2385,12 @@ function renderOverview() {
         }
     }
     
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    const cMain = isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+    const cTick = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
+    const cSub = isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)';
+    const cGrid = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+    
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -2405,12 +2411,12 @@ function renderOverview() {
         scales: {
             x: {
                 grid: { display: false, drawBorder: false },
-                ticks: { color: 'rgba(255,255,255,0.7)', font: { size: 14 } }
+                ticks: { color: cMain, font: { size: 14 } }
             }
         }
     };
 
-    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.color = cMain;
     Chart.defaults.font.family = 'Inter, sans-serif';
 
     const wCtx = document.getElementById('overviewWeightChart');
@@ -2426,7 +2432,7 @@ function renderOverview() {
                     backgroundColor: '#ff79c6',
                     borderWidth: 3,
                     tension: 0.1,
-                    pointBackgroundColor: '#fff',
+                    pointBackgroundColor: isDark ? '#fff' : '#fff',
                     pointBorderColor: '#ff79c6',
                     pointBorderWidth: 2,
                     pointRadius: 6,
@@ -2439,7 +2445,7 @@ function renderOverview() {
                     x: commonOptions.scales.x,
                     y: {
                         grid: { display: false, drawBorder: false },
-                        ticks: { color: 'rgba(255,255,255,0.5)', stepSize: 1, padding: 10 }
+                        ticks: { color: cTick, stepSize: 1, padding: 10 }
                     }
                 }
             },
@@ -2449,7 +2455,7 @@ function renderOverview() {
                     const ctx = chart.ctx;
                     ctx.save();
                     ctx.textAlign = 'center';
-                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.fillStyle = cSub;
                     ctx.font = '10px sans-serif';
                     const xAxis = chart.scales.x;
                     const yPos = xAxis.bottom + 15;
@@ -2471,7 +2477,7 @@ function renderOverview() {
                 labels: labels,
                 datasets: [{
                     data: calorieData.map(v => v === null ? 0 : v),
-                    backgroundColor: calorieData.map(val => val > 0 ? '#ffb86c' : 'rgba(255,255,255,0.1)'),
+                    backgroundColor: calorieData.map(val => val > 0 ? '#ffb86c' : cGrid),
                     borderRadius: 8,
                     barThickness: 24
                 }]
@@ -2481,8 +2487,8 @@ function renderOverview() {
                 scales: {
                     x: commonOptions.scales.x,
                     y: {
-                        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false, borderDash: [5, 5] },
-                        ticks: { color: 'rgba(255,255,255,0.5)', maxTicksLimit: 5, padding: 10 },
+                        grid: { color: cGrid, drawBorder: false, borderDash: [5, 5] },
+                        ticks: { color: cTick, maxTicksLimit: 5, padding: 10 },
                         suggestedMax: TARGET_CALS + 200
                     }
                 }
@@ -2493,7 +2499,7 @@ function renderOverview() {
                     const ctx = chart.ctx;
                     ctx.save();
                     ctx.textAlign = 'center';
-                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.fillStyle = cSub;
                     ctx.font = '10px sans-serif';
                     const xAxis = chart.scales.x;
                     const yPos = xAxis.bottom + 15;
@@ -2515,7 +2521,7 @@ function renderOverview() {
                 labels: labels,
                 datasets: [{
                     data: burnedData.map(v => v === null ? 0 : v),
-                    backgroundColor: burnedData.map(val => val > 0 ? '#ff9ff3' : 'rgba(255,255,255,0.1)'),
+                    backgroundColor: burnedData.map(val => val > 0 ? '#ff9ff3' : cGrid),
                     borderRadius: 8,
                     barThickness: 24
                 }]
@@ -2542,8 +2548,8 @@ function renderOverview() {
                 scales: {
                     x: commonOptions.scales.x,
                     y: {
-                        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false, borderDash: [5, 5] },
-                        ticks: { color: 'rgba(255,255,255,0.5)', maxTicksLimit: 5, padding: 10 },
+                        grid: { color: cGrid, drawBorder: false, borderDash: [5, 5] },
+                        ticks: { color: cTick, maxTicksLimit: 5, padding: 10 },
                         suggestedMax: 500
                     }
                 }
@@ -2554,7 +2560,7 @@ function renderOverview() {
                     const ctx = chart.ctx;
                     ctx.save();
                     ctx.textAlign = 'center';
-                    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                    ctx.fillStyle = cSub;
                     ctx.font = '10px sans-serif';
                     const xAxis = chart.scales.x;
                     const yPos = xAxis.bottom + 15;
