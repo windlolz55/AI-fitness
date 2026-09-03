@@ -1748,15 +1748,15 @@ function showInfo(type) {
                     <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
                     <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準計算蛋白質與脂肪，並用碳水填滿剩餘熱量。</p>
                     
-                    <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${TARGET_PRO} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_PRO * 4} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 9 kcal)</span></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${fatMultiplier}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${TARGET_FAT} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_FAT * 9} kcal)</span></p>
                     
-                    <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
                     <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
                 </div>
@@ -2043,7 +2043,7 @@ function setupProfile() {
         
         const paceLabel = document.querySelector('#pace-container label');
         if (paceLabel) {
-            paceLabel.innerHTML = `你希望以什麼速度進行 <span style="color: var(--accent-primary); margin-left: 4px; font-weight: bold;">(建議蛋白質: ${targetPro}g)</span>`;
+            paceLabel.innerHTML = `你希望以什麼速度進行 <span style="color: var(--accent-primary); margin-left: 4px; font-weight: bold;">(建議蛋白質: ${proMultiplier}g/kg)</span>`;
         }
 
         const paceOptions = {
