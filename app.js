@@ -2205,16 +2205,21 @@ function setupProfile() {
         
         const goalLabel = document.getElementById('goal-label');
         if (goalLabel) {
-            goalLabel.innerHTML = `你的目標與節奏？ <span style="color: var(--accent-primary); margin-left: 2px; font-weight: bold;">(建議: ${defaultProMultiplier}g/kg)</span>`;
+            goalLabel.innerHTML = `你的目標與節奏？`;
+        }
+        
+        const proRecommendLabel = document.getElementById('pro-recommend-label');
+        if (proRecommendLabel) {
+            proRecommendLabel.innerHTML = `(建議: ${defaultProMultiplier})`;
         }
 
         const optionsHTML = `
             <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">減脂 (Fat Loss)</div>
             <div class="goal-option-item" data-val="cut-conservative" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)</div>
-            <div class="goal-option-item" data-val="cut-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)</div>
+            <div class="goal-option-item" data-val="cut-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準減脂 (-15% / 約 -${Math.round(tdee * 0.15)} kcal)</div>
             <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">增肌 (Muscle Gain)</div>
             <div class="goal-option-item" data-val="bulk-conservative" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🐢 溫和增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)</div>
-            <div class="goal-option-item" data-val="bulk-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)</div>
+            <div class="goal-option-item" data-val="bulk-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準增肌 (+10% / 約 +${Math.round(tdee * 0.1)} kcal)</div>
             <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">其他 (Others)</div>
             <div class="goal-option-item" data-val="recomp-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🔄 增肌減脂 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)</div>
             <div class="goal-option-item" data-val="maintain-standard" style="padding: 12px; cursor: pointer; white-space: normal; line-height: 1.4;">⚖️ 維持現狀 (0% / 完美打平)</div>
@@ -2250,6 +2255,17 @@ function setupProfile() {
     [g, a, h, w, act].forEach(input => {
         input.addEventListener('input', updateGoalOptions);
         input.addEventListener('change', updateGoalOptions);
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        const goalOptionsContainer = document.getElementById('goal-options');
+        const goalDisplay = document.getElementById('goal-display');
+        if (goalOptionsContainer && goalDisplay) {
+            if (!goalOptionsContainer.contains(e.target) && !goalDisplay.contains(e.target)) {
+                goalOptionsContainer.style.display = 'none';
+            }
+        }
     });
 
     if (nickname) nickname.value = userProfile.nickname || '';
