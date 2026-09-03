@@ -1747,15 +1747,31 @@ function showInfo(type) {
     } else if (type === 'macros') {
         let proMultiplier = 1.8;
         let fatMultiplier = 1.0;
+        let bmr = 0;
+        if (userProfile.gender === 'male') {
+            bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) + 5;
+        } else {
+            bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
+        }
+        let tdee = bmr * parseFloat(userProfile.activity);
+
         let goalText = '維持現狀';
         let pace = userProfile.pace || 'standard';
         
         if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
-            goalText = (pace === 'conservative') ? '保守減脂' : '標準減脂';
+            if (pace === 'conservative') {
+                goalText = `保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)`;
+            } else {
+                goalText = `標準減脂 (-15% / 約 -${Math.round(tdee * 0.15)} kcal)`;
+            }
         } else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
-            goalText = (pace === 'conservative') ? '溫和增肌' : '標準增肌';
+            if (pace === 'conservative') {
+                goalText = `溫和增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)`;
+            } else {
+                goalText = `標準增肌 (+10% / 約 +${Math.round(tdee * 0.1)} kcal)`;
+            }
         } else if (userProfile.goal === 'recomp') {
-            goalText = '增肌減脂';
+            goalText = `增肌減脂 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)`;
         }
         
         if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
