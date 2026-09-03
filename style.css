@@ -394,12 +394,13 @@ body {
 
 /* Sidebar Item */
 .sidebar-item {
-    padding: 16px 0;
+    padding: 16px 8px;
     text-align: center;
     font-size: 13px;
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 .sidebar-item.active {
     background: var(--card-bg);
