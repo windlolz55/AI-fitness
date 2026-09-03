@@ -2057,7 +2057,6 @@ function setupProfile() {
     const w = document.getElementById('weight');
     const act = document.getElementById('activity');
     const goal = document.getElementById('goal');
-    const pace = document.getElementById('pace');
     const customPro = document.getElementById('custom-pro-multiplier');
 
     function getPreviewTDEE() {
@@ -2076,10 +2075,19 @@ function setupProfile() {
         return bmr * activity;
     }
 
-    function updatePaceOptions() {
+    function updateGoalOptions() {
         const tdee = getPreviewTDEE();
-        const selectedGoal = goal.value || 'maintain';
         const weight = parseInt(w.value) || 70;
+        
+        let currentCombinedGoal = goal.value;
+        if (!currentCombinedGoal) {
+            currentCombinedGoal = (userProfile.goal && userProfile.pace) 
+                ? `${userProfile.goal}-${userProfile.pace}`
+                : 'maintain-standard';
+        }
+        
+        const goalParts = currentCombinedGoal.split('-');
+        const selectedGoal = goalParts[0] || 'maintain';
         
         let defaultProMultiplier = 1.8;
         if (selectedGoal === 'cut' || selectedGoal === 'lose') {
@@ -2087,62 +2095,43 @@ function setupProfile() {
         } else if (selectedGoal === 'recomp') {
             defaultProMultiplier = 2.2;
         }
-        let proMultiplier = defaultProMultiplier;
         
-        const customProInput = document.getElementById('custom-pro-multiplier');
-        if (customProInput && customProInput.value) {
-            proMultiplier = parseFloat(customProInput.value);
-        }
-        const targetPro = Math.round(weight * proMultiplier);
-        
-        const paceLabel = document.getElementById('pace-label');
-        if (paceLabel) {
-            paceLabel.innerHTML = `你希望以什麼速度進行？ <span style="color: var(--accent-primary); margin-left: 2px; font-weight: bold;">(建議: ${defaultProMultiplier}g/kg)</span>`;
+        const goalLabel = document.getElementById('goal-label');
+        if (goalLabel) {
+            goalLabel.innerHTML = `你的目標與節奏？ <span style="color: var(--accent-primary); margin-left: 2px; font-weight: bold;">(建議: ${defaultProMultiplier}g/kg)</span>`;
         }
 
-        const paceOptions = {
-            cut: [
-                { value: 'conservative', text: `🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)` },
-                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)` }
-            ],
-            bulk: [
-                { value: 'conservative', text: `🐢 保守增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)` },
-                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)` }
-            ],
-            maintain: [
-                { value: 'standard', text: '標準維持 (0% / 完美打平)' }
-            ],
-            recomp: [
-                { value: 'auto', text: `系統自動計算最佳缺口 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)` }
-            ],
-            lose: [
-                { value: 'standard', text: `⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)` }
-            ],
-            gain: [
-                { value: 'standard', text: `⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)` }
-            ]
-        };
-
-        const currentPace = pace.value;
-        const options = paceOptions[selectedGoal] || paceOptions['maintain'];
+        const optionsHTML = `
+            <optgroup label="減脂 (Fat Loss)">
+                <option value="cut-conservative">🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)</option>
+                <option value="cut-standard">⚡ 標準減脂 ⭐ (-15% / 約 -${Math.round(tdee * 0.15)} kcal)</option>
+            </optgroup>
+            <optgroup label="增肌 (Muscle Gain)">
+                <option value="bulk-conservative">🐢 溫和增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)</option>
+                <option value="bulk-standard">⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)</option>
+            </optgroup>
+            <optgroup label="其他 (Others)">
+                <option value="recomp-standard">🔄 增肌減脂 (同時增加肌肉並降低體脂)</option>
+                <option value="maintain-standard">⚖️ 維持現狀 (不改變體重)</option>
+            </optgroup>
+        `;
         
-        pace.innerHTML = '';
-        options.forEach(opt => {
-            const el = document.createElement('option');
-            el.value = opt.value;
-            el.innerText = opt.text;
-            pace.appendChild(el);
-        });
+        goal.innerHTML = optionsHTML;
 
-        const exists = Array.from(pace.options).some(opt => opt.value === currentPace);
-        if (exists) pace.value = currentPace;
+        const exists = Array.from(goal.options).some(opt => opt.value === currentCombinedGoal);
+        if (exists) {
+            goal.value = currentCombinedGoal;
+        } else {
+            goal.value = 'maintain-standard';
+        }
     }
 
 
-    [g, a, h, w, act, goal].forEach(input => {
-        input.addEventListener('input', updatePaceOptions);
-        input.addEventListener('change', updatePaceOptions);
+    [g, a, h, w, act].forEach(input => {
+        input.addEventListener('input', updateGoalOptions);
+        input.addEventListener('change', updateGoalOptions);
     });
+    goal.addEventListener('change', updateGoalOptions);
 
     if (nickname) nickname.value = userProfile.nickname || '';
     g.value = userProfile.gender || 'male';
@@ -2150,11 +2139,10 @@ function setupProfile() {
     h.value = userProfile.height || '';
     w.value = userProfile.weight || '';
     act.value = userProfile.activity || '1.2';
-    goal.value = userProfile.goal || 'maintain';
     
     if (customPro) {
         customPro.value = userProfile.customProMultiplier || '';
-        customPro.addEventListener('input', updatePaceOptions);
+        customPro.addEventListener('input', updateGoalOptions);
     }
     
     function updateBMI() {
@@ -2181,14 +2169,11 @@ function setupProfile() {
     });
 
     updateBMI();
-    updatePaceOptions();
-    if (userProfile.pace) {
-        // Only set if option exists
-        const exists = Array.from(pace.options).some(opt => opt.value === userProfile.pace);
-        if(exists) pace.value = userProfile.pace;
-    }
+    updateGoalOptions();
 
     document.getElementById('btn-save-profile').addEventListener('click', () => {
+        const goalParts = goal.value.split('-');
+        
         userProfile = {
             nickname: nickname ? nickname.value : '',
             gender: g.value,
@@ -2196,8 +2181,8 @@ function setupProfile() {
             height: parseInt(h.value),
             weight: parseInt(w.value),
             activity: parseFloat(act.value),
-            goal: goal.value,
-            pace: pace.value,
+            goal: goalParts[0] || 'maintain',
+            pace: goalParts[1] || 'standard',
             customProMultiplier: customPro && customPro.value ? parseFloat(customPro.value) : null
         };
         setAndSync('fitness_profile', JSON.stringify(userProfile));

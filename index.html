@@ -38,7 +38,7 @@
                 <div style="width: 80px; height: 80px; background: var(--accent-primary); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; color: white; margin-bottom: 16px;">
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.53</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.54</span></h1>
                 <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             </div>
             
@@ -378,22 +378,14 @@
                     <option value="1.9">極高 (天天高強度訓練或重勞力工作) x 1.9</option>
                 </select>
 
-                <label style="font-size: 12px; color: var(--text-muted);">你的目標是什麼？</label>
-                <select id="goal" class="input-field">
-                    <option value="cut">🔥 減脂 (降低體脂，讓身材更精實)</option>
-                    <option value="maintain">⚖️ 維持體重 (維持目前的體重與身體組成)</option>
-                    <option value="bulk">💪 增肌 (增加肌肉，提升體型與肌肉量)</option>
-                    <option value="recomp">🔄 增肌減脂 (同時增加肌肉並降低體脂)</option>
-                </select>
-
-                <div id="pace-container" style="display: block; margin-top: 10px; margin-bottom: 24px;">
+                <div style="margin-bottom: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <label id="pace-label" style="font-size: 12px; color: var(--text-muted); margin: 0;">你希望以什麼速度進行？</label>
+                        <label id="goal-label" style="font-size: 12px; color: var(--text-muted); margin: 0;">你的目標與節奏？</label>
                         <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted);">
                             攝入蛋白質: <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="系統" style="width: 48px; height: 24px; padding: 0 4px; text-align: center; font-size: 11px; border-radius: 4px; min-height: 24px;"> g/kg
                         </div>
                     </div>
-                    <select id="pace" class="input-field">
+                    <select id="goal" class="input-field">
                         <!-- Options populated dynamically -->
                     </select>
                 </div>
@@ -406,7 +398,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.53 (Cloud Sync)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.54 (Cloud Sync)</p>
             </div>
         </div>
 
@@ -765,6 +757,6 @@
     </div>
 
     <script src="food_db.js?v=6"></script>
-    <script src="app.js?v=1.53"></script>
+    <script src="app.js?v=1.54"></script>
 </body>
 </html>
