@@ -2049,12 +2049,13 @@ function setupProfile() {
         const selectedGoal = goal.value || 'maintain';
         const weight = parseInt(w.value) || 70;
         
-        let proMultiplier = 1.8;
+        let defaultProMultiplier = 1.8;
         if (selectedGoal === 'cut' || selectedGoal === 'lose') {
-            proMultiplier = 2.0;
+            defaultProMultiplier = 2.0;
         } else if (selectedGoal === 'recomp') {
-            proMultiplier = 2.2;
+            defaultProMultiplier = 2.2;
         }
+        let proMultiplier = defaultProMultiplier;
         
         const customProInput = document.getElementById('custom-pro-multiplier');
         if (customProInput && customProInput.value) {
@@ -2062,9 +2063,9 @@ function setupProfile() {
         }
         const targetPro = Math.round(weight * proMultiplier);
         
-        const paceLabel = document.querySelector('#pace-container label');
+        const paceLabel = document.getElementById('pace-label');
         if (paceLabel) {
-            paceLabel.innerHTML = `你希望以什麼速度進行 <span style="color: var(--accent-primary); margin-left: 4px; font-weight: bold;">(建議蛋白質: ${proMultiplier}g/kg)</span>`;
+            paceLabel.innerHTML = `你希望以什麼速度進行？ <span style="color: var(--accent-primary); margin-left: 2px; font-weight: bold;">(建議: ${defaultProMultiplier}g/kg)</span>`;
         }
 
         const paceOptions = {
