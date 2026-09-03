@@ -1391,7 +1391,6 @@ function renderDBContent(searchQuery = '') {
                     <button style="background:transparent; border:none; padding:4px; font-size:16px;" onclick="toggleFavorite(event, '${food.id}')">
                         ${isFav ? '<i class="fa-solid fa-heart" style="color:#ff6b6b;"></i>' : '<i class="fa-regular fa-heart" style="color:#ccc;"></i>'}
                     </button>
-                    <div style="width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%;"></div>
                     <button class="btn-add"><i class="fa-solid fa-plus" style="font-size: 12px;"></i></button>
                 </div>
             </div>
