@@ -2111,8 +2111,8 @@ function setupProfile() {
                 <option value="bulk-standard">⚡ 標準增肌 ⭐ (+10% / 約 +${Math.round(tdee * 0.1)} kcal)</option>
             </optgroup>
             <optgroup label="其他 (Others)">
-                <option value="recomp-standard">🔄 增肌減脂 (同時增加肌肉並降低體脂)</option>
-                <option value="maintain-standard">⚖️ 維持現狀 (不改變體重)</option>
+                <option value="recomp-standard">🔄 增肌減脂 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)</option>
+                <option value="maintain-standard">⚖️ 維持現狀 (0% / 完美打平)</option>
             </optgroup>
         `;
         
