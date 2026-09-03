@@ -2,31 +2,47 @@
 // 擴充版：包含近 250 筆台灣常見食物、小吃、與超商連鎖食品
 const foodDatabase = {
     categories: [
-        { id: 'bento', name: '街邊便當與小吃', icon: 'fluent-emoji-flat:bento-box', color: '#FBBF24' },
-        { id: 'breakfast', name: '台灣靈魂早餐', icon: 'fluent-emoji-flat:cooking', color: '#ff6b6b' },
+        { id: 'street', name: '街邊小吃', icon: 'fluent-emoji-flat:dumpling', color: '#FBBF24' },
+        { id: 'bento', name: '日常便當', icon: 'fluent-emoji-flat:bento-box', color: '#F59E0B' },
+        { id: 'breakfast', name: '台灣早餐', icon: 'fluent-emoji-flat:cooking', color: '#ff6b6b' },
         { id: 'store', name: '超商快充站', icon: 'fluent-emoji-flat:convenience-store', color: '#38BDF8' },
-        { id: 'raw', name: '原型生鮮食材', icon: 'fluent-emoji-flat:leafy-green', color: '#1dd1a1' },
-        { id: 'supp', name: '戰術補給與自訂', icon: 'fluent-emoji-flat:high-voltage', color: '#A78BFA' },
-        { id: 'cheat', name: '快樂舒壓餐', icon: 'fluent-emoji-flat:bubble-tea', color: '#ff9ff3' }
+        { id: 'raw', name: '生鮮食材', icon: 'fluent-emoji-flat:leafy-green', color: '#1dd1a1' },
+        { id: 'supp', name: '補劑', icon: 'fluent-emoji-flat:high-voltage', color: '#A78BFA' },
+        { id: 'cheat', name: '舒壓餐', icon: 'fluent-emoji-flat:bubble-tea', color: '#ff9ff3' }
     ],
     foods: [
-        // ================= 街邊便當與小吃 (日常混合餐) =================
-        { id: 's17', categoryId: 'bento', name: '水餃 (10顆)', cals: 500, macros: { p: 20, c: 45, f: 25 }, icon: 'fluent-emoji-flat:dumpling' },
-        { id: 's18', categoryId: 'bento', name: '鍋貼 (10顆)', cals: 650, macros: { p: 20, c: 60, f: 35 }, icon: 'fluent-emoji-flat:dumpling' },
-        { id: 's19', categoryId: 'bento', name: '小籠包 (8顆)', cals: 550, macros: { p: 22, c: 50, f: 28 }, icon: 'fluent-emoji-flat:dumpling' },
-        { id: 's20', categoryId: 'bento', name: '陽春麵 (湯/1碗)', cals: 320, macros: { p: 10, c: 60, f: 3 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 's21', categoryId: 'bento', name: '乾麵/麻醬麵 (1碗)', cals: 450, macros: { p: 12, c: 60, f: 18 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 's22', categoryId: 'bento', name: '義大利麵 (番茄/1份)', cals: 500, macros: { p: 15, c: 75, f: 15 }, icon: 'fluent-emoji-flat:spaghetti' },
-        { id: 's23', categoryId: 'bento', name: '義大利麵 (白醬/1份)', cals: 700, macros: { p: 20, c: 70, f: 35 }, icon: 'fluent-emoji-flat:spaghetti' },
-        { id: 's24', categoryId: 'bento', name: '義大利麵 (青醬/1份)', cals: 650, macros: { p: 18, c: 65, f: 30 }, icon: 'fluent-emoji-flat:spaghetti' },
-        { id: 's25', categoryId: 'bento', name: '烏龍麵 (湯/1碗)', cals: 250, macros: { p: 8, c: 50, f: 2 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 's26', categoryId: 'bento', name: '冬粉 (1把/煮熟)', cals: 140, macros: { p: 0, c: 35, f: 0 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 's27', categoryId: 'bento', name: '米粉 (炒/1份)', cals: 450, macros: { p: 8, c: 60, f: 20 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 's29', categoryId: 'bento', name: '肉粽 (1顆)', cals: 550, macros: { p: 15, c: 60, f: 25 }, icon: 'fluent-emoji-flat:rice-ball' },
-        { id: 'm4', categoryId: 'bento', name: '三杯雞 (1份)', cals: 450, macros: { p: 30, c: 10, f: 30 }, icon: 'fluent-emoji-flat:poultry-leg' },
-        { id: 'm12', categoryId: 'bento', name: '豬腳 (滷/1塊)', cals: 350, macros: { p: 20, c: 5, f: 25 }, icon: 'fluent-emoji-flat:meat-on-bone' },
-        { id: 'v29', categoryId: 'bento', name: '麻婆豆腐 (1份)', cals: 250, macros: { p: 12, c: 15, f: 15 }, icon: 'fluent-emoji-flat:pot-of-food' },
-        { id: 'v30', categoryId: 'bento', name: '三杯杏鮑菇 (1份)', cals: 200, macros: { p: 5, c: 15, f: 12 }, icon: 'fluent-emoji-flat:mushroom' },
+        // ================= 街邊小吃 =================
+        { id: 's17', categoryId: 'street', name: '水餃 (10顆)', cals: 500, macros: { p: 20, c: 45, f: 25 }, icon: 'fluent-emoji-flat:dumpling' },
+        { id: 's18', categoryId: 'street', name: '鍋貼 (10顆)', cals: 650, macros: { p: 20, c: 60, f: 35 }, icon: 'fluent-emoji-flat:dumpling' },
+        { id: 's19', categoryId: 'street', name: '小籠包 (8顆)', cals: 550, macros: { p: 22, c: 50, f: 28 }, icon: 'fluent-emoji-flat:dumpling' },
+        { id: 's20', categoryId: 'street', name: '陽春麵 (湯/1碗)', cals: 320, macros: { p: 10, c: 60, f: 3 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 's21', categoryId: 'street', name: '乾麵/麻醬麵 (1碗)', cals: 450, macros: { p: 12, c: 60, f: 18 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 's25', categoryId: 'street', name: '烏龍麵 (湯/1碗)', cals: 250, macros: { p: 8, c: 50, f: 2 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 's26', categoryId: 'street', name: '冬粉 (1把/煮熟)', cals: 140, macros: { p: 0, c: 35, f: 0 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 's27', categoryId: 'street', name: '米粉 (炒/1份)', cals: 450, macros: { p: 8, c: 60, f: 20 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 's29', categoryId: 'street', name: '肉粽 (1顆)', cals: 550, macros: { p: 15, c: 60, f: 25 }, icon: 'fluent-emoji-flat:rice-ball' },
+        { id: 'm4', categoryId: 'street', name: '三杯雞 (1份)', cals: 450, macros: { p: 30, c: 10, f: 30 }, icon: 'fluent-emoji-flat:poultry-leg' },
+        { id: 'm12', categoryId: 'street', name: '豬腳 (滷/1塊)', cals: 350, macros: { p: 20, c: 5, f: 25 }, icon: 'fluent-emoji-flat:meat-on-bone' },
+        { id: 'v29', categoryId: 'street', name: '麻婆豆腐 (1份)', cals: 250, macros: { p: 12, c: 15, f: 15 }, icon: 'fluent-emoji-flat:pot-of-food' },
+        { id: 'v30', categoryId: 'street', name: '三杯杏鮑菇 (1份)', cals: 200, macros: { p: 5, c: 15, f: 12 }, icon: 'fluent-emoji-flat:mushroom' },
+        { id: 'e11', categoryId: 'street', name: '滷肉飯 (小碗)', cals: 400, macros: { p: 8, c: 50, f: 18 }, icon: 'fluent-emoji-flat:curry-rice' },
+        { id: 'e12', categoryId: 'street', name: '滷肉飯 (大碗)', cals: 600, macros: { p: 15, c: 75, f: 26 }, icon: 'fluent-emoji-flat:bowl-with-spoon' },
+        { id: 'e13', categoryId: 'street', name: '火雞肉飯 (1碗)', cals: 350, macros: { p: 12, c: 50, f: 10 }, icon: 'fluent-emoji-flat:cooked-rice' },
+        { id: 'e16', categoryId: 'street', name: '牛肉麵 (紅燒/1碗)', cals: 750, macros: { p: 35, c: 80, f: 30 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 'e17', categoryId: 'street', name: '牛肉麵 (清燉/1碗)', cals: 600, macros: { p: 35, c: 75, f: 15 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 'e18', categoryId: 'street', name: '什錦炒麵 (1份)', cals: 650, macros: { p: 20, c: 75, f: 30 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 'e19', categoryId: 'street', name: '大腸麵線 (1碗)', cals: 400, macros: { p: 10, c: 55, f: 15 }, icon: 'fluent-emoji-flat:bowl-with-spoon' },
+        { id: 'e20', categoryId: 'street', name: '蚵仔麵線 (大碗)', cals: 450, macros: { p: 15, c: 60, f: 16 }, icon: 'fluent-emoji-flat:bowl-with-spoon' },
+        { id: 'e21', categoryId: 'street', name: '肉羹麵 (1碗)', cals: 550, macros: { p: 15, c: 70, f: 20 }, icon: 'fluent-emoji-flat:steaming-bowl' },
+        { id: 'e22', categoryId: 'street', name: '大腸包小腸 (1份)', cals: 580, macros: { p: 15, c: 45, f: 35 }, icon: 'fluent-emoji-flat:hot-dog' },
+        { id: 'e30', categoryId: 'street', name: '肉圓 (炸/1顆)', cals: 350, macros: { p: 8, c: 40, f: 17 }, icon: 'fluent-emoji-flat:dumpling' },
+        { id: 'e31', categoryId: 'street', name: '肉圓 (清蒸/1顆)', cals: 200, macros: { p: 8, c: 35, f: 3 }, icon: 'fluent-emoji-flat:dumpling' },
+        { id: 'e34', categoryId: 'street', name: '涼麵 (芝麻醬/1份)', cals: 550, macros: { p: 15, c: 60, f: 25 }, icon: 'fluent-emoji-flat:spaghetti' },
+        { id: 'e35', categoryId: 'street', name: '皮蛋豆腐 (1份)', cals: 180, macros: { p: 16, c: 5, f: 10 }, icon: 'fluent-emoji-flat:egg' },
+        { id: 'e36', categoryId: 'street', name: '蚵仔煎 (1份)', cals: 450, macros: { p: 15, c: 50, f: 20 }, icon: 'fluent-emoji-flat:oyster' },
+        { id: 'e37', categoryId: 'street', name: '潤餅 (1捲)', cals: 300, macros: { p: 10, c: 45, f: 8 }, icon: 'fluent-emoji-flat:burrito' },
+        
+        // ================= 日常便當 =================
         { id: 'e1', categoryId: 'bento', name: '排骨便當 (炸/1個)', cals: 900, macros: { p: 35, c: 100, f: 40 }, icon: 'fluent-emoji-flat:bento-box' },
         { id: 'e2', categoryId: 'bento', name: '排骨便當 (滷/1個)', cals: 750, macros: { p: 35, c: 95, f: 25 }, icon: 'fluent-emoji-flat:bento-box' },
         { id: 'e3', categoryId: 'bento', name: '雞腿便當 (炸/1個)', cals: 850, macros: { p: 38, c: 95, f: 35 }, icon: 'fluent-emoji-flat:bento-box' },
@@ -37,30 +53,17 @@ const foodDatabase = {
         { id: 'e8', categoryId: 'bento', name: '鮭魚便當 (1個)', cals: 780, macros: { p: 35, c: 90, f: 31 }, icon: 'fluent-emoji-flat:bento-box' },
         { id: 'e9', categoryId: 'bento', name: '三寶飯便當 (1個)', cals: 950, macros: { p: 40, c: 95, f: 45 }, icon: 'fluent-emoji-flat:bento-box' },
         { id: 'e10', categoryId: 'bento', name: '素食便當 (1個)', cals: 650, macros: { p: 20, c: 95, f: 20 }, icon: 'fluent-emoji-flat:bento-box' },
-        { id: 'e11', categoryId: 'bento', name: '滷肉飯 (小碗)', cals: 400, macros: { p: 8, c: 50, f: 18 }, icon: 'fluent-emoji-flat:curry-rice' },
-        { id: 'e12', categoryId: 'bento', name: '滷肉飯 (大碗)', cals: 600, macros: { p: 15, c: 75, f: 26 }, icon: 'fluent-emoji-flat:bowl-with-spoon' },
-        { id: 'e13', categoryId: 'bento', name: '火雞肉飯 (1碗)', cals: 350, macros: { p: 12, c: 50, f: 10 }, icon: 'fluent-emoji-flat:cooked-rice' },
         { id: 'e14', categoryId: 'bento', name: '肉絲炒飯 (1份)', cals: 700, macros: { p: 20, c: 90, f: 28 }, icon: 'fluent-emoji-flat:curry-rice' },
         { id: 'e15', categoryId: 'bento', name: '蝦仁炒飯 (1份)', cals: 680, macros: { p: 22, c: 90, f: 25 }, icon: 'fluent-emoji-flat:curry-rice' },
-        { id: 'e16', categoryId: 'bento', name: '牛肉麵 (紅燒/1碗)', cals: 750, macros: { p: 35, c: 80, f: 30 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 'e17', categoryId: 'bento', name: '牛肉麵 (清燉/1碗)', cals: 600, macros: { p: 35, c: 75, f: 15 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 'e18', categoryId: 'bento', name: '什錦炒麵 (1份)', cals: 650, macros: { p: 20, c: 75, f: 30 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 'e19', categoryId: 'bento', name: '大腸麵線 (1碗)', cals: 400, macros: { p: 10, c: 55, f: 15 }, icon: 'fluent-emoji-flat:bowl-with-spoon' },
-        { id: 'e20', categoryId: 'bento', name: '蚵仔麵線 (大碗)', cals: 450, macros: { p: 15, c: 60, f: 16 }, icon: 'fluent-emoji-flat:bowl-with-spoon' },
-        { id: 'e21', categoryId: 'bento', name: '肉羹麵 (1碗)', cals: 550, macros: { p: 15, c: 70, f: 20 }, icon: 'fluent-emoji-flat:steaming-bowl' },
-        { id: 'e22', categoryId: 'bento', name: '大腸包小腸 (1份)', cals: 580, macros: { p: 15, c: 45, f: 35 }, icon: 'fluent-emoji-flat:hot-dog' },
-        { id: 'e30', categoryId: 'bento', name: '肉圓 (炸/1顆)', cals: 350, macros: { p: 8, c: 40, f: 17 }, icon: 'fluent-emoji-flat:dumpling' },
-        { id: 'e31', categoryId: 'bento', name: '肉圓 (清蒸/1顆)', cals: 200, macros: { p: 8, c: 35, f: 3 }, icon: 'fluent-emoji-flat:dumpling' },
+        { id: 's22', categoryId: 'bento', name: '義大利麵 (番茄/1份)', cals: 500, macros: { p: 15, c: 75, f: 15 }, icon: 'fluent-emoji-flat:spaghetti' },
+        { id: 's23', categoryId: 'bento', name: '義大利麵 (白醬/1份)', cals: 700, macros: { p: 20, c: 70, f: 35 }, icon: 'fluent-emoji-flat:spaghetti' },
+        { id: 's24', categoryId: 'bento', name: '義大利麵 (青醬/1份)', cals: 650, macros: { p: 18, c: 65, f: 30 }, icon: 'fluent-emoji-flat:spaghetti' },
         { id: 'e32', categoryId: 'bento', name: '火鍋 (大眾牛/清湯)', cals: 700, macros: { p: 40, c: 60, f: 30 }, icon: 'fluent-emoji-flat:pot-of-food' },
         { id: 'e33', categoryId: 'bento', name: '火鍋 (麻辣鍋/含湯)', cals: 1200, macros: { p: 45, c: 60, f: 80 }, icon: 'fluent-emoji-flat:pot-of-food' },
-        { id: 'e34', categoryId: 'bento', name: '涼麵 (芝麻醬/1份)', cals: 550, macros: { p: 15, c: 60, f: 25 }, icon: 'fluent-emoji-flat:spaghetti' },
-        { id: 'e35', categoryId: 'bento', name: '皮蛋豆腐 (1份)', cals: 180, macros: { p: 16, c: 5, f: 10 }, icon: 'fluent-emoji-flat:egg' },
-        { id: 'e36', categoryId: 'bento', name: '蚵仔煎 (1份)', cals: 450, macros: { p: 15, c: 50, f: 20 }, icon: 'fluent-emoji-flat:oyster' },
-        { id: 'e37', categoryId: 'bento', name: '潤餅 (1捲)', cals: 300, macros: { p: 10, c: 45, f: 8 }, icon: 'fluent-emoji-flat:burrito' },
         { id: 'st10', categoryId: 'bento', name: 'Subway 烤雞肉堡 (6吋)', cals: 320, macros: { p: 23, c: 45, f: 5 }, icon: 'fluent-emoji-flat:sandwich' },
         { id: 'st11', categoryId: 'bento', name: 'Subway 鮪魚堡 (6吋)', cals: 450, macros: { p: 20, c: 45, f: 22 }, icon: 'fluent-emoji-flat:sandwich' },
 
-        // ================= 台灣靈魂早餐 (早晨專區) =================
+        // ================= 台灣早餐 =================
         { id: 's12', categoryId: 'breakfast', name: '白吐司 (1片/50g)', cals: 140, macros: { p: 4, c: 26, f: 2 }, icon: 'fluent-emoji-flat:bread' },
         { id: 's13', categoryId: 'breakfast', name: '全麥吐司 (1片/50g)', cals: 130, macros: { p: 5, c: 24, f: 2 }, icon: 'fluent-emoji-flat:bread' },
         { id: 's14', categoryId: 'breakfast', name: '原味貝果 (1個/100g)', cals: 260, macros: { p: 10, c: 50, f: 1 }, icon: 'fluent-emoji-flat:bagel' },
@@ -80,7 +83,7 @@ const foodDatabase = {
         { id: 'd2', categoryId: 'breakfast', name: '拿鐵咖啡 (無糖/中杯)', cals: 150, macros: { p: 8, c: 12, f: 8 }, icon: 'fluent-emoji-flat:hot-beverage' },
         { id: 'd3', categoryId: 'breakfast', name: '美式咖啡 (無糖)', cals: 15, macros: { p: 0, c: 3, f: 0 }, icon: 'fluent-emoji-flat:hot-beverage' },
 
-        // ================= 超商快充站 (微波與即食) =================
+        // ================= 超商快充站 =================
         { id: 'st12', categoryId: 'store', name: '超商 御飯糰 (鮪魚)', cals: 210, macros: { p: 5, c: 40, f: 3 }, icon: 'fluent-emoji-flat:rice-ball' },
         { id: 'st13', categoryId: 'store', name: '超商 御飯糰 (肉鬆)', cals: 220, macros: { p: 5, c: 42, f: 4 }, icon: 'fluent-emoji-flat:rice-ball' },
         { id: 'st14', categoryId: 'store', name: '超商 烤雞三明治', cals: 280, macros: { p: 12, c: 35, f: 10 }, icon: 'fluent-emoji-flat:sandwich' },
@@ -98,7 +101,7 @@ const foodDatabase = {
         { id: 'd4', categoryId: 'store', name: '全脂鮮奶 (250ml)', cals: 160, macros: { p: 8, c: 12, f: 9 }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'd5', categoryId: 'store', name: '燕麥奶 (250ml)', cals: 130, macros: { p: 3, c: 15, f: 5 }, icon: 'fluent-emoji-flat:glass-of-milk' },
 
-        // ================= 原型生鮮食材 (自煮備餐區) =================
+        // ================= 生鮮食材 =================
         { id: 's1', categoryId: 'raw', name: '白飯 (1平碗/160g)', cals: 280, macros: { p: 5, c: 60, f: 1 }, icon: 'fluent-emoji-flat:cooked-rice' },
         { id: 's2', categoryId: 'raw', name: '糙米飯 (1碗/160g)', cals: 260, macros: { p: 6, c: 54, f: 2 }, icon: 'fluent-emoji-flat:cooked-rice' },
         { id: 's3', categoryId: 'raw', name: '五穀米 (1碗/160g)', cals: 250, macros: { p: 7, c: 52, f: 2 }, icon: 'fluent-emoji-flat:cooked-rice' },
@@ -168,14 +171,14 @@ const foodDatabase = {
         { id: 'f9', categoryId: 'raw', name: '葡萄 (10顆)', cals: 60, macros: { p: 0.5, c: 15, f: 0 }, icon: 'fluent-emoji-flat:grapes' },
         { id: 'f10', categoryId: 'raw', name: '草莓 (10顆)', cals: 40, macros: { p: 1, c: 9, f: 0 }, icon: 'fluent-emoji-flat:strawberry' },
 
-        // ================= 戰術補給與自訂特調 (你的專屬護城河) =================
+        // ================= 補劑 =================
         { id: 'd10', categoryId: 'supp', name: '高蛋白飲 (1匙+水)', cals: 120, macros: { p: 25, c: 2, f: 1 }, icon: 'fluent-emoji-flat:cup-with-straw' },
         { id: 'st24', categoryId: 'supp', name: 'ON 乳清蛋白 (1匙)', cals: 120, macros: { p: 24, c: 3, f: 1 }, icon: 'fluent-emoji-flat:cup-with-straw' },
         { id: 'st25', categoryId: 'supp', name: 'Myprotein 乳清 (1匙)', cals: 100, macros: { p: 21, c: 1, f: 2 }, icon: 'fluent-emoji-flat:cup-with-straw' },
         { id: 'st26', categoryId: 'supp', name: '戰神 MARS 乳清 (1包)', cals: 140, macros: { p: 26, c: 4, f: 2 }, icon: 'fluent-emoji-flat:cup-with-straw' },
         { id: 'st27', categoryId: 'supp', name: '果果堅果 乳清 (1匙)', cals: 120, macros: { p: 22, c: 4, f: 2 }, icon: 'fluent-emoji-flat:cup-with-straw' },
 
-        // ================= 快樂舒壓餐 (欺騙餐) =================
+        // ================= 舒壓餐 =================
         { id: 'e23', categoryId: 'cheat', name: '炸雞排 (1塊)', cals: 650, macros: { p: 30, c: 40, f: 40 }, icon: 'fluent-emoji-flat:poultry-leg' },
         { id: 'e24', categoryId: 'cheat', name: '鹹酥雞 (1份)', cals: 550, macros: { p: 25, c: 30, f: 35 }, icon: 'fluent-emoji-flat:poultry-leg' },
         { id: 'e25', categoryId: 'cheat', name: '甜不辣 (炸/1份)', cals: 300, macros: { p: 8, c: 35, f: 14 }, icon: 'fluent-emoji-flat:oden' },
