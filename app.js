@@ -1298,7 +1298,7 @@ function openFoodDB(meal, targetDateStr) {
 function changeAddingMeal(meal) {
     currentAddingMeal = meal;
     const mealMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
-    document.getElementById('cart-meal-label').innerHTML = `${mealMap[meal]} <i class="fa-solid fa-caret-up" style="font-size: 10px; margin-left: 2px;"></i>`;
+    document.getElementById('cart-meal-label').innerHTML = `${mealMap[meal]}`;
 }
 
 function renderDBSidebar() {
