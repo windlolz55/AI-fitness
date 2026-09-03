@@ -444,7 +444,18 @@ function init() {
     setupProfile();
     setupDailyTracking();
     
-    updateDashboard();
+    const savedView = sessionStorage.getItem('active_view');
+    if (savedView) {
+        const targetNav = Array.from(navItems).find(n => n.getAttribute('data-target') === savedView);
+        if (targetNav) {
+            targetNav.click();
+        } else {
+            updateDashboard();
+        }
+    } else {
+        updateDashboard();
+    }
+
     updateDailyData();
     selectLogDate(todayDateStr);
 }
@@ -897,6 +908,7 @@ function setupNavigation() {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = item.getAttribute('data-target');
+            sessionStorage.setItem('active_view', targetId);
             navItems.forEach(nav => nav.classList.remove('active'));
             item.classList.add('active');
             
