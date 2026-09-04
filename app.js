@@ -623,12 +623,12 @@ function renderWorkout() {
         html += `
             <div class="card log-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
                 <!-- Left: Details (Click to edit) -->
-                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="openWorkoutModal('${ex.name}')">
-                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main);">
+                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; min-width: 0;" onclick="openWorkoutModal('${ex.name}')">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main); flex-shrink: 0;">
                         <i class="fa-solid ${icon}"></i>
                     </div>
-                    <div>
-                        <div style="font-weight: 500; font-size: 16px;">${ex.name}</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ex.name}</div>
                         ${statusHtml}
                     </div>
                 </div>
@@ -653,12 +653,12 @@ function renderWorkout() {
             html += `
                 <div class="card log-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
                     <!-- Left: Details (Click to edit) -->
-                    <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="openWorkoutModal('${logged.name}')">
-                        <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main);">
+                    <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; min-width: 0;" onclick="openWorkoutModal('${logged.name}')">
+                        <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main); flex-shrink: 0;">
                             <i class="fa-solid ${icon}"></i>
                         </div>
-                        <div>
-                            <div style="font-weight: 500; font-size: 16px;">${logged.name}</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${logged.name}</div>
                             ${statusHtml}
                         </div>
                     </div>
