@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#1c1c1e">
     <link rel="apple-touch-icon" href="icon-192.png">
     <title>AI 智能飲食紀錄</title>
-    <link rel="stylesheet" href="style.css?v=1.75">
+    <link rel="stylesheet" href="style.css?v=1.76">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -42,7 +42,7 @@
                 <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(29, 209, 161, 0.3);">
                     <i class="fa-solid fa-leaf" style="color: white; font-size: 20px;"></i>
                 </div>
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.75</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">AI Fitness <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.76</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -240,14 +240,16 @@
         <!-- VIEW: WORKOUT -->
         <div id="view-workout" class="view">
             <header style="padding: 16px 0; position: sticky; top: 0; background: var(--bg-main); z-index: 10; margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <h2 style="font-size: 18px; margin: 0;">運動課表</h2>
-                        <button class="btn-icon" style="border: none; background: transparent; font-size: 16px; color: var(--accent-primary); outline: none; padding: 4px;" onclick="openCalendarModal()"><i class="fa-regular fa-calendar"></i></button>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h2 style="font-size: 18px; margin: 0;">運動課表</h2>
+                            <button class="btn-icon" style="border: none; background: transparent; font-size: 16px; color: var(--accent-primary); outline: none; padding: 4px;" onclick="openCalendarModal()"><i class="fa-regular fa-calendar"></i></button>
+                        </div>
+                        <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <p id="workout-day-title" style="margin: 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">載入中...</p>
-                        <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
                     </div>
                 </div>
                 <div class="date-strip" style="display: flex; justify-content: space-between; align-items: center;">
@@ -409,7 +411,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.75 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">AI Fitness v1.76 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -769,8 +771,8 @@
         </div>
     </div>
 
-    <script src="food_db.js?v=1.75"></script>
-    <script src="app.js?v=1.75"></script>
+    <script src="food_db.js?v=1.76"></script>
+    <script src="app.js?v=1.76"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

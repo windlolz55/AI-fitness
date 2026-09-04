@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ai-fitness-v1.75';
+const CACHE_NAME = 'ai-fitness-v1.76';
 const urlsToCache = [
   './',
   './index.html',
