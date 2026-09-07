@@ -1997,10 +1997,10 @@ function selectLogDate(dateStr) {
 function renderLogs() {
     const container = document.getElementById('all-logs');
     const mealMap = { 
-        breakfast: '<img src="icon-breakfast.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">早餐', 
-        lunch: '<img src="icon-lunch.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">午餐', 
-        dinner: '<img src="icon-dinner.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">晚餐', 
-        snack: '<img src="icon-snack.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">加餐' 
+        breakfast: '<img src="icon-breakfast.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">早餐', 
+        lunch: '<img src="icon-lunch.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">午餐', 
+        dinner: '<img src="icon-dinner.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">晚餐', 
+        snack: '<img src="icon-snack.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">加餐' 
     };
     
     let html = '';
