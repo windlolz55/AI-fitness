@@ -19,6 +19,17 @@ const db = firebase.firestore();
 // Persistence removed to prevent iOS Safari multi-tab IndexedDB lockups
 
 // Auth State Observer
+setTimeout(() => {
+    const loader = document.getElementById('global-loader');
+    if (loader && loader.style.display !== 'none') {
+        console.warn("Firebase Auth timeout. Forcing login screen.");
+        loader.style.display = 'none';
+        document.getElementById('view-auth').style.display = 'flex';
+        document.getElementById('main-app').style.display = 'none';
+        auth.signOut().catch(()=>{});
+    }
+}, 4000);
+
 auth.onAuthStateChanged((user) => {
     document.getElementById('global-loader').style.display = 'none';
     
@@ -152,9 +163,6 @@ function handleLogout() {
         const forceClearAndReload = () => {
             const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
-            
-            // Hard delete Firebase Auth IndexedDB to guarantee logout even if auth.signOut() hangs
-            indexedDB.deleteDatabase('firebaseLocalStorageDb');
             
             setTimeout(() => {
                 window.location.reload(true);
