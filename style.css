@@ -174,7 +174,7 @@ body {
 .quick-actions {
     display: flex;
     justify-content: space-between;
-    padding: 24px 16px;
+    padding: 4px 16px 24px 16px;
 }
 .action-btn {
     display: flex;
