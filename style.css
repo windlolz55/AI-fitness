@@ -182,9 +182,10 @@ body {
     align-items: center;
     background: none;
     border: none;
-    color: var(--text-main);
+    color: white;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 600;
 }
 .action-icon {
     width: 56px;
