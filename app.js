@@ -1997,10 +1997,10 @@ function selectLogDate(dateStr) {
 function renderLogs() {
     const container = document.getElementById('all-logs');
     const mealMap = { 
-        breakfast: '<span class="iconify" data-icon="fluent-emoji-flat:cooking" style="margin-right:8px; font-size:18px;"></span>早餐', 
-        lunch: '<span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="margin-right:8px; font-size:18px;"></span>午餐', 
-        dinner: '<span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="margin-right:8px; font-size:18px;"></span>晚餐', 
-        snack: '<span class="iconify" data-icon="fluent-emoji-flat:cookie" style="margin-right:8px; font-size:18px;"></span>加餐' 
+        breakfast: '<img src="icon-breakfast.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">早餐', 
+        lunch: '<img src="icon-lunch.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">午餐', 
+        dinner: '<img src="icon-dinner.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">晚餐', 
+        snack: '<img src="icon-snack.png" style="width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:8px; vertical-align:middle;">加餐' 
     };
     
     let html = '';
