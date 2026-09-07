@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=1.82">
+    <link rel="stylesheet" href="style.css?v=1.83">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.82</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v1.83</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -151,23 +151,23 @@
             <!-- Quick Add Actions -->
             <div class="quick-actions">
                 <button class="action-btn" onclick="openFoodDB('breakfast')">
-                    <div class="action-icon" style="background: rgba(251, 191, 36, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:cooking" style="font-size: 28px;"></span></div>
+                    <div class="action-icon"><img src="icon-breakfast.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                     <span>早餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('lunch')">
-                    <div class="action-icon" style="background: rgba(56, 189, 248, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:bento-box" style="font-size: 28px;"></span></div>
+                    <div class="action-icon"><img src="icon-lunch.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                     <span>午餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('dinner')">
-                    <div class="action-icon" style="background: rgba(167, 139, 250, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:fork-and-knife-with-plate" style="font-size: 28px;"></span></div>
+                    <div class="action-icon"><img src="icon-dinner.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                     <span>晚餐</span>
                 </button>
                 <button class="action-btn" onclick="openFoodDB('snack')">
-                    <div class="action-icon" style="background: rgba(255, 107, 107, 0.15);"><span class="iconify" data-icon="fluent-emoji-flat:cookie" style="font-size: 28px;"></span></div>
+                    <div class="action-icon"><img src="icon-snack.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                     <span>加餐</span>
                 </button>
                 <button class="action-btn" onclick="openScanner()">
-                    <div class="action-icon" style="background: var(--accent-primary); color: white;"><i class="fa-solid fa-camera"></i></div>
+                    <div class="action-icon"><img src="icon-scan.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"></div>
                     <span>掃描</span>
                 </button>
             </div>
@@ -410,7 +410,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v1.82 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v1.83 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -443,7 +443,7 @@
                 </div>
                 <div id="db-action-buttons" style="display: flex; gap: 8px; justify-content: space-between;">
                     <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="copyYesterdayMeal()"><i class="fa-regular fa-copy"></i> 複製昨日</button>
-                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openScanner()"><i class="fa-solid fa-camera"></i> 掃描食物</button>
+                    <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;" onclick="openScanner()"><img src="icon-scan.jpg" style="width: 16px; height: 16px; border-radius: 50%;"> 掃描食物</button>
                     <button class="btn-secondary" style="border: none; background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); font-size: 12px; padding: 10px 16px; border-radius: 20px; flex: 1;" onclick="openCustomFood()"><i class="fa-solid fa-plus"></i> 自訂食物</button>
                 </div>
             </div>
@@ -770,8 +770,8 @@
         </div>
     </div>
 
-    <script src="food_db.js?v=1.82"></script>
-    <script src="app.js?v=1.82"></script>
+    <script src="food_db.js?v=1.83"></script>
+    <script src="app.js?v=1.83"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
