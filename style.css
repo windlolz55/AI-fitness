@@ -182,7 +182,7 @@ body {
     align-items: center;
     background: none;
     border: none;
-    color: white;
+    color: var(--text-main);
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
