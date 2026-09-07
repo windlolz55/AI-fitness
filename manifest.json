@@ -1,6 +1,6 @@
 {
-  "name": "AI Fitness",
-  "short_name": "AI Fitness",
+  "name": "Calicorie",
+  "short_name": "Calicorie",
   "description": "AI 智能飲食紀錄",
   "start_url": "./index.html",
   "display": "standalone",
