@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calicorie-v1.84';
+const CACHE_NAME = 'calicorie-v1.85';
 const urlsToCache = [
   './',
   './index.html',
@@ -11,7 +11,9 @@ const urlsToCache = [
   'https://code.iconify.design/3/3.1.0/iconify.min.js',
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js',
-  'https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js'
+  'https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-solid-900.woff2',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/webfonts/fa-regular-400.woff2'
 ];
 
 self.addEventListener('install', event => {
@@ -29,7 +31,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     fetch(event.request).then(response => {
       // Network successful, update cache
-      if (response && response.status === 200 && response.type === 'basic') {
+      if (response && response.status === 200 && (response.type === 'basic' || response.type === 'cors')) {
         const responseToCache = response.clone();
         caches.open(CACHE_NAME).then(cache => {
           cache.put(event.request, responseToCache);
