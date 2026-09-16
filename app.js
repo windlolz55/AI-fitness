@@ -1000,8 +1000,13 @@ function handleFileSelectForPreview(input) {
         
         const reader = new FileReader();
         reader.onload = function(e) {
-            const previewImg = document.getElementById('scan-preview-img');
-            if (previewImg) previewImg.src = e.target.result;
+            const previewImg = document.getElementById('image-preview');
+            if (previewImg) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            }
+            const cameraIcon = document.getElementById('camera-icon');
+            if (cameraIcon) cameraIcon.style.display = 'none';
             const btnCamera = document.getElementById('btn-camera');
             if (btnCamera) btnCamera.style.display = 'none';
             const previewContainer = document.getElementById('scan-preview-container');
@@ -1019,6 +1024,13 @@ function cancelScanPreview() {
     if (btnCamera) btnCamera.style.display = 'block';
     const fileInput = document.getElementById('file-input');
     if (fileInput) fileInput.value = '';
+    const previewImg = document.getElementById('image-preview');
+    if (previewImg) {
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+    }
+    const cameraIcon = document.getElementById('camera-icon');
+    if (cameraIcon) cameraIcon.style.display = 'block';
 }
 
 function startScanFromPreview() {
