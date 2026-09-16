@@ -93,7 +93,7 @@ document.addEventListener("visibilitychange", () => {
                 }
                 
                 if (changed) {
-                    const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+                    const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
                     keys.forEach(k => {
                         try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
                     });
@@ -161,7 +161,7 @@ function handleLogout() {
         }
 
         const forceClearAndReload = () => {
-            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated'];
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated', 'gemini_api_key'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
             
             setTimeout(() => {
@@ -200,7 +200,8 @@ function saveToFirestore() {
         favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
         hiddenFoodIds: JSON.stringify(typeof hiddenFoodIds !== 'undefined' ? hiddenFoodIds : []) || '[]',
         customFoodOrder: JSON.stringify(typeof customFoodOrder !== 'undefined' ? customFoodOrder : {}) || '{}',
-        fitness_theme: document.body.getAttribute('data-theme') || 'light',
+        fitness_theme: localStorage.getItem('fitness_theme') || document.body.getAttribute('data-theme') || 'light',
+        gemini_api_key: localStorage.getItem('gemini_api_key') || '',
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(err => {
         console.error("Firestore save failed:", err);
@@ -215,7 +216,7 @@ window.setAndSync = function(key, value) {
     } catch(e) {
         console.warn('localStorage setItem failed, bypassing for cloud sync:', e);
     }
-    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder'];
+    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
     if (syncableKeys.includes(key) && auth.currentUser) {
         return saveToFirestore();
     }
@@ -287,7 +288,7 @@ function setupFirestoreListener(uid) {
             }
             
             // Best-effort save to localStorage (bypass quota crashes)
-            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder'];
+            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
             keys.forEach(k => {
                 try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
             });
@@ -340,7 +341,7 @@ window.manualSync = async function() {
                 customFoods = (data.customFoods ? JSON.parse(data.customFoods) : null) || [];
                 favoriteFoodIds = (data.favoriteFoodIds ? JSON.parse(data.favoriteFoodIds) : null) || [];
                 
-                const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme'];
+                const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
                 keys.forEach(k => {
                     try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
                 });
