@@ -1072,6 +1072,10 @@ async function callGeminiVisionAPI(input) {
                         headers: { 'Content-Type': 'application/json' },
                         signal: scannerAbortController.signal,
                         body: JSON.stringify({
+                            generationConfig: {
+                                response_mime_type: "application/json",
+                                temperature: 0.2
+                            },
                             contents: [{
                                 parts: [
                                     { text: "你是一位專業營養師。請分析這張照片。\n\n⚠️重要指示：\n1. 如果照片是「營養標示」，請直接精準讀取標籤上的大卡、蛋白質、碳水與脂肪數值，並依據包裝總份量算出整份的數值。\n2. 如果照片是一般食物，請估算各項食材的克數(grams)，使用台灣常見名稱，並根據衛福部資料庫計算，絕對禁止低估熱量！\n3. 請幫這整份食物想一個 2-5 個字的總名稱 (例如: 排骨便當、牛奶、洋芋片)。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。格式：{ \"meal_name\": \"字串\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
