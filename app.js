@@ -991,10 +991,13 @@ function openScanner() {
 }
 
 function closeScanner() {
+    resetScanner();
     document.querySelector('[data-target="view-dashboard"]').click();
 }
 
 let currentScanItems = [];
+let scannerAbortController = null;
+let progressInterval = null;
 
 function saveGeminiKey() {
     const key = document.getElementById('gemini-api-key').value.trim();
@@ -1028,7 +1031,8 @@ async function callGeminiVisionAPI(input) {
             progText.innerText = '0%';
             
             let progress = 0;
-            const progressInterval = setInterval(() => {
+            if (progressInterval) clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
                 progress += Math.random() * 8 + 4; // Add 4-12%
                 if (progress > 95) progress = 95;
                 progText.innerText = Math.floor(progress) + '%';
@@ -1058,11 +1062,15 @@ async function callGeminiVisionAPI(input) {
             let success = false;
             let lastError = null;
             
+            if (scannerAbortController) scannerAbortController.abort();
+            scannerAbortController = new AbortController();
+            
             for (const model of modelsToTry) {
                 try {
                     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        signal: scannerAbortController.signal,
                         body: JSON.stringify({
                             contents: [{
                                 parts: [
@@ -1145,7 +1153,11 @@ async function callGeminiVisionAPI(input) {
                 }, 400);
                 
             } catch (err) {
-                clearInterval(progressInterval);
+                if (err.name === 'AbortError') {
+                    console.log('Scan aborted by user.');
+                    return;
+                }
+                if (progressInterval) clearInterval(progressInterval);
                 progContainer.style.display = 'none';
                 alert('API 呼叫失敗，請檢查 API Key 或照片格式：\\n' + err.message);
                 document.getElementById('btn-camera').style.display = 'block';
@@ -1185,6 +1197,16 @@ function toggleScanItem(index) {
 }
 
 function resetScanner() {
+    if (scannerAbortController) {
+        scannerAbortController.abort();
+        scannerAbortController = null;
+    }
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+    document.getElementById('scan-progress-container').style.display = 'none';
+    
     const fileInput = document.getElementById('file-input');
     if(fileInput) fileInput.value = '';
     
