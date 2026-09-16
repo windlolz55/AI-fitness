@@ -1231,10 +1231,10 @@ function renderScanChecklist() {
             </div>
             <div style="text-align: right;">
                 <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} kcal</div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 6px; justify-content: flex-end;">
-                    <span style="color: #3b82f6;">P:${item.pro || 0}</span>
-                    <span style="color: #f59e0b;">C:${item.carb || 0}</span>
-                    <span style="color: #ef4444;">F:${item.fat || 0}</span>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                    <span><span style="color: #f59e0b;">碳</span> ${Math.round(item.carb || 0)}g</span>
+                    <span><span style="color: #38bdf8;">蛋</span> ${Math.round(item.pro || 0)}g</span>
+                    <span><span style="color: #a855f7;">脂</span> ${Math.round(item.fat || 0)}g</span>
                 </div>
             </div>
         </label>
