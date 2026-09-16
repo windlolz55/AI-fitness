@@ -1091,6 +1091,7 @@ async function callGeminiVisionAPI(input) {
                         throw new Error(data.error.message);
                     }
                     success = true;
+                    window.lastSuccessfulModel = model; // Store the successful model
                     break; // break the loop if successful
                 } catch (err) {
                     lastError = err;
@@ -1115,6 +1116,19 @@ async function callGeminiVisionAPI(input) {
                 const aiResults = JSON.parse(jsonText);
                 
                 document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 智慧組合餐';
+                
+                // Add model indicator to the result UI
+                let indicator = document.getElementById('model-indicator');
+                if (!indicator) {
+                    indicator = document.createElement('div');
+                    indicator.id = 'model-indicator';
+                    indicator.style.fontSize = '10px';
+                    indicator.style.color = 'var(--text-muted)';
+                    indicator.style.textAlign = 'right';
+                    indicator.style.marginTop = '4px';
+                    document.getElementById('scan-result').insertBefore(indicator, document.getElementById('scan-checklist'));
+                }
+                indicator.innerText = `Powered by ${window.lastSuccessfulModel}`;
                 
                 const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
                 currentScanItems = itemsArray.map(item => {
