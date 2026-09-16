@@ -1073,7 +1073,7 @@ async function callGeminiVisionAPI(input) {
                     let response;
                     
                     while (retryCount <= maxRetries) {
-                        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                        const fetchPromise = fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             signal: scannerAbortController.signal,
@@ -1090,6 +1090,12 @@ async function callGeminiVisionAPI(input) {
                                 }]
                             })
                         });
+                        
+                        const timeoutPromise = new Promise((_, reject) => {
+                            setTimeout(() => reject(new Error('Timeout: API response took too long')), 10000);
+                        });
+                        
+                        response = await Promise.race([fetchPromise, timeoutPromise]);
                         
                         data = await response.json();
                         
