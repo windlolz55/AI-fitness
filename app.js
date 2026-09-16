@@ -191,7 +191,7 @@ function saveToFirestore() {
     const user = auth.currentUser;
     if (!user) return Promise.resolve();
     
-    return db.collection('users').doc(user.uid).set({
+    const dataToSave = {
         fitness_profile: JSON.stringify(typeof userProfile !== 'undefined' ? userProfile : {}) || '{}',
         fitness_logs: JSON.stringify(typeof logs !== 'undefined' ? logs : []) || '[]',
         fitness_daily: JSON.stringify(typeof dailyData !== 'undefined' ? dailyData : {}) || '{}',
@@ -201,9 +201,15 @@ function saveToFirestore() {
         hiddenFoodIds: JSON.stringify(typeof hiddenFoodIds !== 'undefined' ? hiddenFoodIds : []) || '[]',
         customFoodOrder: JSON.stringify(typeof customFoodOrder !== 'undefined' ? customFoodOrder : {}) || '{}',
         fitness_theme: localStorage.getItem('fitness_theme') || document.body.getAttribute('data-theme') || 'light',
-        gemini_api_key: localStorage.getItem('gemini_api_key') || '',
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).catch(err => {
+    };
+    
+    const localGeminiKey = localStorage.getItem('gemini_api_key');
+    if (localGeminiKey) {
+        dataToSave.gemini_api_key = localGeminiKey;
+    }
+    
+    return db.collection('users').doc(user.uid).set(dataToSave, { merge: true }).catch(err => {
         console.error("Firestore save failed:", err);
         alert("雲端存檔失敗：" + err.message + "\n如果您剛好要登出，請稍等2秒再登出，以免中斷上傳。");
     });
