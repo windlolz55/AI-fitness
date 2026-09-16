@@ -1144,6 +1144,9 @@ async function callGeminiVisionAPI(input) {
                     let response;
                     
                     while (retryCount <= maxRetries) {
+                        if (!scannerAbortController) {
+                            throw new DOMException('Scan aborted by user.', 'AbortError');
+                        }
                         const fetchPromise = fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -1303,7 +1306,7 @@ async function callGeminiVisionAPI(input) {
                 }
                 if (progressInterval) clearInterval(progressInterval);
                 progContainer.style.display = 'none';
-                alert('API 呼叫失敗，請檢查 API Key 或照片格式：\\n' + err.message);
+                showToast('辨識失敗：' + err.message);
                 document.getElementById('btn-camera').style.display = 'block';
             }
             };
