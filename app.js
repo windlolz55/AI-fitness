@@ -1080,7 +1080,28 @@ async function callGeminiVisionAPI(input) {
                             body: JSON.stringify({
                                 generationConfig: {
                                     response_mime_type: "application/json",
-                                    temperature: 0.2
+                                    temperature: 0.2,
+                                    response_schema: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            reasoning: { type: "STRING" },
+                                            meal_name: { type: "STRING" },
+                                            items: {
+                                                type: "ARRAY",
+                                                items: {
+                                                    type: "OBJECT",
+                                                    properties: {
+                                                        name: { type: "STRING" },
+                                                        grams: { type: "INTEGER" },
+                                                        cal: { type: "INTEGER" },
+                                                        pro: { type: "NUMBER" },
+                                                        carb: { type: "NUMBER" },
+                                                        fat: { type: "NUMBER" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 },
                                 contents: [{
                                     parts: [
