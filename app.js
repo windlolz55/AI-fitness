@@ -1097,7 +1097,8 @@ async function callGeminiVisionAPI(input) {
                                                         pro: { type: "NUMBER" },
                                                         carb: { type: "NUMBER" },
                                                         fat: { type: "NUMBER" }
-                                                    }
+                                                    },
+                                                    required: ["name", "grams", "cal", "pro", "carb", "fat"]
                                                 }
                                             }
                                         },
@@ -1114,7 +1115,7 @@ async function callGeminiVisionAPI(input) {
                         });
                         
                         const timeoutPromise = new Promise((_, reject) => {
-                            setTimeout(() => reject(new Error('Timeout: API response took too long')), 15000);
+                            setTimeout(() => reject(new Error('Timeout: API response took too long')), 25000);
                         });
                         
                         response = await Promise.race([fetchPromise, timeoutPromise]);
@@ -1248,12 +1249,12 @@ function renderScanChecklist() {
             <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
                 <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
                 <div style="flex: 1;">
-                    <div style="font-weight: 600;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">約 ${item.grams}g</div>
+                    <div style="font-weight: 600;">${item.name || '未知項目'}</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">約 ${item.grams || 0}g</div>
                 </div>
             </div>
             <div style="text-align: right;">
-                <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} <span style="color: var(--text-main); font-size: 12px; font-weight: 400;">kcal</span></div>
+                <div style="font-weight: 600; color: var(--accent-primary);">${item.cal || 0} <span style="color: var(--text-main); font-size: 12px; font-weight: 400;">kcal</span></div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
                     <span><span style="color: #f59e0b;">碳</span> ${Math.round(item.carb || 0)}g</span>
                     <span><span style="color: #38bdf8;">蛋</span> ${Math.round(item.pro || 0)}g</span>
