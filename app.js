@@ -1057,10 +1057,11 @@ async function callGeminiVisionAPI(input) {
                 const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 const apiKey = localStorage.getItem('gemini_api_key');
                 
-                const modelsToTry = ['gemini-2.5-pro', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+                const modelsToTry = ['gemini-3.8-flash', 'gemini-2.5-pro', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
                 let data = null;
             let success = false;
             let lastError = null;
+            let errorLog = [];
             
             if (scannerAbortController) scannerAbortController.abort();
             scannerAbortController = new AbortController();
@@ -1092,9 +1093,11 @@ async function callGeminiVisionAPI(input) {
                     }
                     success = true;
                     window.lastSuccessfulModel = model; // Store the successful model
+                    window.modelErrorLog = errorLog;
                     break; // break the loop if successful
                 } catch (err) {
                     lastError = err;
+                    errorLog.push(`${model}: ${err.message}`);
                     console.warn(`Model ${model} failed:`, err.message);
                     // Continue to next model if it's a server error or not found
                 }
@@ -1128,7 +1131,12 @@ async function callGeminiVisionAPI(input) {
                     indicator.style.marginTop = '4px';
                     document.getElementById('scan-result').insertBefore(indicator, document.getElementById('scan-checklist'));
                 }
-                indicator.innerText = `Powered by ${window.lastSuccessfulModel}`;
+                
+                let debugText = '';
+                if (window.modelErrorLog && window.modelErrorLog.length > 0) {
+                    debugText = `<br><span style="color: #ef4444; font-size: 8px;">Errors: ${window.modelErrorLog.join(', ')}</span>`;
+                }
+                indicator.innerHTML = `Powered by ${window.lastSuccessfulModel}${debugText}`;
                 
                 const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
                 currentScanItems = itemsArray.map(item => {
