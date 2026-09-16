@@ -1254,7 +1254,7 @@ function renderScanChecklist() {
                 </div>
             </div>
             <div style="text-align: right;">
-                <div style="font-weight: 600; color: var(--accent-primary);">${item.cal || 0} <span style="color: var(--text-main); font-size: 12px; font-weight: 400;">kcal</span></div>
+                <div style="font-weight: 600; color: var(--text-main);">${item.cal || 0} <span style="color: var(--text-muted); font-size: 12px; font-weight: 400;">kcal</span></div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
                     <span><span style="color: #f59e0b;">碳</span> ${Math.round(item.carb || 0)}g</span>
                     <span><span style="color: #38bdf8;">蛋</span> ${Math.round(item.pro || 0)}g</span>
