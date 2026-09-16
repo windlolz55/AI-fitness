@@ -1161,14 +1161,21 @@ function renderScanChecklist() {
     const list = document.getElementById('scan-checklist');
     list.innerHTML = currentScanItems.map((item, index) => `
         <label style="display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
                 <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
-                <div>
+                <div style="flex: 1;">
                     <div style="font-weight: 600;">${item.name}</div>
                     <div style="font-size: 12px; color: var(--text-muted);">約 ${item.grams}g</div>
                 </div>
             </div>
-            <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} kcal</div>
+            <div style="text-align: right;">
+                <div style="font-weight: 600; color: var(--accent-primary);">${item.cal} kcal</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 6px; justify-content: flex-end;">
+                    <span style="color: #3b82f6;">P:${item.pro || 0}</span>
+                    <span style="color: #f59e0b;">C:${item.carb || 0}</span>
+                    <span style="color: #ef4444;">F:${item.fat || 0}</span>
+                </div>
+            </div>
         </label>
     `).join('');
 }
