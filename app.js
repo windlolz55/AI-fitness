@@ -1057,7 +1057,7 @@ async function callGeminiVisionAPI(input) {
                 const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 const apiKey = localStorage.getItem('gemini_api_key');
                 
-                const modelsToTry = ['gemini-3.8-flash', 'gemini-2.5-pro', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+                const modelsToTry = ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3.5-flash-lite'];
                 let data = null;
             let success = false;
             let lastError = null;
@@ -1132,11 +1132,7 @@ async function callGeminiVisionAPI(input) {
                     document.getElementById('scan-result').insertBefore(indicator, document.getElementById('scan-checklist'));
                 }
                 
-                let debugText = '';
-                if (window.modelErrorLog && window.modelErrorLog.length > 0) {
-                    debugText = `<br><span style="color: #ef4444; font-size: 8px;">Errors: ${window.modelErrorLog.join(', ')}</span>`;
-                }
-                indicator.innerHTML = `Powered by ${window.lastSuccessfulModel}${debugText}`;
+                indicator.innerHTML = `Powered by ${window.lastSuccessfulModel}`;
                 
                 const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
                 currentScanItems = itemsArray.map(item => {
