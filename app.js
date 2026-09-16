@@ -1057,7 +1057,7 @@ async function callGeminiVisionAPI(input) {
                 const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 const apiKey = localStorage.getItem('gemini_api_key');
                 
-                const modelsToTry = ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3.5-flash-lite'];
+                const modelsToTry = ['gemini-3.5-flash', 'gemini-3.5-flash-lite'];
                 let data = null;
             let success = false;
             let lastError = null;
@@ -1068,33 +1068,50 @@ async function callGeminiVisionAPI(input) {
             
             for (const model of modelsToTry) {
                 try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        signal: scannerAbortController.signal,
-                        body: JSON.stringify({
-                            generationConfig: {
-                                response_mime_type: "application/json",
-                                temperature: 0.2
-                            },
-                            contents: [{
-                                parts: [
-                                    { text: "你是一位專業營養師。請分析這張照片。\n\n⚠️重要指示：\n1. 為了確保高精準度，請先觀察圖片特徵（例如：是否有湯汁、麵條形狀、肉類種類），然後再判斷是什麼食物。若是一碗有湯的麵食，絕對不能辨識成乾拌麵或抄手。\n2. 估算各項食材的克數(grams)，務必使用台灣常見名稱(如米干)，並根據衛福部資料庫計算，絕對禁止低估熱量！\n3. 如果照片是「營養標示」，請直接精準讀取標籤上的大卡、蛋白質、碳水與脂肪數值，並依據包裝總份量算出整份的數值。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。請務必將推論過程寫在 'reasoning' 欄位中。格式：\n{ \"reasoning\": \"先說明你觀察到的食物特徵與推論過程\", \"meal_name\": \"2-5字的總名稱\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
-                                    { inline_data: { mime_type: file.type, data: base64String } }
-                                ]
-                            }]
-                        })
-                    });
+                    let retryCount = 0;
+                    const maxRetries = 2;
+                    let response;
                     
-                    data = await response.json();
-                    
-                    if (data.error) {
-                        throw new Error(data.error.message);
+                    while (retryCount <= maxRetries) {
+                        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            signal: scannerAbortController.signal,
+                            body: JSON.stringify({
+                                generationConfig: {
+                                    response_mime_type: "application/json",
+                                    temperature: 0.2
+                                },
+                                contents: [{
+                                    parts: [
+                                        { text: "你是一位專業營養師。請分析這張照片。\n\n⚠️重要指示：\n1. 為了確保高精準度，請先觀察圖片特徵（例如：是否有湯汁、麵條形狀、肉類種類），然後再判斷是什麼食物。若是一碗有湯的麵食，絕對不能辨識成乾拌麵或抄手。\n2. 估算各項食材的克數(grams)，務必使用台灣常見名稱(如米干)，並根據衛福部資料庫計算，絕對禁止低估熱量！\n3. 如果照片是「營養標示」，請直接精準讀取標籤上的大卡、蛋白質、碳水與脂肪數值，並依據包裝總份量算出整份的數值。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。請務必將推論過程寫在 'reasoning' 欄位中。格式：\n{ \"reasoning\": \"先說明你觀察到的食物特徵與推論過程\", \"meal_name\": \"2-5字的總名稱\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
+                                        { inline_data: { mime_type: file.type, data: base64String } }
+                                    ]
+                                }]
+                            })
+                        });
+                        
+                        data = await response.json();
+                        
+                        // If there is an error, check if it's a retryable error (like High Demand or 503/429)
+                        if (data.error) {
+                            const errMsg = data.error.message.toLowerCase();
+                            if (retryCount < maxRetries && (errMsg.includes('high demand') || errMsg.includes('too many requests') || errMsg.includes('quota'))) {
+                                retryCount++;
+                                console.warn(`Model ${model} high demand, retrying (${retryCount}/${maxRetries})...`);
+                                await new Promise(r => setTimeout(r, 1500 * retryCount)); // Exponential backoff: 1.5s, 3s
+                                continue;
+                            }
+                            throw new Error(data.error.message);
+                        }
+                        
+                        break; // Success, break retry loop
                     }
+                    
                     success = true;
-                    window.lastSuccessfulModel = model; // Store the successful model
+                    window.lastSuccessfulModel = model + (retryCount > 0 ? ` (after ${retryCount} retries)` : ''); // Store the successful model
                     window.modelErrorLog = errorLog;
-                    break; // break the loop if successful
+                    break; // break the model loop if successful
                 } catch (err) {
                     lastError = err;
                     errorLog.push(`${model}: ${err.message}`);
