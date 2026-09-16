@@ -1100,7 +1100,8 @@ async function callGeminiVisionAPI(input) {
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        required: ["reasoning", "meal_name", "items"]
                                     }
                                 },
                                 contents: [{
@@ -1182,7 +1183,8 @@ async function callGeminiVisionAPI(input) {
                 }
                 indicator.innerHTML = `Powered by ${window.lastSuccessfulModel}${debugText}`;
                 
-                const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
+                const itemsArray = Array.isArray(aiResults.items) ? aiResults.items : (Array.isArray(aiResults) ? aiResults : []);
+                
                 currentScanItems = itemsArray.map(item => {
                     // Grounding: Use local food database for 100% accurate macro calculations if matched
                     const dbMatch = foodDatabase.foods.find(f => f.name.includes(item.name) || item.name.includes(f.name.split(' (')[0]));
