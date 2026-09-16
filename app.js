@@ -293,6 +293,11 @@ function setupFirestoreListener(uid) {
                 try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
             });
             
+            // If local has API key but cloud doesn't, push it to cloud
+            if (!data.gemini_api_key && localStorage.getItem('gemini_api_key')) {
+                saveToFirestore();
+            }
+            
             // Apply Theme
             const savedTheme = data.fitness_theme || 'light';
             const themeToggle = document.getElementById('theme-toggle');
