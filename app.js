@@ -1057,7 +1057,7 @@ async function callGeminiVisionAPI(input) {
                 const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 const apiKey = localStorage.getItem('gemini_api_key');
                 
-                const modelsToTry = ['gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+                const modelsToTry = ['gemini-2.5-pro', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
                 let data = null;
             let success = false;
             let lastError = null;
@@ -1078,7 +1078,7 @@ async function callGeminiVisionAPI(input) {
                             },
                             contents: [{
                                 parts: [
-                                    { text: "你是一位專業營養師。請分析這張照片。\n\n⚠️重要指示：\n1. 如果照片是「營養標示」，請直接精準讀取標籤上的大卡、蛋白質、碳水與脂肪數值，並依據包裝總份量算出整份的數值。\n2. 如果照片是一般食物，請估算各項食材的克數(grams)，使用台灣常見名稱，並根據衛福部資料庫計算，絕對禁止低估熱量！\n3. 請幫這整份食物想一個 2-5 個字的總名稱 (例如: 排骨便當、牛奶、洋芋片)。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。格式：{ \"meal_name\": \"字串\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
+                                    { text: "你是一位專業營養師。請分析這張照片。\n\n⚠️重要指示：\n1. 為了確保高精準度，請先觀察圖片特徵（例如：是否有湯汁、麵條形狀、肉類種類），然後再判斷是什麼食物。若是一碗有湯的麵食，絕對不能辨識成乾拌麵或抄手。\n2. 估算各項食材的克數(grams)，務必使用台灣常見名稱(如米干)，並根據衛福部資料庫計算，絕對禁止低估熱量！\n3. 如果照片是「營養標示」，請直接精準讀取標籤上的大卡、蛋白質、碳水與脂肪數值，並依據包裝總份量算出整份的數值。\n\n以嚴格的 JSON 物件格式回傳，不要 markdown 語法。請務必將推論過程寫在 'reasoning' 欄位中。格式：\n{ \"reasoning\": \"先說明你觀察到的食物特徵與推論過程\", \"meal_name\": \"2-5字的總名稱\", \"items\": [ { \"name\": \"標準食物名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }" },
                                     { inline_data: { mime_type: file.type, data: base64String } }
                                 ]
                             }]
