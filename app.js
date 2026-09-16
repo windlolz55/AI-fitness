@@ -1132,7 +1132,11 @@ async function callGeminiVisionAPI(input) {
                     document.getElementById('scan-result').insertBefore(indicator, document.getElementById('scan-checklist'));
                 }
                 
-                indicator.innerHTML = `Powered by ${window.lastSuccessfulModel}`;
+                let debugText = '';
+                if (window.modelErrorLog && window.modelErrorLog.length > 0) {
+                    debugText = `<br><span style="color: #ef4444; font-size: 8px;">Errors: ${window.modelErrorLog.join(', ')}</span>`;
+                }
+                indicator.innerHTML = `Powered by ${window.lastSuccessfulModel}${debugText}`;
                 
                 const itemsArray = aiResults.items || aiResults; // Fallback if AI still returns array
                 currentScanItems = itemsArray.map(item => {
