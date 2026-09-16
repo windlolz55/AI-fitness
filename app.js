@@ -2181,7 +2181,7 @@ function renderLogs() {
                                         <div style="${sIconStyle}">${sIconHtml}</div>
                                         <div>
                                             <div style="font-size:13px; font-weight:500;">${sBaseName}</div>
-                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • 碳${Math.round(sub.carb*10)/10} 蛋${Math.round(sub.pro*10)/10} 脂${Math.round(sub.fat*10)/10}</div>
+                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • <span style="color: var(--carb-color);">碳</span>${Math.round(sub.carb*10)/10} <span style="color: var(--pro-color);">蛋</span>${Math.round(sub.pro*10)/10} <span style="color: var(--fat-color);">脂</span>${Math.round(sub.fat*10)/10}</div>
                                         </div>
                                     </div>
                                     <div style="font-size:13px; font-weight:600; color:var(--text-main);">${sub.cal}kcal</div>
