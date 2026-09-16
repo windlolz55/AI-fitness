@@ -1140,7 +1140,7 @@ async function callGeminiVisionAPI(input) {
                 const base64String = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
                 const apiKey = localStorage.getItem('gemini_api_key');
                 
-                const modelsToTry = ['gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+                const modelsToTry = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
                 let data = null;
             let success = false;
             let lastError = null;
