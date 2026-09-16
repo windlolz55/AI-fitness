@@ -983,16 +983,87 @@ function openScanner() {
     }
     
     // Reset scanner UI
-    document.getElementById('image-preview').style.display = 'none';
-    document.getElementById('camera-icon').style.display = 'block';
-    document.getElementById('scan-line').style.display = 'none';
-    document.getElementById('scan-result').classList.add('hidden');
-    document.getElementById('btn-camera').style.display = 'block';
+    resetScanner();
 }
 
 function closeScanner() {
     resetScanner();
     document.querySelector('[data-target="view-dashboard"]').click();
+}
+
+let currentPreviewFile = null;
+
+function handleFileSelectForPreview(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        currentPreviewFile = file;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewImg = document.getElementById('scan-preview-img');
+            if (previewImg) previewImg.src = e.target.result;
+            const btnCamera = document.getElementById('btn-camera');
+            if (btnCamera) btnCamera.style.display = 'none';
+            const previewContainer = document.getElementById('scan-preview-container');
+            if (previewContainer) previewContainer.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function cancelScanPreview() {
+    currentPreviewFile = null;
+    const previewContainer = document.getElementById('scan-preview-container');
+    if (previewContainer) previewContainer.style.display = 'none';
+    const btnCamera = document.getElementById('btn-camera');
+    if (btnCamera) btnCamera.style.display = 'block';
+    const fileInput = document.getElementById('file-input');
+    if (fileInput) fileInput.value = '';
+}
+
+function startScanFromPreview() {
+    if (!currentPreviewFile) return;
+    
+    const previewContainer = document.getElementById('scan-preview-container');
+    if (previewContainer) previewContainer.style.display = 'none';
+    
+    // Create a mock input object to pass to callGeminiVisionAPI to minimize refactoring
+    const mockInput = {
+        files: [currentPreviewFile]
+    };
+    
+    callGeminiVisionAPI(mockInput);
+}
+
+function showToast(message) {
+    let toast = document.getElementById('toast-notification');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast-notification';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '80px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.backgroundColor = 'var(--card-bg)';
+        toast.style.color = 'var(--text-main)';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '24px';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        toast.style.zIndex = '9999';
+        toast.style.fontSize = '14px';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        toast.style.border = '1px solid var(--card-border)';
+        toast.style.whiteSpace = 'nowrap';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    
+    if (toast.timeoutId) clearTimeout(toast.timeoutId);
+    toast.timeoutId = setTimeout(() => {
+        toast.style.opacity = '0';
+    }, 2500);
 }
 
 let currentScanItems = [];
@@ -1273,6 +1344,7 @@ function resetScanner() {
     if (scannerAbortController) {
         scannerAbortController.abort();
         scannerAbortController = null;
+        showToast('已取消辨識');
     }
     if (progressInterval) {
         clearInterval(progressInterval);
@@ -1291,6 +1363,17 @@ function resetScanner() {
     
     const mealNameInput = document.getElementById('scan-meal-name');
     if(mealNameInput) mealNameInput.value = '';
+    
+    const list = document.getElementById('scan-checklist');
+    if (list) list.innerHTML = '';
+    
+    currentScanItems = [];
+    
+    const previewContainer = document.getElementById('scan-preview-container');
+    if (previewContainer) {
+        previewContainer.style.display = 'none';
+    }
+    currentPreviewFile = null;
 }
 
 function confirmScanResults() {
