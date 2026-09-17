@@ -1,4 +1,4 @@
-﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -637,6 +637,17 @@ window.toggleAllCardio = function() {
 };
 
 function getExerciseCategory(exerciseName) {
+    if (!exerciseName) return '';
+    
+    if (exerciseName.includes('伏地挺身') || exerciseName.includes('夾胸') || exerciseName.includes('飛鳥') && !exerciseName.includes('反向')) return '胸';
+    if (exerciseName.includes('引體向上') || exerciseName.includes('划船') || exerciseName.includes('下拉') || exerciseName.includes('反向飛鳥')) return '背';
+    if (exerciseName.includes('深蹲') || exerciseName.includes('硬拉') || exerciseName.includes('硬舉') || exerciseName.includes('臀推') || exerciseName.includes('橋式') || exerciseName.includes('分腿蹲') || exerciseName.includes('弓箭步') || exerciseName.includes('保加利亞')) return '腿';
+    if (exerciseName.includes('腹') || exerciseName.includes('捲體') || exerciseName.includes('平板支撐') || exerciseName.includes('仰臥起坐') || exerciseName.includes('轉體') || exerciseName.includes('死蟲') || exerciseName.includes('抬腿')) return '腹';
+    if (exerciseName.includes('推舉') && !exerciseName.includes('腿')) return '肩';
+    if (exerciseName.includes('側平舉') || exerciseName.includes('前平舉')) return '肩';
+    if (exerciseName.includes('彎舉')) return '二頭';
+    if (exerciseName.includes('三頭') || exerciseName.includes('法式') || exerciseName.includes('臂屈伸')) return '三頭';
+    
     if (typeof EXERCISE_DB === 'undefined') return '';
     for (let cat of EXERCISE_DB) {
         if (cat.exercises.find(e => e.name === exerciseName)) {
