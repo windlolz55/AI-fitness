@@ -232,7 +232,7 @@ window.saveTemplate = function() {
 function appendExerciseToEditor(ex, exIdx) {
     const container = document.getElementById('template-edit-exercises');
     const div = document.createElement('div');
-    div.className = 'card log-item template-ex-item';
+    div.className = 'card template-ex-item';
     div.style.padding = '12px';
     div.style.marginBottom = '8px';
     div.dataset.name = ex.name;
