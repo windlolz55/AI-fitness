@@ -1,4 +1,4 @@
-let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -636,6 +636,29 @@ window.toggleAllCardio = function() {
     if (typeof updateDashboard === 'function') updateDashboard();
 };
 
+function getExerciseCategory(exerciseName) {
+    if (!window.EXERCISE_DB) return '';
+    for (let cat of window.EXERCISE_DB) {
+        if (cat.exercises.find(e => e.name === exerciseName)) {
+            let catName = cat.category;
+            if (catName.includes('胸')) return '胸';
+            if (catName.includes('背')) return '背';
+            if (catName.includes('臀腿')) return '腿';
+            if (catName.includes('三頭')) return '三頭';
+            if (catName.includes('二頭')) return '二頭';
+            if (catName.includes('肩袖')) return '肩袖';
+            if (catName.includes('肩')) return '肩';
+            if (catName.includes('前臂')) return '前臂';
+            if (catName.includes('小腿')) return '小腿';
+            if (catName.includes('腹')) return '腹';
+            if (catName.includes('有氧')) return '有氧';
+            if (catName.includes('核心')) return '核心';
+            return '';
+        }
+    }
+    return '';
+}
+
 function renderWorkout() {
     const container = document.getElementById('workout-list-container');
     if (!container) return;
@@ -710,7 +733,7 @@ function renderWorkout() {
         let isCompleted = ex.completed === undefined ? true : ex.completed;
         
         let statusHtml = `<div style="font-size: 12px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
-            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
+            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: ''}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
         </div>`;
         
         let icon = ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell';
@@ -722,7 +745,7 @@ function renderWorkout() {
                         <i class="fa-solid ${icon}"></i>
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ex.name}</div>
+                        <div style="font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ex.name}${getExerciseCategory(ex.name) ? ' <span style="font-size: 13px; font-weight: normal; color: var(--text-muted);">(' + getExerciseCategory(ex.name) + ')</span>' : ''}</div>
                         ${statusHtml}
                     </div>
                 </div>
@@ -754,7 +777,7 @@ function renderWorkout() {
                             <i class="fa-solid fa-person-running"></i>
                         </div>
                         <div>
-                            <div style="font-weight: 500; font-size: 14px;">${ex.name}</div>
+                            <div style="font-weight: 500; font-size: 14px;">${ex.name}${getExerciseCategory(ex.name) ? ' <span style="font-weight: normal; color: var(--text-muted);">(' + getExerciseCategory(ex.name) + ')</span>' : ''}</div>
                             ${statusHtml}
                         </div>
                     </div>
@@ -888,7 +911,6 @@ function openWorkoutModal(name) {
     const btnSave = document.getElementById('btn-save-workout');
     btnSave.innerText = '儲存';
     
-    document.getElementById('workout-update-template-container').style.display = 'none';
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
 
@@ -983,108 +1005,7 @@ function toggleWorkoutModalType() {
     }
 }
 
-function confirmWorkoutEdit() {
-    const idx = parseInt(document.getElementById('workout-index-val').value);
-    let name = document.getElementById('workout-name-val').value;
-    
-    const weight = parseFloat(document.getElementById('workout-weight-val').value) || 0;
-    const sets = parseInt(document.getElementById('workout-sets-val').value) || 0;
-    const reps = document.getElementById('workout-reps-val').value.trim();
-    
-    const d = new Date(selectedLogDate);
-    const dayOfWeek = d.getDay();
-    let routineKey = dayOfWeek;
-    if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
-        routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
-    }
-    
-    if (idx === -1) {
-        name = document.getElementById('workout-custom-name-val').value.trim();
-        if (!name) {
-            alert("請輸入動作名稱");
-            return;
-        }
-        
-        // Add to template routine so it appears on subsequent days
-        const customType = document.getElementById('workout-custom-type-val').value;
-        const exists = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
-        if (!exists) {
-            WORKOUT_ROUTINES[routineKey].exercises.push({
-                name: name,
-                type: customType,
-                weight: weight,
-                sets: sets,
-                reps: reps
-            });
-            setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
-        }
-    }
-    
-    if (!dailyData[selectedLogDate]) {
-        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
-    }
-    if (!dailyData[selectedLogDate].workouts) {
-        dailyData[selectedLogDate].workouts = [];
-    }
-    
-    let workouts = dailyData[selectedLogDate].workouts;
-    const existingIdx = workouts.findIndex(w => w.name === name);
-    
-    if (existingIdx >= 0) {
-        workouts[existingIdx] = { name, weight, sets, reps };
-    } else {
-        workouts.push({ name, weight, sets, reps });
-    }
-    
-    if (idx !== -1) { // Not a new custom exercise creation flow
-        const updateTemplate = document.getElementById('workout-update-template-val').checked;
-        const containerVisible = document.getElementById('workout-update-template-container').style.display !== 'none';
-        
-        if (containerVisible && updateTemplate) {
-            const exists = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
-            if (exists) {
-                exists.weight = weight;
-                exists.sets = sets;
-                exists.reps = reps;
-                setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
-            }
-        }
-    }
-    
-    setAndSync('fitness_daily', JSON.stringify(dailyData));
-    
-    closeWorkoutModal();
-    renderWorkout();
-}
 
-function deleteWorkoutRecord(name) {
-    const d = new Date(selectedLogDate);
-    const dayOfWeek = d.getDay();
-    let routineKey = dayOfWeek;
-    if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
-        routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
-    }
-    
-    const days = ['日','一','二','三','四','五','六'];
-    if (confirm(`確定要將「${name}」刪除嗎？\n(如果這是固定課表內的動作，會從課表中永久移除)`)) {
-        // Remove from template
-        if (WORKOUT_ROUTINES[routineKey]) {
-            WORKOUT_ROUTINES[routineKey].exercises = WORKOUT_ROUTINES[routineKey].exercises.filter(e => e.name !== name);
-            setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
-        }
-        
-        // Also remove from today's log just in case
-        if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
-            dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
-            setAndSync('fitness_daily', JSON.stringify(dailyData));
-        }
-    } else {
-        return; // Don't close modal if cancelled
-    }
-    
-    closeWorkoutModal();
-    renderWorkout();
-}
 
 // Navigation
 function setupNavigation() {
