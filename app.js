@@ -93,7 +93,7 @@ document.addEventListener("visibilitychange", () => {
                 }
                 
                 if (changed) {
-                    const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
+                    const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
                     keys.forEach(k => {
                         try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
                     });
@@ -161,7 +161,7 @@ function handleLogout() {
         }
 
         const forceClearAndReload = () => {
-            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated', 'gemini_api_key'];
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated', 'gemini_api_key'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
             
             setTimeout(() => {
@@ -196,6 +196,8 @@ function saveToFirestore() {
         fitness_logs: JSON.stringify(typeof logs !== 'undefined' ? logs : []) || '[]',
         fitness_daily: JSON.stringify(typeof dailyData !== 'undefined' ? dailyData : {}) || '{}',
         fitness_routines: JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {}) || '{}',
+        fitness_templates: JSON.stringify(typeof window.FITNESS_TEMPLATES !== 'undefined' ? window.FITNESS_TEMPLATES : []) || '[]',
+        fitness_routine_plan: JSON.stringify(typeof fitnessRoutinePlan !== 'undefined' ? fitnessRoutinePlan : {}) || '{}',
         customFoods: JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []) || '[]',
         favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
         hiddenFoodIds: JSON.stringify(typeof hiddenFoodIds !== 'undefined' ? hiddenFoodIds : []) || '[]',
@@ -222,7 +224,7 @@ window.setAndSync = function(key, value) {
     } catch(e) {
         console.warn('localStorage setItem failed, bypassing for cloud sync:', e);
     }
-    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
+    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
     if (syncableKeys.includes(key) && auth.currentUser) {
         return saveToFirestore();
     }
@@ -294,7 +296,7 @@ function setupFirestoreListener(uid) {
             }
             
             // Best-effort save to localStorage (bypass quota crashes)
-            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
+            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
             keys.forEach(k => {
                 try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
             });
@@ -352,10 +354,12 @@ window.manualSync = async function() {
                 logs = (data.fitness_logs ? JSON.parse(data.fitness_logs) : null) || [];
                 dailyData = (data.fitness_daily ? JSON.parse(data.fitness_daily) : null) || {};
                 WORKOUT_ROUTINES = (data.fitness_routines ? JSON.parse(data.fitness_routines) : null) || (typeof defaultRoutines !== 'undefined' ? defaultRoutines : {});
+                window.FITNESS_TEMPLATES = (data.fitness_templates ? JSON.parse(data.fitness_templates) : null) || [];
+                fitnessRoutinePlan = (data.fitness_routine_plan ? JSON.parse(data.fitness_routine_plan) : null) || { mode: 'none' };
                 customFoods = (data.customFoods ? JSON.parse(data.customFoods) : null) || [];
                 favoriteFoodIds = (data.favoriteFoodIds ? JSON.parse(data.favoriteFoodIds) : null) || [];
                 
-                const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
+                const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
                 keys.forEach(k => {
                     try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
                 });
@@ -413,6 +417,7 @@ let defaultRoutines = {
     0: { ref: 3 }
 };
 let WORKOUT_ROUTINES = JSON.parse(localStorage.getItem('fitness_routines')) || defaultRoutines;
+let fitnessRoutinePlan = JSON.parse(localStorage.getItem('fitness_routine_plan')) || { mode: 'none' };
 
 // Constants
 let TARGET_CALS = 2000;
