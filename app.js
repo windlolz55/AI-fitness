@@ -3357,3 +3357,118 @@ if (btnBurnedMinus) btnBurnedMinus.addEventListener('click', () => adjustBurned(
 
 const btnBurnedPlus = document.getElementById('btn-burned-plus');
 if (btnBurnedPlus) btnBurnedPlus.addEventListener('click', () => adjustBurned(50));
+// Exercise Library functions
+function openExerciseLibrary() {
+    document.getElementById('exercise-library-modal').style.display = 'flex';
+    renderExerciseLibrary();
+}
+
+function closeExerciseLibrary() {
+    document.getElementById('exercise-library-modal').style.display = 'none';
+}
+
+function renderExerciseLibrary() {
+    const container = document.getElementById('exercise-library-list');
+    container.innerHTML = '';
+    
+    if (typeof EXERCISE_DB === 'undefined') {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">無法載入動作庫 (exercise_db.js 未載入)</p>';
+        return;
+    }
+    
+    EXERCISE_DB.forEach(cat => {
+        const catDiv = document.createElement('div');
+        catDiv.style.marginBottom = '8px';
+        
+        const catTitle = document.createElement('h3');
+        catTitle.style.fontSize = '14px';
+        catTitle.style.color = 'var(--text-muted)';
+        catTitle.style.marginBottom = '8px';
+        catTitle.innerText = cat.category;
+        catDiv.appendChild(catTitle);
+        
+        cat.exercises.forEach(ex => {
+            const exDiv = document.createElement('div');
+            exDiv.style.display = 'flex';
+            exDiv.style.alignItems = 'center';
+            exDiv.style.justifyContent = 'space-between';
+            exDiv.style.background = 'var(--card-bg)';
+            exDiv.style.border = '1px solid var(--card-border)';
+            exDiv.style.borderRadius = '12px';
+            exDiv.style.padding = '12px 16px';
+            exDiv.style.marginBottom = '8px';
+            
+            const leftDiv = document.createElement('div');
+            leftDiv.style.flex = '1';
+            leftDiv.style.display = 'flex';
+            leftDiv.style.alignItems = 'center';
+            leftDiv.style.gap = '8px';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.style.fontWeight = 'bold';
+            nameSpan.style.fontSize = '14px';
+            nameSpan.innerText = ex.name;
+            leftDiv.appendChild(nameSpan);
+            
+            if (ex.url) {
+                const link = document.createElement('a');
+                link.href = ex.url;
+                link.target = '_blank';
+                link.style.color = '#ff4757';
+                link.style.fontSize = '14px';
+                link.innerHTML = '<i class="fa-brands fa-youtube"></i>';
+                link.onclick = (e) => e.stopPropagation();
+                leftDiv.appendChild(link);
+            }
+            exDiv.appendChild(leftDiv);
+            
+            const btnAdd = document.createElement('button');
+            btnAdd.className = 'btn-primary';
+            btnAdd.style.padding = '6px 12px';
+            btnAdd.style.fontSize = '12px';
+            btnAdd.style.borderRadius = '12px';
+            btnAdd.innerHTML = '<i class="fa-solid fa-plus"></i> 加至課表';
+            btnAdd.onclick = () => addExerciseToRoutine(ex);
+            exDiv.appendChild(btnAdd);
+            
+            catDiv.appendChild(exDiv);
+        });
+        
+        container.appendChild(catDiv);
+    });
+}
+
+function addExerciseToRoutine(ex) {
+    const d = new Date(selectedLogDate);
+    const dayOfWeek = d.getDay();
+    let routineKey = dayOfWeek;
+    if (WORKOUT_ROUTINES[dayOfWeek].ref !== undefined) {
+        routineKey = WORKOUT_ROUTINES[dayOfWeek].ref;
+    }
+    
+    // Check if already exists in this routine
+    const exists = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === ex.name);
+    if (exists) {
+        alert(ex.name + ' 已經在今天的課表中囉！');
+        return;
+    }
+    
+    let defaultWeight = 0;
+    let defaultSets = 4;
+    let defaultReps = '10下';
+    if (ex.type === 'time') defaultReps = '1分';
+    if (ex.type === 'cardio') defaultReps = '30分';
+    
+    WORKOUT_ROUTINES[routineKey].exercises.push({
+        name: ex.name,
+        type: ex.type,
+        weight: defaultWeight,
+        sets: defaultSets,
+        reps: defaultReps
+    });
+    
+    setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+    renderWorkout();
+    closeExerciseLibrary();
+    alert(ex.name + ' 已加入今天的課表！');
+}
