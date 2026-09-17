@@ -3358,9 +3358,28 @@ if (btnBurnedMinus) btnBurnedMinus.addEventListener('click', () => adjustBurned(
 const btnBurnedPlus = document.getElementById('btn-burned-plus');
 if (btnBurnedPlus) btnBurnedPlus.addEventListener('click', () => adjustBurned(50));
 // Exercise Library functions
+let currentExerciseTab = 'weight';
+
+function switchExerciseTab(tab) {
+    currentExerciseTab = tab;
+    
+    const btnWeight = document.getElementById('ex-tab-weight');
+    const btnCardio = document.getElementById('ex-tab-cardio');
+    
+    if (tab === 'weight') {
+        btnWeight.className = 'btn-primary';
+        btnCardio.className = 'btn-secondary';
+    } else {
+        btnWeight.className = 'btn-secondary';
+        btnCardio.className = 'btn-primary';
+    }
+    
+    renderExerciseLibrary();
+}
+
 function openExerciseLibrary() {
     document.getElementById('exercise-library-modal').style.display = 'flex';
-    renderExerciseLibrary();
+    switchExerciseTab('weight'); // default to weight tab when opened
 }
 
 function closeExerciseLibrary() {
@@ -3376,7 +3395,9 @@ function renderExerciseLibrary() {
         return;
     }
     
-    EXERCISE_DB.forEach(cat => {
+    const filteredDB = EXERCISE_DB.filter(cat => cat.tab === currentExerciseTab);
+    
+    filteredDB.forEach(cat => {
         const catDiv = document.createElement('div');
         catDiv.style.marginBottom = '8px';
         
