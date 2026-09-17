@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.46</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.47</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -69,7 +69,7 @@
             <header class="dashboard-header">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin: 0; padding-left: 8px; font-weight: 500;">載入中...</p>
-                    <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
+                    <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
                 </div>
                 
                 <!-- Hero Dashboard Card -->
@@ -223,7 +223,7 @@
                     </div>
                     <div style="display: flex; gap: 4px; align-items: center;">
                         <button id="btn-clear" class="btn-icon" style="border:none;"><i class="fa-solid fa-trash"></i></button>
-                        <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
+                        <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
                     </div>
                 </div>
                 <div class="date-strip" style="display: flex; justify-content: space-between; align-items: center;">
@@ -245,7 +245,7 @@
                             <h2 style="font-size: 18px; margin: 0;">運動課表</h2>
                             <button class="btn-icon" style="border: none; background: transparent; font-size: 16px; color: var(--accent-primary); outline: none; padding: 4px;" onclick="openCalendarModal()"><i class="fa-regular fa-calendar"></i></button>
                         </div>
-                        <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
+                        <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <p id="workout-day-title" style="margin: 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">載入中...</p>
@@ -288,7 +288,7 @@
                     <h2 id="overview-greeting" style="font-size: 24px; font-weight: 700; color: var(--text-main); margin: 0;">總覽</h2>
                     <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">取得您的飲食與運動分析</p>
                 </div>
-                <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
+                <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
             </header>
 
             <div class="card" style="margin-bottom: 16px; padding: 20px;">
@@ -348,7 +348,7 @@
         <div id="view-profile" class="view">
             <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="margin: 0;">我的設定</h2>
-                <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
+                <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
             </header>
 
             <div class="card" style="padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
@@ -421,7 +421,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.46 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.47 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -798,6 +798,64 @@
         </div>
     </div>
 
+        <!-- Template Selector Modal -->
+    <div id="template-selector-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; justify-content: center; padding: 0;">
+        <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 24px; position: relative; max-height: 85vh; display: flex; flex-direction: column;">
+            <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeTemplateSelector()"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="margin: 0; font-size: 18px;">套用課表範本</h2>
+            </div>
+            
+            <div id="template-list-container" style="overflow-y: auto; flex: 1; padding-bottom: 24px;">
+                <!-- Templates will be injected here -->
+            </div>
+            
+            <div style="padding-top: 16px; border-top: 1px solid var(--card-border);">
+                <button class="btn-secondary" style="width: 100%; padding: 16px; border-radius: 16px; font-weight: bold; background: rgba(255,255,255,0.05); border: 1px dashed var(--card-border);" onclick="openTemplateManager()">
+                    <i class="fa-solid fa-gear"></i> 管理課表範本
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Manager Modal -->
+    <div id="template-manager-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1050; align-items: flex-end; justify-content: center; padding: 0;">
+        <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 24px; position: relative; max-height: 90vh; display: flex; flex-direction: column;">
+            <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeTemplateManager()"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="margin: 0; font-size: 18px;">管理課表範本</h2>
+                <button class="btn-icon" style="color: var(--accent-primary); font-size: 18px; margin-right: 32px;" onclick="createNewTemplate()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            
+            <div id="template-manager-list" style="overflow-y: auto; flex: 1; padding-bottom: 24px;">
+                <!-- Manager items will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Edit Modal -->
+    <div id="template-edit-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-main); z-index: 1100; flex-direction: column;">
+        <header style="padding: 16px; position: sticky; top: 0; background: var(--bg-main); z-index: 10; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--card-border);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="btn-icon" onclick="closeTemplateEdit()" style="font-size: 18px;"><i class="fa-solid fa-chevron-left"></i></button>
+                <input type="text" id="template-edit-title" class="input-field" placeholder="範本名稱" style="font-size: 18px; font-weight: bold; background: transparent; border: none; padding: 0; margin: 0; width: 150px;">
+            </div>
+            <button class="btn-primary" style="padding: 8px 16px; border-radius: 12px; font-size: 14px;" onclick="saveTemplateEdit()">儲存</button>
+        </header>
+        <div style="padding: 16px; overflow-y: auto; flex: 1; padding-bottom: 100px;">
+            <input type="hidden" id="template-edit-id">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 16px; color: var(--text-muted);">動作列表</h3>
+                <button class="btn-icon" style="color: var(--accent-primary); font-size: 14px; display: flex; align-items: center; gap: 4px;" onclick="openTemplateExerciseSelector()"><i class="fa-solid fa-plus"></i> 新增動作</button>
+            </div>
+            
+            <div id="template-edit-exercises">
+                <!-- Exercises in template will be injected here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Exercise Library Modal -->
     <div id="exercise-library-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; justify-content: center;">
         <div style="background: var(--bg-main); width: 100%; max-width: 480px; height: 85vh; border-radius: 24px 24px 0 0; padding: 24px; position: relative; display: flex; flex-direction: column; margin: 0 auto;">
@@ -835,3 +893,5 @@
     </script>
 </body>
 </html>
+
+
