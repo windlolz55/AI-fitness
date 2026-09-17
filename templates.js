@@ -241,22 +241,24 @@ function appendExerciseToEditor(ex, exIdx) {
     let isWeight = ex.type !== 'cardio' && ex.type !== 'bodyweight' && ex.type !== 'time';
     
     div.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; overflow: hidden;">
-            <div style="font-weight: bold; font-size: 14px; flex: 2; min-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ex.name}">${ex.name}</div>
-            <div style="display: ${isWeight ? 'flex' : 'none'}; flex-direction: column; width: 50px; flex-shrink: 0;">
-                <div style="font-size: 9px; color: var(--text-muted); text-align: center; margin-bottom: 2px;">重量</div>
-                <input type="number" class="ex-weight" value="${ex.weight || ''}" placeholder="-" style="width: 100%; padding: 4px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--bg-main); color: var(--text-main); font-size: 13px; text-align: center;">
-            </div>
-            <div style="display: flex; flex-direction: column; width: 45px; flex-shrink: 0;">
-                <div style="font-size: 9px; color: var(--text-muted); text-align: center; margin-bottom: 2px;">組數</div>
-                <input type="number" class="ex-sets" value="${ex.sets || ''}" placeholder="-" style="width: 100%; padding: 4px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--bg-main); color: var(--text-main); font-size: 13px; text-align: center;">
-            </div>
-            <div style="display: flex; flex-direction: column; width: 60px; flex-shrink: 0;">
-                <div style="font-size: 9px; color: var(--text-muted); text-align: center; margin-bottom: 2px;">次數</div>
-                <input type="text" class="ex-reps" value="${ex.reps || ''}" placeholder="-" style="width: 100%; padding: 4px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--bg-main); color: var(--text-main); font-size: 13px; text-align: center;">
-            </div>
-            <div style="color: #ff6b81; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; width: 24px; margin-left: 4px; flex-shrink: 0;" onclick="this.parentElement.parentElement.remove()">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;" title="${ex.name}">${ex.name}</div>
+            <div style="color: #ff6b81; cursor: pointer; padding: 4px; flex-shrink: 0;" onclick="this.parentElement.parentElement.remove()">
                 <i class="fa-solid fa-times"></i>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <div style="flex: 1; visibility: ${isWeight ? 'visible' : 'hidden'};">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">重量(kg)</div>
+                <input type="number" class="ex-weight" value="${ex.weight || ''}" placeholder="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--bg-main); color: var(--text-main); font-size: 14px;">
+            </div>
+            <div style="flex: 1;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">組數</div>
+                <input type="number" class="ex-sets" value="${ex.sets || ''}" placeholder="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--bg-main); color: var(--text-main); font-size: 14px;">
+            </div>
+            <div style="flex: 1;">
+                <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 2px;">次數</div>
+                <input type="text" class="ex-reps" value="${ex.reps || ''}" placeholder="0" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--bg-main); color: var(--text-main); font-size: 14px;">
             </div>
         </div>
     `;
