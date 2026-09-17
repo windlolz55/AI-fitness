@@ -2,54 +2,63 @@
 
 const EXERCISE_DB = [
     {
-        category: "胸部 (Chest)",
+        category: "胸部訓練 (大肌群)",
         exercises: [
-            { name: "槓鈴臥推", type: "weight", url: "https://www.youtube.com/results?search_query=槓鈴臥推教學" },
-            { name: "啞鈴上胸臥推", type: "weight", url: "https://www.youtube.com/results?search_query=啞鈴上胸臥推教學" },
-            { name: "機械飛鳥", type: "weight", url: "https://www.youtube.com/results?search_query=機械飛鳥教學" },
-            { name: "伏地挺身", type: "weight", url: "https://www.youtube.com/results?search_query=伏地挺身教學" }
+            { name: "啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 4, defaultReps: "8下" },
+            { name: "上斜啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 4, defaultReps: "8下" },
+            { name: "下斜啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 4, defaultReps: "8下" },
+            { name: "啞鈴飛鳥", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 3, defaultReps: "10下" }
         ]
     },
     {
-        category: "背部 (Back)",
+        category: "背部訓練 (大肌群)",
         exercises: [
-            { name: "引體向上", type: "weight", url: "https://www.youtube.com/results?search_query=引體向上教學" },
-            { name: "槓鈴划船", type: "weight", url: "https://www.youtube.com/results?search_query=槓鈴划船教學" },
-            { name: "滑輪下拉", type: "weight", url: "https://www.youtube.com/results?search_query=滑輪下拉教學" },
-            { name: "坐姿划船", type: "weight", url: "https://www.youtube.com/results?search_query=坐姿划船教學" }
+            { name: "俯身啞鈴划船", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 4, defaultReps: "8下" },
+            { name: "單臂啞鈴划船", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 4, defaultReps: "8下" },
+            { name: "上斜啞鈴划船", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 4, defaultReps: "8下" },
+            { name: "仰臥直臂上拉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 3, defaultReps: "10下" }
         ]
     },
     {
-        category: "腿部 (Legs)",
+        category: "臀腿訓練 (大肌群)",
         exercises: [
-            { name: "槓鈴深蹲", type: "weight", url: "https://www.youtube.com/results?search_query=槓鈴深蹲教學" },
-            { name: "羅馬尼亞硬舉 (RDL)", type: "weight", url: "https://www.youtube.com/results?search_query=羅馬尼亞硬舉教學" },
-            { name: "保加利亞分腿蹲", type: "weight", url: "https://www.youtube.com/results?search_query=保加利亞分腿蹲教學" },
-            { name: "腿推舉 (Leg Press)", type: "weight", url: "https://www.youtube.com/results?search_query=腿推舉教學" }
+            { name: "高腳杯深蹲", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "8下" },
+            { name: "啞鈴硬拉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "8下" },
+            { name: "直腿硬拉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "8下" },
+            { name: "保加利亞單腿蹲", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 3, defaultReps: "10下" },
+            { name: "啞鈴臀橋", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "10下" },
+            { name: "啞鈴單腿提踵 (小腿)", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 3, defaultReps: "15下" }
         ]
     },
     {
-        category: "肩部 (Shoulders)",
+        category: "肩部訓練 (小肌群)",
         exercises: [
-            { name: "啞鈴肩推", type: "weight", url: "https://www.youtube.com/results?search_query=啞鈴肩推教學" },
-            { name: "側平舉", type: "weight", url: "https://www.youtube.com/results?search_query=側平舉教學" },
-            { name: "滑輪面拉 (Face Pull)", type: "weight", url: "https://www.youtube.com/results?search_query=滑輪面拉教學" }
+            { name: "啞鈴推舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "10下" },
+            { name: "阿諾德推舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "10下" },
+            { name: "啞鈴側平舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "12下" },
+            { name: "俯身啞鈴側平舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "12下" },
+            { name: "啞鈴過頂前平舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "12下" }
         ]
     },
     {
-        category: "手部 (Arms)",
+        category: "手臂訓練 (小肌群)",
         exercises: [
-            { name: "二頭彎舉", type: "weight", url: "https://www.youtube.com/results?search_query=二頭彎舉教學" },
-            { name: "三頭下壓", type: "weight", url: "https://www.youtube.com/results?search_query=三頭下壓教學" }
+            { name: "啞鈴彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
+            { name: "上斜彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
+            { name: "斜托彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
+            { name: "集中彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
+            { name: "頸後啞鈴臂屈伸", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1306", defaultSets: 3, defaultReps: "10下" },
+            { name: "俯身臂屈伸", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1306", defaultSets: 3, defaultReps: "10下" },
+            { name: "鑽石啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1306", defaultSets: 3, defaultReps: "10下" }
         ]
     },
     {
-        category: "核心與有氧 (Core & Cardio)",
+        category: "前臂與腰腹 (輔助動作)",
         exercises: [
-            { name: "捲腹", type: "weight", url: "https://www.youtube.com/results?search_query=捲腹教學" },
-            { name: "棒式", type: "time", url: "https://www.youtube.com/results?search_query=棒式教學" },
-            { name: "跑步機", type: "cardio", url: "" },
-            { name: "橢圓機", type: "cardio", url: "" }
+            { name: "啞鈴錘式彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1404", defaultSets: 3, defaultReps: "15下" },
+            { name: "背後腕彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1404", defaultSets: 3, defaultReps: "15下" },
+            { name: "負重捲腹", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1436", defaultSets: 3, defaultReps: "15下" },
+            { name: "啞鈴傳遞", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1436", defaultSets: 3, defaultReps: "15下" }
         ]
     }
 ];
