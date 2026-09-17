@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.49</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.50</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -69,7 +69,7 @@
             <header class="dashboard-header">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin: 0; padding-left: 8px; font-weight: 500;">載入中...</p>
-                    <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
+                    <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
                 </div>
                 
                 <!-- Hero Dashboard Card -->
@@ -223,7 +223,7 @@
                     </div>
                     <div style="display: flex; gap: 4px; align-items: center;">
                         <button id="btn-clear" class="btn-icon" style="border:none;"><i class="fa-solid fa-trash"></i></button>
-                        <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
+                        <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
                     </div>
                 </div>
                 <div class="date-strip" style="display: flex; justify-content: space-between; align-items: center;">
@@ -245,7 +245,7 @@
                             <h2 style="font-size: 18px; margin: 0;">運動課表</h2>
                             <button class="btn-icon" style="border: none; background: transparent; font-size: 16px; color: var(--accent-primary); outline: none; padding: 4px;" onclick="openCalendarModal()"><i class="fa-regular fa-calendar"></i></button>
                         </div>
-                        <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
+                        <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <p id="workout-day-title" style="margin: 0; font-size: 14px; color: var(--accent-secondary); font-weight: 500;">載入中...</p>
@@ -288,7 +288,7 @@
                     <h2 id="overview-greeting" style="font-size: 24px; font-weight: 700; color: var(--text-main); margin: 0;">總覽</h2>
                     <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">取得您的飲食與運動分析</p>
                 </div>
-                <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
+                <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
             </header>
 
             <div class="card" style="margin-bottom: 16px; padding: 20px;">
@@ -348,7 +348,7 @@
         <div id="view-profile" class="view">
             <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="margin: 0;">我的設定</h2>
-                <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="openTemplateManager()"><i class="fa-solid fa-gear"></i></button><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
+                <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
             </header>
 
             <div class="card" style="padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
@@ -421,7 +421,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.49 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.50 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -875,10 +875,10 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=2.49"></script>
-    <script src="food_db.js?v=2.49"></script>
-    <script src="templates.js"></script>
-    <script src="app.js?v=2.49"></script>
+    <script src="exercise_db.js?v=2.50"></script>
+    <script src="food_db.js?v=2.50"></script>
+    <script src="templates.js?v=2.50"></script>
+    <script src="app.js?v=2.50"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
