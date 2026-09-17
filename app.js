@@ -200,7 +200,7 @@ function saveToFirestore() {
         favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
         hiddenFoodIds: JSON.stringify(typeof hiddenFoodIds !== 'undefined' ? hiddenFoodIds : []) || '[]',
         customFoodOrder: JSON.stringify(typeof customFoodOrder !== 'undefined' ? customFoodOrder : {}) || '{}',
-        fitness_theme: localStorage.getItem('fitness_theme') || document.body.getAttribute('data-theme') || 'light',
+        fitness_theme: document.body.getAttribute('data-theme') || 'light',
         last_updated: firebase.firestore.FieldValue.serverTimestamp()
     };
     
@@ -307,13 +307,16 @@ function setupFirestoreListener(uid) {
             // Apply Theme
             const savedTheme = data.fitness_theme || 'light';
             const themeToggle = document.getElementById('theme-toggle');
-            if (savedTheme !== document.body.getAttribute('data-theme')) {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            if (savedTheme !== currentTheme) {
                 if (savedTheme === 'dark') {
                     document.body.setAttribute('data-theme', 'dark');
                     if (themeToggle) themeToggle.checked = true;
+                    localStorage.setItem('fitness_theme', 'dark');
                 } else {
                     document.body.removeAttribute('data-theme');
                     if (themeToggle) themeToggle.checked = false;
+                    localStorage.setItem('fitness_theme', 'light');
                 }
             }
             
