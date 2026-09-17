@@ -637,8 +637,8 @@ window.toggleAllCardio = function() {
 };
 
 function getExerciseCategory(exerciseName) {
-    if (!window.EXERCISE_DB) return '';
-    for (let cat of window.EXERCISE_DB) {
+    if (typeof EXERCISE_DB === 'undefined') return '';
+    for (let cat of EXERCISE_DB) {
         if (cat.exercises.find(e => e.name === exerciseName)) {
             let catName = cat.category;
             if (catName.includes('胸')) return '胸';
