@@ -2534,6 +2534,20 @@ document.getElementById('btn-clear').addEventListener('click', () => {
     }
 });
 
+const btnClearWorkout = document.getElementById('btn-clear-workout');
+if (btnClearWorkout) {
+    btnClearWorkout.addEventListener('click', () => {
+        if(confirm('確定要清空今天的運動紀錄嗎？')) {
+            if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
+                dailyData[selectedLogDate].workouts = [];
+                setAndSync('fitness_daily', JSON.stringify(dailyData));
+                renderWorkout();
+                if (typeof updateDashboard === 'function') updateDashboard();
+            }
+        }
+    });
+}
+
 
 // Profile Logic
 function setupProfile() {
