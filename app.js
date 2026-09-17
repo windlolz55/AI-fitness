@@ -645,9 +645,9 @@ function renderWorkout() {
     const dt = String(d.getDate()).padStart(2, '0');
     const days = ['日', '一', '二', '三', '四', '五', '六'];
     
-    const titleEl = document.getElementById('workout-day-title');
+    const titleEl = document.getElementById('workout-main-title');
     if (titleEl) {
-        titleEl.innerText = `運動課表 (${m}/${dt} 星期${days[d.getDay()]})`;
+        titleEl.innerText = `運動課表 (${m}/${dt})`;
     }
     
     const dailyDataEntry = dailyData[selectedLogDate] || {};
@@ -2313,7 +2313,7 @@ function selectLogDate(dateStr) {
     const d = new Date(dateStr);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
-    document.getElementById('log-view-title').innerText = `飲食紀錄 (\$\{m\}/\$\{dt\})`;
+    document.getElementById('log-view-title').innerText = `飲食紀錄 (${m}/${dt})`;
     
     // Also update workout tab if it's active
     renderWorkout();
