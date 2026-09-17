@@ -1,6 +1,15 @@
-// ========================
+﻿// ========================
 // Template System Logic
 // ========================
+window.FITNESS_TEMPLATES = [];
+try {
+    const stored = localStorage.getItem('fitness_templates');
+    if (stored) {
+        window.FITNESS_TEMPLATES = JSON.parse(stored);
+    }
+} catch (e) {
+    console.error("Failed to load templates", e);
+}
 
 window.openTemplateSelector = function() {
     renderTemplateSelector();
