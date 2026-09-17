@@ -733,7 +733,7 @@ function renderWorkout() {
         let isCompleted = ex.completed === undefined ? true : ex.completed;
         
         let statusHtml = `<div style="font-size: 12px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
-            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: ''}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
+            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
         </div>`;
         
         let icon = ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell';
