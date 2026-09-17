@@ -80,5 +80,16 @@ const EXERCISE_DB = [
             { name: "負重捲腹", type: "weight", defaultSets: 3, defaultReps: "15下" },
             { name: "啞鈴傳遞", type: "weight", defaultSets: 3, defaultReps: "15下" }
         ]
+    },
+    {
+        category: "有氧與核心 (其他)",
+        exercises: [
+            { name: "平板支撐", type: "time", defaultSets: 3, defaultReps: "1分" },
+            { name: "跑步機", type: "cardio", defaultSets: 1, defaultReps: "30分" },
+            { name: "橢圓機", type: "cardio", defaultSets: 1, defaultReps: "30分" },
+            { name: "腳踏車/飛輪", type: "cardio", defaultSets: 1, defaultReps: "30分" },
+            { name: "划船機", type: "cardio", defaultSets: 1, defaultReps: "30分" },
+            { name: "散步/走路", type: "cardio", defaultSets: 1, defaultReps: "30分" }
+        ]
     }
 ];
