@@ -843,6 +843,35 @@ function renderWorkout() {
     });
     
     container.innerHTML = html;
+    
+    // Update Complete All Button state
+    let allTemplateLogged = true;
+    if (routine.exercises.length === 0) {
+        allTemplateLogged = false;
+    } else {
+        routine.exercises.forEach(ex => {
+            if (!loggedWorkouts.find(w => w.name === ex.name)) {
+                allTemplateLogged = false;
+            }
+        });
+    }
+
+    const completeAllText = document.getElementById('complete-all-text');
+    const completeAllIcon = document.getElementById('complete-all-icon');
+    if (completeAllText && completeAllIcon) {
+        const btn = completeAllText.parentElement;
+        if (allTemplateLogged && routine.exercises.length > 0) {
+            completeAllText.innerText = "今日已完成";
+            completeAllIcon.className = "fa-solid fa-circle-check";
+            btn.style.background = "var(--accent-primary)";
+            btn.style.color = "var(--bg-main)";
+        } else {
+            completeAllText.innerText = "今日未完成";
+            completeAllIcon.className = "fa-regular fa-circle-check";
+            btn.style.background = "rgba(29, 209, 161, 0.1)";
+            btn.style.color = "var(--accent-primary)";
+        }
+    }
 }
 
 function toggleWorkoutCheck(name) {
