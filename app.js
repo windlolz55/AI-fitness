@@ -587,85 +587,48 @@ function calculateTargets() {
 // ========================
 
 window.completeAllWorkouts = function() {
-    const d = new Date(selectedLogDate);
-    const dayOfWeek = d.getDay();
-    let routine = WORKOUT_ROUTINES[dayOfWeek];
-    if (routine.ref !== undefined) {
-        routine = WORKOUT_ROUTINES[routine.ref];
-    }
-    if (!routine || routine.exercises.length === 0) {
-        alert("今天沒有課表可以完成喔！");
+    if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts || dailyData[selectedLogDate].workouts.length === 0) {
+        alert("今日尚無訓練紀錄！");
         return;
     }
     
-    if (!dailyData[selectedLogDate]) {
-        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || '' };
-    }
-    if (!dailyData[selectedLogDate].workouts) {
-        dailyData[selectedLogDate].workouts = [];
-    }
-    
     const loggedWorkouts = dailyData[selectedLogDate].workouts;
-    let addedCount = 0;
+    const getCompletedStatus = (ex) => ex.completed === undefined ? true : ex.completed;
     
-    routine.exercises.forEach(ex => {
-        const alreadyLogged = loggedWorkouts.find(w => w.name === ex.name);
-        if (!alreadyLogged) {
-            loggedWorkouts.push({
-                name: ex.name,
-                type: ex.type,
-                weight: ex.weight,
-                sets: ex.sets,
-                reps: ex.reps
-            });
-            addedCount++;
-        }
-    });
+    let allCompleted = loggedWorkouts.every(w => getCompletedStatus(w));
     
-    if (addedCount > 0) {
-        setAndSync('fitness_daily', JSON.stringify(dailyData));
-        renderWorkout();
-        updateDailyData();
+    if (allCompleted) {
+        loggedWorkouts.forEach(w => w.completed = false);
     } else {
-        routine.exercises.forEach(ex => {
-            const idx = loggedWorkouts.findIndex(w => w.name === ex.name);
-            if (idx >= 0) {
-                loggedWorkouts.splice(idx, 1);
-            }
-        });
-        setAndSync('fitness_daily', JSON.stringify(dailyData));
-        renderWorkout();
-        updateDailyData();
+        loggedWorkouts.forEach(w => w.completed = true);
     }
+    
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
+    renderWorkout();
+    if (typeof updateDashboard === 'function') updateDashboard();
 };
 
 window.toggleAllCardio = function() {
-    const d = new Date(selectedLogDate);
-    const dayOfWeek = d.getDay();
-    let routine = WORKOUT_ROUTINES[dayOfWeek];
-    if (routine.ref !== undefined) routine = WORKOUT_ROUTINES[routine.ref];
-    if (!routine || !dailyData[selectedLogDate]) return;
-    if (!dailyData[selectedLogDate].workouts) dailyData[selectedLogDate].workouts = [];
+    if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts || dailyData[selectedLogDate].workouts.length === 0) {
+        return;
+    }
     
     const loggedWorkouts = dailyData[selectedLogDate].workouts;
-    const cardios = routine.exercises.filter(ex => ex.type === 'cardio');
-    const allLogged = cardios.every(ex => loggedWorkouts.find(w => w.name === ex.name));
+    const cardios = loggedWorkouts.filter(ex => ex.type === 'cardio');
+    if (cardios.length === 0) return;
+    
+    const getCompletedStatus = (ex) => ex.completed === undefined ? true : ex.completed;
+    let allLogged = cardios.every(w => getCompletedStatus(w));
     
     if (allLogged) {
-        cardios.forEach(ex => {
-            const idx = loggedWorkouts.findIndex(w => w.name === ex.name);
-            if (idx >= 0) loggedWorkouts.splice(idx, 1);
-        });
+        cardios.forEach(w => w.completed = false);
     } else {
-        cardios.forEach(ex => {
-            if (!loggedWorkouts.find(w => w.name === ex.name)) {
-                loggedWorkouts.push({ name: ex.name, type: ex.type, weight: ex.weight, sets: ex.sets, reps: ex.reps });
-            }
-        });
+        cardios.forEach(w => w.completed = true);
     }
+    
     setAndSync('fitness_daily', JSON.stringify(dailyData));
     renderWorkout();
-    updateDailyData();
+    if (typeof updateDashboard === 'function') updateDashboard();
 };
 
 function renderWorkout() {
@@ -679,7 +642,7 @@ function renderWorkout() {
     
     const titleEl = document.getElementById('workout-day-title');
     if (titleEl) {
-        titleEl.innerText = m + '/' + dt + ' (星期' + days[d.getDay()] + ') - 運動紀錄';
+        titleEl.innerText = `${m}/${dt} (星期${days[d.getDay()]}) - 運動紀錄`;
     }
     
     const dailyDataEntry = dailyData[selectedLogDate] || {};
@@ -688,7 +651,7 @@ function renderWorkout() {
     let html = '';
     
     if (loggedWorkouts.length === 0) {
-        container.innerHTML = 
+        container.innerHTML = `
             <div class="card" style="text-align: center; padding: 40px 20px;">
                 <div style="font-size: 40px; margin-bottom: 16px;">📝</div>
                 <h3 style="margin-bottom: 8px;">今天還沒有課表</h3>
@@ -697,7 +660,7 @@ function renderWorkout() {
                     <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 套用課表範本
                 </button>
             </div>
-        ;
+        `;
         
         const completeAllText = document.getElementById('complete-all-text');
         if (completeAllText) completeAllText.parentElement.style.display = 'none';
@@ -711,28 +674,28 @@ function renderWorkout() {
     nonCardio.forEach((ex, idx) => {
         let isCompleted = ex.completed === undefined ? true : ex.completed;
         
-        let statusHtml = '<div style="font-size: 12px; color: ' + (isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)') + '; margin-top: 4px;">' +
-            (isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: ') + (ex.weight > 0 ? ex.weight + 'kg, ' : '') + ex.sets + '組, ' + ex.reps +
-        '</div>';
+        let statusHtml = `<div style="font-size: 12px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
+            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
+        </div>`;
         
         let icon = ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell';
         
-        html += 
+        html += `
             <div class="card log-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
-                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; min-width: 0;" onclick="openWorkoutModal(' + ex.name + ')">
+                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; min-width: 0;" onclick="openWorkoutModal('${ex.name}')">
                     <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main); flex-shrink: 0;">
-                        <i class="fa-solid  + icon + "></i>
+                        <i class="fa-solid ${icon}"></i>
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"> + ex.name + </div>
-                         + statusHtml + 
+                        <div style="font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ex.name}</div>
+                        ${statusHtml}
                     </div>
                 </div>
-                <div style="font-size: 28px; color:  + (isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)') + ; padding: 8px 0 8px 16px; cursor: pointer;" onclick="toggleWorkoutCheck(' + ex.name + ')">
-                    <i class="fa- + (isCompleted ? 'solid' : 'regular') +  fa-circle-check"></i>
+                <div style="font-size: 28px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)'}; padding: 8px 0 8px 16px; cursor: pointer;" onclick="toggleWorkoutCheck('${ex.name}')">
+                    <i class="fa-${isCompleted ? 'solid' : 'regular'} fa-circle-check"></i>
                 </div>
             </div>
-        ;
+        `;
     });
     
     if (cardios.length > 0) {
@@ -745,29 +708,29 @@ function renderWorkout() {
         let cardioSubHtml = '';
         cardios.forEach(ex => {
             let isCompleted = ex.completed === undefined ? true : ex.completed;
-            let statusHtml = '<div style="font-size: 10px; color: ' + (isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)') + '; margin-top: 4px;">' +
-                (isCompleted ? '<i class="fa-solid fa-check"></i> ' : '') + ex.sets + '組 ' + ex.reps +
-            '</div>';
+            let statusHtml = `<div style="font-size: 10px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
+                ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : ''}${ex.sets}組 ${ex.reps}
+            </div>`;
             
-            cardioSubHtml += 
+            cardioSubHtml += `
                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--card-border);">
-                    <div style="display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer;" onclick="event.stopPropagation(); openWorkoutModal(' + ex.name + ')">
+                    <div style="display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer;" onclick="event.stopPropagation(); openWorkoutModal('${ex.name}')">
                         <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-main);">
                             <i class="fa-solid fa-person-running"></i>
                         </div>
                         <div>
-                            <div style="font-weight: 500; font-size: 14px;"> + ex.name + </div>
-                             + statusHtml + 
+                            <div style="font-weight: 500; font-size: 14px;">${ex.name}</div>
+                            ${statusHtml}
                         </div>
                     </div>
-                    <div style="font-size: 24px; color:  + (isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)') + ; cursor: pointer; padding: 4px;" onclick="event.stopPropagation(); toggleWorkoutCheck(' + ex.name + ')">
-                        <i class="fa- + (isCompleted ? 'solid' : 'regular') +  fa-circle-check"></i>
+                    <div style="font-size: 24px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)'}; cursor: pointer; padding: 4px;" onclick="event.stopPropagation(); toggleWorkoutCheck('${ex.name}')">
+                        <i class="fa-${isCompleted ? 'solid' : 'regular'} fa-circle-check"></i>
                     </div>
                 </div>
-            ;
+            `;
         });
         
-        html += 
+        html += `
             <div class="card log-item" style="padding: 16px; margin-bottom: 12px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer;" onclick="toggleAllCardio()">
                     <div style="display: flex; align-items: center; gap: 12px;">
@@ -776,13 +739,13 @@ function renderWorkout() {
                         </div>
                         <h4 style="margin: 0; font-size: 16px; font-weight: 600;">有氧運動</h4>
                     </div>
-                    <div style="font-size: 24px; color:  + (allCardioCompleted ? 'var(--accent-secondary)' : 'var(--card-border)') + ;">
-                        <i class="fa- + (allCardioCompleted ? 'solid' : 'regular') +  fa-circle-check"></i>
+                    <div style="font-size: 24px; color: ${allCardioCompleted ? 'var(--accent-secondary)' : 'var(--card-border)'};">
+                        <i class="fa-${allCardioCompleted ? 'solid' : 'regular'} fa-circle-check"></i>
                     </div>
                 </div>
-                 + cardioSubHtml + 
+                ${cardioSubHtml}
             </div>
-        ;
+        `;
     }
     
     container.innerHTML = html;
@@ -827,7 +790,6 @@ function toggleWorkoutCheck(name) {
         if (typeof updateDashboard === 'function') updateDashboard();
     }
 }
-
 
 function openWorkoutModal(name) {
     document.getElementById('workout-index-val').value = 0; // dummy value
@@ -882,7 +844,7 @@ function openWorkoutModal(name) {
     }
     
     if (lastRecord) {
-        lastRecordEl.innerText = '上次紀錄: ' + (lastRecord.weight > 0 ? lastRecord.weight + 'kg, ' : '') + lastRecord.sets + '組, ' + lastRecord.reps;
+        lastRecordEl.innerText = `上次紀錄: ${lastRecord.weight > 0 ? lastRecord.weight + 'kg, ' : ''}${lastRecord.sets}組, ${lastRecord.reps}`;
         lastRecordEl.style.display = 'block';
     } else {
         lastRecordEl.style.display = 'none';
@@ -935,10 +897,11 @@ function confirmWorkoutEdit() {
 }
 
 function deleteWorkoutRecord(name) {
-    if (confirm('確定要將「' + name + '」從今日課表中刪除嗎？')) {
+    if (confirm(`確定要將「${name}」從今日課表中刪除嗎？`)) {
         if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
             dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
             setAndSync('fitness_daily', JSON.stringify(dailyData));
+            renderWorkout();
         }
     } else {
         return;
@@ -947,6 +910,10 @@ function deleteWorkoutRecord(name) {
     closeWorkoutModal();
 }
 
+
+function closeWorkoutModal() {
+    document.getElementById('workout-setup-modal').style.display = 'none';
+}
 
 function openAddExerciseModal() {
     document.getElementById('workout-index-val').value = -1;
@@ -3371,9 +3338,5 @@ function renderExerciseLibrary() {
         container.appendChild(catDiv);
     });
 }
-
-
-
-
 
 
