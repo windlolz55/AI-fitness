@@ -1,4 +1,4 @@
-﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -656,13 +656,29 @@ function renderWorkout() {
     let html = '';
     
     if (loggedWorkouts.length === 0) {
-        container.innerHTML = `
+        let suggestedHtml = '';
+        if (typeof getTodayRoutineInfo === 'function') {
+            const routineInfo = getTodayRoutineInfo(selectedLogDate);
+            if (routineInfo && routineInfo.template) {
+                suggestedHtml = `
+                    <div style="background: rgba(255, 107, 129, 0.1); border: 1px solid var(--accent-primary); border-radius: 16px; padding: 24px; margin-bottom: 24px;">
+                        <div style="color: var(--accent-primary); font-size: 14px; font-weight: bold; margin-bottom: 8px;">✨ 今日分化訓練目標</div>
+                        <h3 style="margin-bottom: 16px; font-size: 20px;">${routineInfo.template.title}</h3>
+                        <button class="btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px;" onclick="applyTemplate(${routineInfo.idx})">
+                            <i class="fa-solid fa-bolt" style="margin-right: 8px;"></i> 一鍵套用課表
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        container.innerHTML = suggestedHtml + `
             <div class="card" style="text-align: center; padding: 40px 20px;">
-                <div style="font-size: 40px; margin-bottom: 16px;">📝</div>
-                <h3 style="margin-bottom: 8px;">今天還沒有課表</h3>
-                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">從範本庫套用，或自己新增動作吧！</p>
-                <button class="btn-primary" style="padding: 12px 24px; border-radius: 12px; font-weight: bold;" onclick="openTemplateSelector()">
-                    <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 套用課表範本
+                <div style="font-size: 40px; margin-bottom: 16px;">💪</div>
+                <h3 style="margin-bottom: 8px;">尚未加入動作</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">從範本庫選用，或自己新增動作吧！</p>
+                <button class="btn-secondary" style="padding: 12px 24px; border-radius: 12px; font-weight: bold;" onclick="openTemplateSelector()">
+                    <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 選擇其他範本
                 </button>
             </div>
         `;
