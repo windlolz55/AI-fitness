@@ -1,8 +1,9 @@
-const CACHE_NAME = 'calicorie-v2.23';
+﻿const CACHE_NAME = 'calicorie-v2.48';
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
+  './templates.js',
   './app.js',
   './food_db.js',
   './icon-192.png',
@@ -60,3 +61,4 @@ self.addEventListener('activate', event => {
     })
   );
 });
+
