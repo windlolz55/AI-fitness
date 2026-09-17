@@ -673,6 +673,17 @@ function renderWorkout() {
         }
         if (suggestedHtml) {
             container.innerHTML = suggestedHtml;
+        } else if (typeof getTodayRoutineInfo === 'function' && getTodayRoutineInfo(selectedLogDate) && getTodayRoutineInfo(selectedLogDate).isRestDay) {
+            container.innerHTML = `
+                <div class="card" style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 40px; margin-bottom: 16px;">☕</div>
+                    <h3 style="margin-bottom: 8px; color: var(--accent-primary);">今日為休息日</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">好好休息，讓肌肉恢復生長！</p>
+                    <button class="btn-secondary" style="padding: 12px 24px; border-radius: 12px; font-weight: bold;" onclick="openTemplateSelector()">
+                        <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 還是想練？選擇範本
+                    </button>
+                </div>
+            `;
         } else {
             container.innerHTML = `
                 <div class="card" style="text-align: center; padding: 40px 20px;">
@@ -788,7 +799,7 @@ function renderWorkout() {
             btn.style.background = "var(--accent-primary)";
             btn.style.color = "var(--bg-main)";
         } else {
-            completeAllText.innerText = "今日全完成";
+            completeAllText.innerText = "今日未完成";
             completeAllIcon.className = "fa-regular fa-circle-check";
             btn.style.background = "rgba(29, 209, 161, 0.1)";
             btn.style.color = "var(--accent-primary)";

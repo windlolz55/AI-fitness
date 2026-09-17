@@ -232,9 +232,10 @@ window.getTodayRoutineInfo = function(targetDateStr) {
     if (templateIdx !== null && window.FITNESS_TEMPLATES && window.FITNESS_TEMPLATES[templateIdx]) {
         return {
             idx: templateIdx,
-            template: window.FITNESS_TEMPLATES[templateIdx]
+            template: window.FITNESS_TEMPLATES[templateIdx],
+            isRestDay: false
         };
     }
     
-    return null;
+    return { isRestDay: true };
 };
