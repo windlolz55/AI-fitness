@@ -935,14 +935,12 @@ function openWorkoutModal(name) {
     const btnDelete = document.getElementById('btn-delete-workout');
     if (templateEx) {
         btnDelete.style.display = 'block';
-        btnDelete.innerText = '刪除';
         btnDelete.onclick = function() { deleteWorkoutRecord(name); };
     } else {
         // If it's not in the template (e.g. an old custom exercise that was removed from template but still in log)
         // or a completely new exercise.
         if (logged) {
             btnDelete.style.display = 'block';
-            btnDelete.innerText = '刪除';
             btnDelete.onclick = function() { deleteWorkoutRecord(name); };
         } else {
             btnDelete.style.display = 'none';
