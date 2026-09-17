@@ -583,6 +583,51 @@ function calculateTargets() {
 // Workout Logic
 // ========================
 
+window.completeAllWorkouts = function() {
+    const d = new Date(selectedLogDate);
+    const dayOfWeek = d.getDay();
+    let routine = WORKOUT_ROUTINES[dayOfWeek];
+    if (routine.ref !== undefined) {
+        routine = WORKOUT_ROUTINES[routine.ref];
+    }
+    if (!routine || routine.exercises.length === 0) {
+        alert("今天沒有課表可以完成喔！");
+        return;
+    }
+    
+    if (!dailyData[selectedLogDate]) {
+        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || '' };
+    }
+    if (!dailyData[selectedLogDate].workouts) {
+        dailyData[selectedLogDate].workouts = [];
+    }
+    
+    const loggedWorkouts = dailyData[selectedLogDate].workouts;
+    let addedCount = 0;
+    
+    routine.exercises.forEach(ex => {
+        const alreadyLogged = loggedWorkouts.find(w => w.name === ex.name);
+        if (!alreadyLogged) {
+            loggedWorkouts.push({
+                name: ex.name,
+                type: ex.type,
+                weight: ex.weight,
+                sets: ex.sets,
+                reps: ex.reps
+            });
+            addedCount++;
+        }
+    });
+    
+    if (addedCount > 0) {
+        setAndSync('fitness_daily', JSON.stringify(dailyData));
+        renderWorkout();
+        updateDailyData();
+    } else {
+        alert("今天的課表動作已經全部完成過囉！");
+    }
+};
+
 function renderWorkout() {
     const d = new Date(selectedLogDate);
     const dayOfWeek = d.getDay(); // 0 is Sunday, 1 is Monday
@@ -2279,7 +2324,7 @@ function renderLogs() {
                                         <div style="${sIconStyle}">${sIconHtml}</div>
                                         <div>
                                             <div style="font-size:13px; font-weight:500;">${sBaseName}</div>
-                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • <span style="color: var(--carb-color);">碳</span>${Math.round(sub.carb*10)/10} <span style="color: var(--pro-color);">蛋</span>${Math.round(sub.pro*10)/10} <span style="color: var(--fat-color);">脂</span>${Math.round(sub.fat*10)/10}</div>
+                                            <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • <span style="color: var(--carb-color);">碳</span>${Math.round(sub.carb*10)/10}g <span style="color: var(--pro-color);">蛋</span>${Math.round(sub.pro*10)/10}g <span style="color: var(--fat-color);">脂</span>${Math.round(sub.fat*10)/10}g</div>
                                         </div>
                                     </div>
                                     <div style="font-size:13px; font-weight:600; color:var(--text-main);">${sub.cal}kcal</div>
