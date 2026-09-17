@@ -11,6 +11,9 @@ window.openRoutinePlanManager = function() {
     
     const view = document.getElementById('view-routine-plan');
     if (view) view.classList.add('active');
+    
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'none';
 };
 
 window.closeRoutinePlanManager = function() {
@@ -19,6 +22,9 @@ window.closeRoutinePlanManager = function() {
     
     const profileView = document.getElementById('view-profile');
     if (profileView) profileView.classList.add('active');
+    
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'flex';
     
     const navItems = document.querySelectorAll('.nav-item');
     if (navItems) navItems.forEach(nav => {

@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.68</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.69</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -428,7 +428,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.68 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.69 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -648,6 +648,40 @@
             </div>
         </div>
 
+    <!-- Routine Plan View -->
+    <div id="view-routine-plan" class="view" style="padding: 24px; padding-bottom: 100px;">
+        <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="btn-icon" onclick="closeRoutinePlanManager()" style="font-size: 18px; border: none; background: transparent; cursor: pointer; color: var(--text-main);"><i class="fa-solid fa-chevron-left"></i></button>
+                <h2 style="margin: 0; font-size: 20px;">設定分化訓練計畫</h2>
+            </div>
+            <button class="btn-primary" style="padding: 8px 16px; border-radius: 12px; font-size: 14px; width: auto;" onclick="saveRoutinePlan()">儲存</button>
+        </header>
+        
+        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <h3 style="margin-bottom: 12px; font-size: 16px;">事前準備</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 12px;">在設定計畫前，建議先準備好你的課表範本（例如：推、拉、腿範本）。</p>
+            <button class="btn-secondary" style="width: 100%; padding: 12px; border-radius: 12px; font-weight: bold; background: rgba(255,255,255,0.05); border: 1px dashed var(--card-border);" onclick="openTemplateManager()">
+                <i class="fa-solid fa-gear"></i> 管理課表範本
+            </button>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <h3 style="margin-bottom: 12px; font-size: 16px;">訓練模式</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">選擇適合你的分化訓練模式，系統會自動在首頁提示你今天該做什麼訓練！</p>
+            
+            <select id="routine-plan-mode" class="input-field" style="margin-bottom: 16px;" onchange="renderRoutinePlanSetup()">
+                <option value="none">無計畫 (手動套用)</option>
+                <option value="non-split">🟢 不分化訓練 (新手 / 一週 3 練)</option>
+                <option value="two-split">🟡 雙分化訓練 (大眾 / 一週 4 練)</option>
+                <option value="three-split">🔴 三分化訓練 (進階 / 做3休1)</option>
+            </select>
+
+            <div id="routine-plan-setup-container">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <a href="#" class="nav-item active" data-target="view-dashboard">
@@ -906,11 +940,11 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=2.68"></script>
-    <script src="food_db.js?v=2.68"></script>
-    <script src="templates.js?v=2.68"></script>
-    <script src="routine.js?v=2.68"></script>
-    <script src="app.js?v=2.68"></script>
+    <script src="exercise_db.js?v=2.69"></script>
+    <script src="food_db.js?v=2.69"></script>
+    <script src="templates.js?v=2.69"></script>
+    <script src="routine.js?v=2.69"></script>
+    <script src="app.js?v=2.69"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -924,40 +958,7 @@
             });
         }
     </script>
-    <!-- Routine Plan View -->
-    <div id="view-routine-plan" class="view" style="padding: 24px; padding-bottom: 100px;">
-        <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <button class="btn-icon" onclick="closeRoutinePlanManager()" style="font-size: 18px; border: none; background: transparent; cursor: pointer; color: var(--text-main);"><i class="fa-solid fa-chevron-left"></i></button>
-                <h2 style="margin: 0; font-size: 20px;">設定分化訓練計畫</h2>
-            </div>
-            <button class="btn-primary" style="padding: 8px 16px; border-radius: 12px; font-size: 14px; width: auto;" onclick="saveRoutinePlan()">儲存</button>
-        </header>
-        
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
-            <h3 style="margin-bottom: 12px; font-size: 16px;">事前準備</h3>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 12px;">在設定計畫前，建議先準備好你的課表範本（例如：推、拉、腿範本）。</p>
-            <button class="btn-secondary" style="width: 100%; padding: 12px; border-radius: 12px; font-weight: bold; background: rgba(255,255,255,0.05); border: 1px dashed var(--card-border);" onclick="openTemplateManager()">
-                <i class="fa-solid fa-gear"></i> 管理課表範本
-            </button>
-        </div>
 
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
-            <h3 style="margin-bottom: 12px; font-size: 16px;">訓練模式</h3>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">選擇適合你的分化訓練模式，系統會自動在首頁提示你今天該做什麼訓練！</p>
-            
-            <select id="routine-plan-mode" class="input-field" style="margin-bottom: 16px;" onchange="renderRoutinePlanSetup()">
-                <option value="none">無計畫 (手動套用)</option>
-                <option value="non-split">🟢 不分化訓練 (新手 / 一週 3 練)</option>
-                <option value="two-split">🟡 雙分化訓練 (大眾 / 一週 4 練)</option>
-                <option value="three-split">🔴 三分化訓練 (進階 / 做3休1)</option>
-            </select>
-
-            <div id="routine-plan-setup-container">
-                <!-- Injected via JS -->
-            </div>
-        </div>
-    </div>
 </body>
 </html>
 
