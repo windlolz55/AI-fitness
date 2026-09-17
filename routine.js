@@ -1,13 +1,29 @@
-﻿// Routine System Logic
+// Routine System Logic
 
 window.openRoutinePlanManager = function() {
     document.getElementById('routine-plan-mode').value = fitnessRoutinePlan.mode || 'none';
     renderRoutinePlanSetup();
-    document.getElementById('routine-plan-modal').style.display = 'flex';
+    
+    const navItems = document.querySelectorAll('.nav-item');
+    if (navItems) navItems.forEach(nav => nav.classList.remove('active'));
+    const views = document.querySelectorAll('.view');
+    if (views) views.forEach(v => v.classList.remove('active'));
+    
+    const view = document.getElementById('view-routine-plan');
+    if (view) view.classList.add('active');
 };
 
 window.closeRoutinePlanManager = function() {
-    document.getElementById('routine-plan-modal').style.display = 'none';
+    const views = document.querySelectorAll('.view');
+    if (views) views.forEach(v => v.classList.remove('active'));
+    
+    const profileView = document.getElementById('view-profile');
+    if (profileView) profileView.classList.add('active');
+    
+    const navItems = document.querySelectorAll('.nav-item');
+    if (navItems) navItems.forEach(nav => {
+        if(nav.getAttribute('data-target') === 'view-profile') nav.classList.add('active');
+    });
 };
 
 function getTemplateOptionsHtml(selectedValue) {
