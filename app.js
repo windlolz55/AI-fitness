@@ -798,10 +798,10 @@ function renderWorkout() {
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="font-size: 28px; color: ${groupStatusColor}; padding: 8px 0 8px 16px;" onclick="event.stopPropagation(); window.toggleAllCardio()">
+                        <div style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:var(--text-muted); padding: 8px 0 8px 16px;"><i id="chevron-workout_cardio" class="fa-solid fa-chevron-down" style="transition: transform 0.3s; font-size:12px;"></i></div>
+                        <div style="font-size: 28px; color: ${groupStatusColor};" onclick="event.stopPropagation(); window.toggleAllCardio()">
                             <i class="${groupIcon}"></i>
                         </div>
-                        <div style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i id="chevron-workout_cardio" class="fa-solid fa-chevron-down" style="transition: transform 0.3s; font-size:12px;"></i></div>
                     </div>
                 </div>
                 <div id="subitems-workout_cardio" style="display:none; margin-top:12px; border-top:1px dashed var(--card-border); padding-top:12px;">
@@ -995,6 +995,14 @@ function openWorkoutModal(name) {
     const btnSave = document.getElementById('btn-save-workout');
     btnSave.innerText = '儲存';
     
+    // Show/hide update template checkbox
+    if (templateEx) {
+        document.getElementById('workout-update-template-container').style.display = 'flex';
+        document.getElementById('workout-update-template-val').checked = true;
+    } else {
+        document.getElementById('workout-update-template-container').style.display = 'none';
+    }
+    
     document.getElementById('workout-setup-modal').style.display = 'flex';
 }
 
@@ -1086,6 +1094,21 @@ function confirmWorkoutEdit() {
         workouts[existingIdx] = { name, weight, sets, reps };
     } else {
         workouts.push({ name, weight, sets, reps });
+    }
+    
+    if (idx !== -1) { // Not a new custom exercise creation flow
+        const updateTemplate = document.getElementById('workout-update-template-val').checked;
+        const containerVisible = document.getElementById('workout-update-template-container').style.display !== 'none';
+        
+        if (containerVisible && updateTemplate) {
+            const exists = WORKOUT_ROUTINES[routineKey].exercises.find(e => e.name === name);
+            if (exists) {
+                exists.weight = weight;
+                exists.sets = sets;
+                exists.reps = reps;
+                setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
+            }
+        }
     }
     
     setAndSync('fitness_daily', JSON.stringify(dailyData));
