@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     /* Light Theme (Default) */
     --bg-main: #f4f6f8;
     --text-main: #333333;
@@ -443,7 +443,8 @@ body {
 /* Setup Modal */
 #food-setup-modal {
     position: fixed;
-    bottom: 0; left: 0; width: 100%;
+    bottom: 0; left: 50%; width: 100%; max-width: 480px;
+    margin-left: -240px;
     background: var(--card-bg);
     border-top-left-radius: 32px;
     border-top-right-radius: 32px;
@@ -468,3 +469,10 @@ input[type=number] {
     -moz-appearance: textfield !important;
 }
 
+
+@media (max-width: 480px) {
+    #food-setup-modal {
+        left: 0;
+        margin-left: 0;
+    }
+}
