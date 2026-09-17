@@ -647,7 +647,7 @@ function renderWorkout() {
     
     const titleEl = document.getElementById('workout-day-title');
     if (titleEl) {
-        titleEl.innerText = `${m}/${dt} (星期${days[d.getDay()]}) - 運動紀錄`;
+        titleEl.innerText = `${m}/${dt} (星期${days[d.getDay()]})`;
     }
     
     const dailyDataEntry = dailyData[selectedLogDate] || {};

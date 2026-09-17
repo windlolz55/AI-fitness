@@ -8,7 +8,8 @@ const EXERCISE_DB = [
             { name: "啞鈴臥推", type: "weight", defaultSets: 4, defaultReps: "8下" },
             { name: "啞鈴上斜臥推", type: "weight", defaultSets: 4, defaultReps: "8下" },
             { name: "啞鈴下斜臥推", type: "weight", defaultSets: 4, defaultReps: "8下" },
-            { name: "啞鈴飛鳥", type: "weight", defaultSets: 3, defaultReps: "10下" }
+            { name: "啞鈴飛鳥", type: "weight", defaultSets: 3, defaultReps: "10下" },
+            { name: "啞鈴單臂提舉", type: "weight", defaultSets: 3, defaultReps: "10下" }
         ]
     },
     {
