@@ -1,4 +1,4 @@
-﻿// ========================
+// ========================
 // Template System Logic
 // ========================
 window.FITNESS_TEMPLATES = [];
@@ -242,8 +242,8 @@ function appendExerciseToEditor(ex, exIdx) {
     
     div.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="font-weight: bold; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;" title="${ex.name}">${ex.name}</div>
-            <div style="color: #ff6b81; cursor: pointer; padding: 4px; flex-shrink: 0;" onclick="this.parentElement.parentElement.remove()">
+            <div style="font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;" title="${ex.name}">${ex.name}</div>
+            <div style="color: #ff6b81; cursor: pointer; padding: 4px; flex-shrink: 0;" onclick="if(confirm('確定要刪除 ${ex.name} 嗎？')) this.parentElement.parentElement.remove()">
                 <i class="fa-solid fa-times"></i>
             </div>
         </div>
