@@ -671,17 +671,20 @@ function renderWorkout() {
                 `;
             }
         }
-        
-        container.innerHTML = suggestedHtml + `
-            <div class="card" style="text-align: center; padding: 40px 20px;">
-                <div style="font-size: 40px; margin-bottom: 16px;">💪</div>
-                <h3 style="margin-bottom: 8px;">尚未加入動作</h3>
-                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">從範本庫選用，或自己新增動作吧！</p>
-                <button class="btn-secondary" style="padding: 12px 24px; border-radius: 12px; font-weight: bold;" onclick="openTemplateSelector()">
-                    <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 選擇其他範本
-                </button>
-            </div>
-        `;
+        if (suggestedHtml) {
+            container.innerHTML = suggestedHtml;
+        } else {
+            container.innerHTML = `
+                <div class="card" style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 40px; margin-bottom: 16px;">💪</div>
+                    <h3 style="margin-bottom: 8px;">尚未加入動作</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">從範本庫選用，或自己新增動作吧！</p>
+                    <button class="btn-primary" style="padding: 12px 24px; border-radius: 12px; font-weight: bold;" onclick="openTemplateSelector()">
+                        <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 選擇範本
+                    </button>
+                </div>
+            `;
+        }
         
         const completeAllText = document.getElementById('complete-all-text');
         if (completeAllText) completeAllText.parentElement.style.display = 'none';
