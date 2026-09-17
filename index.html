@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.55</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.56</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -427,12 +427,13 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.55 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.56 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
         <!-- Fullscreen Food DB Modal -->
-        <div id="food-db-modal" class="modal-overlay hidden" style="background: var(--card-bg); display: flex; flex-direction: column;">
+        <div id="food-db-modal" class="modal-overlay hidden" style="background: var(--bg-main); display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 100%; max-width: 480px; height: 100%; display: flex; flex-direction: column; position: relative; background: var(--card-bg);">
             
             <!-- Header -->
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--card-border);">
@@ -491,11 +492,12 @@
                 </div>
                 <button class="btn-primary" style="width: 120px; padding: 10px;" onclick="commitCart()">完成</button>
             </div>
+            </div>
         </div>
 
         <!-- Cart Modal -->
-        <div id="cart-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: flex-end; z-index: 1001;">
-            <div style="background: var(--card-bg); border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px; max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);">
+        <div id="cart-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: flex-end; z-index: 1001; align-items: center;">
+            <div style="background: var(--card-bg); width: 100%; max-width: 480px; border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px; max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);">
                 <div style="width: 40px; height: 5px; background: var(--card-border); border-radius: 3px; margin: 0 auto 20px auto;"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                     <h3 style="font-size: 16px;">待選餐盤</h3>
@@ -531,7 +533,8 @@
         </div>
 
         <!-- Custom Food Modal -->
-        <div id="custom-food-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 1000; display: none; flex-direction: column;">
+        <div id="custom-food-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 1000; display: none; flex-direction: column; align-items: center;">
+            <div style="width: 100%; max-width: 480px; height: 100%; display: flex; flex-direction: column; position: relative;">
             <div class="dashboard-header" style="justify-content: space-between; margin-bottom: 24px;">
                 <button class="btn-icon" onclick="closeCustomFood()"><i class="fa-solid fa-arrow-left"></i></button>
                 <h2>新增自訂食物</h2>
@@ -561,6 +564,7 @@
                 </div>
                 
                 <button class="btn-primary" style="margin-top: 32px;" onclick="saveCustomFood()">儲存並加入我的最愛</button>
+            </div>
             </div>
         </div>
 
@@ -919,10 +923,10 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=2.55"></script>
-    <script src="food_db.js?v=2.55"></script>
-    <script src="templates.js?v=2.55"></script>
-    <script src="app.js?v=2.55"></script>
+    <script src="exercise_db.js?v=2.56"></script>
+    <script src="food_db.js?v=2.56"></script>
+    <script src="templates.js?v=2.56"></script>
+    <script src="app.js?v=2.56"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
