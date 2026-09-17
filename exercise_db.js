@@ -106,7 +106,9 @@ const EXERCISE_DB = [
         tab: "cardio",
         exercises: [
             { name: "平板支撐", type: "time", defaultSets: 3, defaultReps: "1分" },
-            { name: "波比跳", type: "weight", defaultSets: 3, defaultReps: "15下" }
+            { name: "波比跳", type: "weight", defaultSets: 3, defaultReps: "15下" },
+            { name: "下斜伏地挺身", type: "weight", defaultSets: 4, defaultReps: "12下" },
+            { name: "一般伏地挺身", type: "weight", defaultSets: 4, defaultReps: "12下" }
         ]
     },
     {
