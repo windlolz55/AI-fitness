@@ -3415,6 +3415,10 @@ function renderExerciseLibrary() {
 }
 
 function addExerciseToRoutine(ex) {
+    if (!confirm(`確定要將「${ex.name}」加至今天的課表嗎？`)) {
+        return;
+    }
+    
     const d = new Date(selectedLogDate);
     const dayOfWeek = d.getDay();
     let routineKey = dayOfWeek;
@@ -3446,5 +3450,4 @@ function addExerciseToRoutine(ex) {
     setAndSync('fitness_routines', JSON.stringify(WORKOUT_ROUTINES));
     renderWorkout();
     closeExerciseLibrary();
-    alert(ex.name + ' 已加入今天的課表！');
 }
