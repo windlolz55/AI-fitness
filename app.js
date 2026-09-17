@@ -3387,52 +3387,28 @@ function renderExerciseLibrary() {
         catTitle.innerText = cat.category;
         catDiv.appendChild(catTitle);
         
+        const exercisesContainer = document.createElement('div');
+        exercisesContainer.style.display = 'flex';
+        exercisesContainer.style.flexWrap = 'wrap';
+        exercisesContainer.style.gap = '8px';
+        
         cat.exercises.forEach(ex => {
-            const exDiv = document.createElement('div');
-            exDiv.style.display = 'flex';
-            exDiv.style.alignItems = 'center';
-            exDiv.style.justifyContent = 'space-between';
-            exDiv.style.background = 'var(--card-bg)';
-            exDiv.style.border = '1px solid var(--card-border)';
-            exDiv.style.borderRadius = '12px';
-            exDiv.style.padding = '12px 16px';
-            exDiv.style.marginBottom = '8px';
-            
-            const leftDiv = document.createElement('div');
-            leftDiv.style.flex = '1';
-            leftDiv.style.display = 'flex';
-            leftDiv.style.alignItems = 'center';
-            leftDiv.style.gap = '8px';
-            
-            const nameSpan = document.createElement('span');
-            nameSpan.style.fontWeight = 'bold';
-            nameSpan.style.fontSize = '14px';
-            nameSpan.innerText = ex.name;
-            leftDiv.appendChild(nameSpan);
-            
-            if (ex.url) {
-                const link = document.createElement('a');
-                link.href = ex.url;
-                link.target = '_blank';
-                link.style.color = '#ff4757';
-                link.style.fontSize = '14px';
-                link.innerHTML = '<i class="fa-brands fa-youtube"></i>';
-                link.onclick = (e) => e.stopPropagation();
-                leftDiv.appendChild(link);
-            }
-            exDiv.appendChild(leftDiv);
-            
-            const btnAdd = document.createElement('button');
-            btnAdd.className = 'btn-primary';
-            btnAdd.style.padding = '6px 12px';
-            btnAdd.style.fontSize = '12px';
-            btnAdd.style.borderRadius = '12px';
-            btnAdd.innerHTML = '<i class="fa-solid fa-plus"></i> 加至課表';
-            btnAdd.onclick = () => addExerciseToRoutine(ex);
-            exDiv.appendChild(btnAdd);
-            
-            catDiv.appendChild(exDiv);
+            const pill = document.createElement('button');
+            pill.className = 'btn-secondary';
+            pill.style.padding = '8px 14px';
+            pill.style.borderRadius = '20px';
+            pill.style.fontSize = '13px';
+            pill.style.display = 'flex';
+            pill.style.alignItems = 'center';
+            pill.style.gap = '6px';
+            pill.style.border = '1px solid var(--card-border)';
+            pill.style.background = 'var(--card-bg)';
+            pill.innerHTML = `<i class="fa-solid fa-plus" style="color: var(--accent-primary);"></i> ${ex.name}`;
+            pill.onclick = () => addExerciseToRoutine(ex);
+            exercisesContainer.appendChild(pill);
         });
+        
+        catDiv.appendChild(exercisesContainer);
         
         container.appendChild(catDiv);
     });
@@ -3454,10 +3430,10 @@ function addExerciseToRoutine(ex) {
     }
     
     let defaultWeight = 0;
-    let defaultSets = 4;
-    let defaultReps = '10下';
-    if (ex.type === 'time') defaultReps = '1分';
-    if (ex.type === 'cardio') defaultReps = '30分';
+    let defaultSets = ex.defaultSets !== undefined ? ex.defaultSets : 4;
+    let defaultReps = ex.defaultReps !== undefined ? ex.defaultReps : '10下';
+    if (ex.type === 'time' && ex.defaultReps === undefined) defaultReps = '1分';
+    if (ex.type === 'cardio' && ex.defaultReps === undefined) defaultReps = '30分';
     
     WORKOUT_ROUTINES[routineKey].exercises.push({
         name: ex.name,

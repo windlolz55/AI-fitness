@@ -1,64 +1,65 @@
-// exercise_db.js
+﻿// exercise_db.js
 
 const EXERCISE_DB = [
     {
-        category: "胸部訓練 (大肌群)",
+        category: "?賊閮毀 (憭扯?蝢?",
         exercises: [
-            { name: "啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 4, defaultReps: "8下" },
-            { name: "上斜啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 4, defaultReps: "8下" },
-            { name: "下斜啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 4, defaultReps: "8下" },
-            { name: "啞鈴飛鳥", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=128", defaultSets: 3, defaultReps: "10下" }
+            { name: "??交", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "銝???交", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "銝???交", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "?憌野", type: "weight", defaultSets: 3, defaultReps: "10銝? }
         ]
     },
     {
-        category: "背部訓練 (大肌群)",
+        category: "?閮毀 (憭扯?蝢?",
         exercises: [
-            { name: "俯身啞鈴划船", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 4, defaultReps: "8下" },
-            { name: "單臂啞鈴划船", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 4, defaultReps: "8下" },
-            { name: "上斜啞鈴划船", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 4, defaultReps: "8下" },
-            { name: "仰臥直臂上拉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=384", defaultSets: 3, defaultReps: "10下" }
+            { name: "靽航澈??", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "?株???", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "銝???", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "隞啗?渲?銝?", type: "weight", defaultSets: 3, defaultReps: "10銝? }
         ]
     },
     {
-        category: "臀腿訓練 (大肌群)",
+        category: "??輯?蝺?(憭扯?蝢?",
         exercises: [
-            { name: "高腳杯深蹲", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "8下" },
-            { name: "啞鈴硬拉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "8下" },
-            { name: "直腿硬拉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "8下" },
-            { name: "保加利亞單腿蹲", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 3, defaultReps: "10下" },
-            { name: "啞鈴臀橋", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 4, defaultReps: "10下" },
-            { name: "啞鈴單腿提踵 (小腿)", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=818", defaultSets: 3, defaultReps: "15下" }
+            { name: "擃?舀楛頩?, type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "?蝖祆?", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "?渲蝖祆?", type: "weight", defaultSets: 4, defaultReps: "8銝? },
+            { name: "靽??拐??株頩?, type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "??璈?, type: "weight", defaultSets: 4, defaultReps: "10銝? },
+            { name: "??株?葭 (撠)", type: "weight", defaultSets: 3, defaultReps: "15銝? }
         ]
     },
     {
-        category: "肩部訓練 (小肌群)",
+        category: "?拚閮毀 (撠?蝢?",
         exercises: [
-            { name: "啞鈴推舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "10下" },
-            { name: "阿諾德推舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "10下" },
-            { name: "啞鈴側平舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "12下" },
-            { name: "俯身啞鈴側平舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "12下" },
-            { name: "啞鈴過頂前平舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=578", defaultSets: 3, defaultReps: "12下" }
+            { name: "??刻?", type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "?輯姥敺瑟??, type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "??游像??, type: "weight", defaultSets: 3, defaultReps: "12銝? },
+            { name: "靽航澈??游像??, type: "weight", defaultSets: 3, defaultReps: "12銝? },
+            { name: "????像??, type: "weight", defaultSets: 3, defaultReps: "12銝? }
         ]
     },
     {
-        category: "手臂訓練 (小肌群)",
+        category: "??閮毀 (撠?蝢?",
         exercises: [
-            { name: "啞鈴彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
-            { name: "上斜彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
-            { name: "斜托彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
-            { name: "集中彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1147", defaultSets: 3, defaultReps: "10下" },
-            { name: "頸後啞鈴臂屈伸", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1306", defaultSets: 3, defaultReps: "10下" },
-            { name: "俯身臂屈伸", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1306", defaultSets: 3, defaultReps: "10下" },
-            { name: "鑽石啞鈴臥推", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1306", defaultSets: 3, defaultReps: "10下" }
+            { name: "?敶?", type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "銝?敶?", type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "??敶?", type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "?葉敶?", type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "?詨????隡?, type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "靽航澈??隡?, type: "weight", defaultSets: 3, defaultReps: "10銝? },
+            { name: "?賜??交", type: "weight", defaultSets: 3, defaultReps: "10銝? }
         ]
     },
     {
-        category: "前臂與腰腹 (輔助動作)",
+        category: "?????(頛??)",
         exercises: [
-            { name: "啞鈴錘式彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1404", defaultSets: 3, defaultReps: "15下" },
-            { name: "背後腕彎舉", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1404", defaultSets: 3, defaultReps: "15下" },
-            { name: "負重捲腹", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1436", defaultSets: 3, defaultReps: "15下" },
-            { name: "啞鈴傳遞", type: "weight", url: "https://www.youtube.com/watch?v=wrUYkKGfnTg&t=1436", defaultSets: 3, defaultReps: "15下" }
+            { name: "???敶?", type: "weight", defaultSets: 3, defaultReps: "15銝? },
+            { name: "??????, type: "weight", defaultSets: 3, defaultReps: "15銝? },
+            { name: "鞎??脰", type: "weight", defaultSets: 3, defaultReps: "15銝? },
+            { name: "??喲?", type: "weight", defaultSets: 3, defaultReps: "15銝? }
         ]
     }
 ];
+
