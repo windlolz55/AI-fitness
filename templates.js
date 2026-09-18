@@ -64,6 +64,8 @@ window.applyTemplate = function(idx) {
             dailyData[selectedLogDate].workouts = [];
         }
         
+        dailyData[selectedLogDate].routineName = tpl.title;
+        
         let addedCount = 0;
         tpl.exercises.forEach(ex => {
             const alreadyExists = dailyData[selectedLogDate].workouts.find(w => w.name === ex.name);

@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.94</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.95</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -254,7 +254,8 @@
                 </div>
             </header>
             
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+            <div id="workout-header-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; min-height: 32px;">
+                <span id="current-routine-name" style="font-weight: bold; color: var(--text-main); font-size: 14px;"></span>
                 <button style="background: rgba(29, 209, 161, 0.1); color: var(--accent-primary); border-radius: 12px; font-size: 12px; padding: 8px 16px; display: flex; gap: 6px; align-items: center; border: none; cursor: pointer; transition: all 0.3s; font-weight: 600; flex-shrink: 0;" onclick="completeAllWorkouts()">
                     <i id="complete-all-icon" class="fa-regular fa-circle-check" style="font-size: 14px;"></i> <span id="complete-all-text" style="white-space: nowrap;">今日未完成</span>
                 </button>
@@ -426,7 +427,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.94 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.95 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -935,11 +936,11 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=2.94"></script>
-    <script src="food_db.js?v=2.94"></script>
-    <script src="templates.js?v=2.94"></script>
-    <script src="routine.js?v=2.94"></script>
-    <script src="app.js?v=2.94"></script>
+    <script src="exercise_db.js?v=2.95"></script>
+    <script src="food_db.js?v=2.95"></script>
+    <script src="templates.js?v=2.95"></script>
+    <script src="routine.js?v=2.95"></script>
+    <script src="app.js?v=2.95"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

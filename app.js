@@ -731,9 +731,8 @@ function renderWorkout() {
                 </div>
             `;
         }
-        
-        const completeAllText = document.getElementById('complete-all-text');
-        if (completeAllText) completeAllText.parentElement.style.display = 'none';
+        const completeAllWrapper = document.getElementById('workout-header-wrapper');
+        if (completeAllWrapper) completeAllWrapper.style.display = 'none';
         
         return;
     }
@@ -825,6 +824,13 @@ function renderWorkout() {
     
     container.innerHTML = html;
     
+    const completeAllWrapper = document.getElementById('workout-header-wrapper');
+    const routineNameSpan = document.getElementById('current-routine-name');
+    if (completeAllWrapper) completeAllWrapper.style.display = 'flex';
+    if (routineNameSpan) {
+        routineNameSpan.innerText = dailyData[selectedLogDate].routineName || '';
+    }
+
     const completeAllText = document.getElementById('complete-all-text');
     const completeAllIcon = document.getElementById('complete-all-icon');
     if (completeAllText && completeAllIcon) {
