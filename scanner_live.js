@@ -300,7 +300,7 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             contents: [{
                 parts: [
                     { text: customPrompt },
-                    { inline_data: { mime_type: file.type, data: base64String } }
+                    { inline_data: { mime_type: "image/jpeg", data: base64String } }
                 ]
             }]
         };
