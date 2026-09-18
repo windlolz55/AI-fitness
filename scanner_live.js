@@ -1,4 +1,4 @@
-﻿let currentScanMode = 'barcode';
+let currentScanMode = 'barcode';
 let html5QrCode = null;
 let isCameraRunning = false;
 let barcodeLastScanned = null;
@@ -221,6 +221,9 @@ window.captureImage = function() {
     preview.src = dataUrl;
     preview.style.display = 'block';
     
+    const cameraIcon = document.getElementById('camera-icon');
+    if (cameraIcon) cameraIcon.style.display = 'none';
+    
     // Hide capture button during processing
     document.getElementById('btn-capture').style.display = 'none';
     
@@ -319,6 +322,8 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
             let response = null;
             let lastError = null;
+            window.modelErrorLog = [];
+            window.lastSuccessfulModel = null;
 
             for (const model of modelsToTry) {
                 try {
@@ -329,12 +334,15 @@ function customCallGeminiVisionAPI(file, customPrompt) {
                     });
                     
                     if (response.ok) {
+                        window.lastSuccessfulModel = model;
                         break; // Success!
                     } else {
                         const errorText = await response.text();
+                        window.modelErrorLog.push(`${model} (${response.status})`);
                         lastError = new Error(`API 錯誤 (${model} - ${response.status}): ${errorText}`);
                     }
                 } catch (e) {
+                    window.modelErrorLog.push(`${model} (Fetch Error)`);
                     lastError = e;
                 }
             }
@@ -358,6 +366,23 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             
             document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 綜合辨識';
             
+            let indicator = document.getElementById("model-indicator");
+            if (!indicator) {
+                indicator = document.createElement("div");
+                indicator.id = "model-indicator";
+                indicator.style.fontSize = "10px";
+                indicator.style.color = "var(--text-muted)";
+                indicator.style.textAlign = "right";
+                indicator.style.marginTop = "4px";
+                document.getElementById("scan-result").insertBefore(indicator, document.getElementById("scan-checklist"));
+            }
+            
+            let debugText = "";
+            if (window.modelErrorLog && window.modelErrorLog.length > 0) {
+                debugText = `<br><span style="color: #ef4444; font-size: 8px;">Errors: ${window.modelErrorLog.join(", ")}</span>`;
+            }
+            indicator.innerHTML = `Powered by ${window.lastSuccessfulModel || 'gemini-1.5-flash'}${debugText}`;
+            
             currentScanItems = aiResults.items.map(item => ({
                 id: 'scan_' + Date.now() + Math.random().toString(36).substr(2, 9),
                 name: item.name,
@@ -365,7 +390,7 @@ function customCallGeminiVisionAPI(file, customPrompt) {
                 pro: parseFloat(item.pro) || 0,
                 fat: parseFloat(item.fat) || 0,
                 carb: parseFloat(item.carb) || 0,
-                baseGrams: parseFloat(item.grams) || 100,
+                grams: parseFloat(item.grams) || 100,
                 checked: true
             }));
             
