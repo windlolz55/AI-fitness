@@ -1,4 +1,4 @@
-let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -1715,7 +1715,7 @@ function renderDBContent(searchQuery = '') {
                     <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                     <div>
                         <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
-                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
                     </div>
                 </div>
                 <button style="background:transparent; border:none; padding:8px 16px; font-size:18px; color: #ff4757;" onclick="deleteFoodDbItem(event, '${food.id}')">
@@ -1730,7 +1730,7 @@ function renderDBContent(searchQuery = '') {
                     <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                     <div>
                         <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
-                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> kcal/100g</p>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
