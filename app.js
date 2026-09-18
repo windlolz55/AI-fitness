@@ -753,7 +753,7 @@ function renderWorkout() {
         
         html += `
             <div class="card log-item" data-name="${ex.name}" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
-                <div class="drag-handle" style="padding-right: 12px; color: var(--card-border); cursor: grab; font-size: 18px;">
+                <div class="drag-handle" style="padding-right: 12px; color: var(--text-muted); opacity: 0.5; cursor: grab; font-size: 18px;">
                     <i class="fa-solid fa-grip-lines"></i>
                 </div>
                 <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; min-width: 0;" onclick="openWorkoutModal('${ex.name}')">
@@ -844,6 +844,37 @@ function renderWorkout() {
             btn.style.background = "rgba(255, 107, 129, 0.1)";
             btn.style.color = "#ff6b81";
         }
+    }
+
+    if (window.workoutSortable) window.workoutSortable.destroy();
+    const sortContainer = document.getElementById('workout-sortable-list');
+    if (sortContainer) {
+        window.workoutSortable = new Sortable(sortContainer, {
+            animation: 150,
+            delay: 100,
+            delayOnTouchOnly: true,
+            handle: '.drag-handle',
+            onEnd: function(evt) {
+                if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts) return;
+                
+                const currentWorkouts = dailyData[selectedLogDate].workouts;
+                const nonCardios = currentWorkouts.filter(w => w.type !== 'cardio');
+                const cardios = currentWorkouts.filter(w => w.type === 'cardio');
+                
+                const itemEls = Array.from(sortContainer.querySelectorAll('.log-item'));
+                const newNonCardios = [];
+                
+                itemEls.forEach(el => {
+                    const name = el.dataset.name;
+                    const matched = nonCardios.find(w => w.name === name);
+                    if (matched) newNonCardios.push(matched);
+                });
+                
+                dailyData[selectedLogDate].workouts = newNonCardios.concat(cardios);
+                setAndSync('fitness_daily', JSON.stringify(dailyData));
+                renderWorkout();
+            }
+        });
     }
 }
 

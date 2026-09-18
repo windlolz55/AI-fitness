@@ -123,7 +123,7 @@ function renderTemplateManager() {
         
         html += `
             <div class="card log-item" data-idx="${idx}" style="padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-                <div class="drag-handle" style="padding-right: 12px; color: var(--card-border); cursor: grab; font-size: 18px;">
+                <div class="drag-handle" style="padding-right: 12px; color: var(--text-muted); opacity: 0.5; cursor: grab; font-size: 18px;">
                     <i class="fa-solid fa-grip-lines"></i>
                 </div>
                 <div style="flex: 1; cursor: pointer;" onclick="openTemplateEditor(${idx})">
@@ -266,7 +266,7 @@ function appendExerciseToEditor(ex, exIdx) {
     div.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <div class="drag-handle" style="color: var(--card-border); cursor: grab;">
+                <div class="drag-handle" style="color: var(--text-muted); opacity: 0.5; cursor: grab;">
                     <i class="fa-solid fa-grip-lines"></i>
                 </div>
                 <div style="font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ex.name}">${ex.name}</div>
