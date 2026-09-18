@@ -106,6 +106,8 @@ const foodDatabase = {
         { id: 'st92', categoryId: 'store', name: '統一陽光高纖無糖豆漿 (900ml)', cals: 366, macros: { p: 31, c: 32, f: 17 }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'st93', categoryId: 'store', name: '義美無加糖厚豆奶 (900ml)', cals: 514, macros: { p: 48, c: 32, f: 24 }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'st94', categoryId: 'store', name: '味全大醇豆無加糖濃豆漿 (900ml)', cals: 504, macros: { p: 50, c: 18, f: 27 }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'st95', categoryId: 'store', name: '味全大醇豆無加糖豆漿 (900ml)', cals: 360, macros: { p: 40, c: 20, f: 15 }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'st96', categoryId: 'store', name: '味全大醇豆原味豆漿 (900ml)', cals: 495, macros: { p: 32, c: 54, f: 18 }, icon: 'fluent-emoji-flat:glass-of-milk' },
 
         // ================= 生鮮食材 =================
         { id: 's1', categoryId: 'raw', name: '白飯 (1平碗/160g)', cals: 280, macros: { p: 5, c: 60, f: 1 }, icon: 'fluent-emoji-flat:cooked-rice' },
