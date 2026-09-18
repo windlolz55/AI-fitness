@@ -101,6 +101,10 @@ const foodDatabase = {
         { id: 'd1', categoryId: 'store', name: '無糖綠茶/烏龍/紅茶', cals: 0, macros: { p: 0, c: 0, f: 0 }, icon: 'fluent-emoji-flat:teacup-without-handle' },
         { id: 'd4', categoryId: 'store', name: '全脂鮮奶 (250ml)', cals: 160, macros: { p: 8, c: 12, f: 9 }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'd5', categoryId: 'store', name: '燕麥奶 (250ml)', cals: 130, macros: { p: 3, c: 15, f: 5 }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'st90', categoryId: 'store', name: '光泉無加糖濃豆漿 (900ml)', cals: 446, macros: { p: 46, c: 19, f: 23 }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'st91', categoryId: 'store', name: '光泉無加糖鮮豆漿 (900ml)', cals: 310, macros: { p: 31, c: 14, f: 14 }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'st92', categoryId: 'store', name: '統一陽光高纖無糖豆漿 (900ml)', cals: 366, macros: { p: 31, c: 32, f: 17 }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'st93', categoryId: 'store', name: '義美無加糖厚豆奶 (900ml)', cals: 514, macros: { p: 48, c: 32, f: 24 }, icon: 'fluent-emoji-flat:glass-of-milk' },
 
         // ================= 生鮮食材 =================
         { id: 's1', categoryId: 'raw', name: '白飯 (1平碗/160g)', cals: 280, macros: { p: 5, c: 60, f: 1 }, icon: 'fluent-emoji-flat:cooked-rice' },
