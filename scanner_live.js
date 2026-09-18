@@ -365,18 +365,45 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             
             let jsonText = data.candidates[0].content.parts[0].text;
             
-            const match = jsonText.match(/\{[\s\S]*\}/);
-            if (match) {
-                jsonText = match[0];
-            } else {
-                // If it really doesn't contain a JSON object, try replacing markdown ticks
-                jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
-                if (!jsonText.startsWith('{') && !jsonText.startsWith('[')) {
-                    throw new Error("AI 無法正確解析食物，請換張照片重試或確認照片清晰度 (找不到有效的 JSON)。\n\nAI 回覆：" + jsonText.substring(0, 50));
-                }
+            // Clean markdown ticks
+            jsonText = jsonText.replace(/```json/i, '').replace(/```/g, '').trim();
+            
+            // Sometimes Gemini prepends text before the JSON block
+            const firstBrace = jsonText.indexOf('{');
+            const firstBracket = jsonText.indexOf('[');
+            
+            if (firstBrace === -1 && firstBracket === -1) {
+                throw new Error("AI 無法正確解析食物 (找不到有效的 JSON)。\n\nAI 回覆：" + jsonText.substring(0, 50));
             }
             
-            const aiResults = JSON.parse(jsonText);
+            let startIndex = 0;
+            if (firstBrace !== -1 && firstBracket !== -1) {
+                startIndex = Math.min(firstBrace, firstBracket);
+            } else {
+                startIndex = Math.max(firstBrace, firstBracket);
+            }
+            
+            let cleanJson = jsonText.substring(startIndex);
+            // Also trim any trailing text after the last } or ]
+            const lastBrace = cleanJson.lastIndexOf('}');
+            const lastBracket = cleanJson.lastIndexOf(']');
+            const endIndex = Math.max(lastBrace, lastBracket);
+            if (endIndex !== -1) {
+                cleanJson = cleanJson.substring(0, endIndex + 1);
+            }
+            
+            let aiResults;
+            try {
+                aiResults = JSON.parse(cleanJson);
+            } catch (e) {
+                throw new Error(`JSON 解析失敗: ${e.message}\n原始字串: ${cleanJson.substring(0, 100)}`);
+            }
+            
+            if (Array.isArray(aiResults)) {
+                aiResults = { meal_name: '綜合食物', items: aiResults };
+            } else if (!aiResults.items) {
+                aiResults.items = [aiResults];
+            }
             
             document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 綜合辨識';
             
