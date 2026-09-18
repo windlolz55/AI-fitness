@@ -1,4 +1,4 @@
-let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -1843,8 +1843,8 @@ function selectFood(foodId) {
     selectedFood = foodDatabase.foods.find(f => f.id === foodId);
     document.getElementById('setup-food-name').innerText = selectedFood.name;
     
-    let weightMatch = selectedFood.name.match(/(\d+)\s*g/i);
-    let weightPerServing = weightMatch ? parseFloat(weightMatch[1]) : null;
+    let weightPerServing = getEstimatedWeight(selectedFood);
+    
     let isGrams = selectedFood.name.includes('100g');
     
     let defaultUnit = isGrams ? 'g' : 'serving';
@@ -1859,7 +1859,7 @@ function selectFood(foodId) {
         unitSelectEl.value = defaultUnit;
         const gOption = unitSelectEl.querySelector('option[value="g"]');
         if (gOption) {
-            gOption.disabled = !weightPerServing && !isGrams;
+            gOption.disabled = false;
         }
     }
     
