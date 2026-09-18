@@ -319,7 +319,10 @@ function customCallGeminiVisionAPI(file, customPrompt) {
                     { text: customPrompt },
                     { inline_data: { mime_type: "image/jpeg", data: base64String } }
                 ]
-            }]
+            }],
+            generationConfig: {
+                response_mime_type: "application/json"
+            }
         };
 
         try {
@@ -366,7 +369,11 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             if (match) {
                 jsonText = match[0];
             } else {
+                // If it really doesn't contain a JSON object, try replacing markdown ticks
                 jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+                if (!jsonText.startsWith('{') && !jsonText.startsWith('[')) {
+                    throw new Error("AI 無法正確解析食物，請換張照片重試或確認照片清晰度 (找不到有效的 JSON)。\n\nAI 回覆：" + jsonText.substring(0, 50));
+                }
             }
             
             const aiResults = JSON.parse(jsonText);
