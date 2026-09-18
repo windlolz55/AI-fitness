@@ -327,16 +327,16 @@ function setupFirestoreListener(uid) {
             
             // Apply Theme
             const savedTheme = data.fitness_theme || 'light';
-            const themeToggle = document.getElementById('theme-toggle');
+            const themeSelect = document.getElementById('theme-select');
             const currentTheme = document.body.getAttribute('data-theme') || 'light';
             if (savedTheme !== currentTheme) {
                 if (savedTheme === 'dark') {
                     document.body.setAttribute('data-theme', 'dark');
-                    if (themeToggle) themeToggle.checked = true;
+                    if (themeSelect) themeSelect.value = 'dark';
                     localStorage.setItem('fitness_theme', 'dark');
                 } else {
                     document.body.removeAttribute('data-theme');
-                    if (themeToggle) themeToggle.checked = false;
+                    if (themeSelect) themeSelect.value = 'light';
                     localStorage.setItem('fitness_theme', 'light');
                 }
             }
@@ -486,21 +486,26 @@ const navItems = document.querySelectorAll('.nav-item');
 function init() {
     // Theme setup
     const savedTheme = localStorage.getItem('fitness_theme') || 'light';
-    const themeToggle = document.getElementById('theme-toggle');
+    const themeSelect = document.getElementById('theme-select');
     if(savedTheme === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
-        themeToggle.checked = true;
+        if (themeSelect) themeSelect.value = 'dark';
+    } else {
+        if (themeSelect) themeSelect.value = 'light';
     }
     
-    themeToggle.addEventListener('change', (e) => {
-        if(e.target.checked) {
-            document.body.setAttribute('data-theme', 'dark');
-            setAndSync('fitness_theme', 'dark');
-        } else {
-            document.body.removeAttribute('data-theme');
-            setAndSync('fitness_theme', 'light');
-        }
-    });
+    if (themeSelect) {
+        themeSelect.addEventListener('change', (e) => {
+            const selectedTheme = e.target.value;
+            if(selectedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                setAndSync('fitness_theme', 'dark');
+            } else {
+                document.body.removeAttribute('data-theme');
+                setAndSync('fitness_theme', 'light');
+            }
+        });
+    }
 
     document.getElementById('date-display').innerText = new Date().toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' });
     
