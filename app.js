@@ -1,4 +1,4 @@
-﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -745,7 +745,7 @@ function renderWorkout() {
         let isCompleted = ex.completed === undefined ? true : ex.completed;
         
         let statusHtml = `<div style="font-size: 12px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
-            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}
+            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}${!isNaN(ex.reps) && String(ex.reps).trim() !== '' ? '次' : ''}
         </div>`;
         
         let icon = ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell';
@@ -779,7 +779,7 @@ function renderWorkout() {
         cardios.forEach(ex => {
             let isCompleted = ex.completed === undefined ? true : ex.completed;
             let statusHtml = `<div style="font-size: 10px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
-                ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : ''}${ex.sets}組 ${ex.reps}
+                ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : ''}${ex.sets}組 ${ex.reps}${!isNaN(ex.reps) && String(ex.reps).trim() !== '' ? '次' : ''}
             </div>`;
             
             cardioSubHtml += `
@@ -836,8 +836,8 @@ function renderWorkout() {
         } else {
             completeAllText.innerText = "今日未完成";
             completeAllIcon.className = "fa-regular fa-circle-check";
-            btn.style.background = "rgba(29, 209, 161, 0.1)";
-            btn.style.color = "var(--accent-primary)";
+            btn.style.background = "rgba(255, 107, 129, 0.1)";
+            btn.style.color = "#ff6b81";
         }
     }
 }
