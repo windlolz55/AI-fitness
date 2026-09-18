@@ -437,8 +437,15 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 indicator.style.fontSize = "10px";
                 indicator.style.color = "var(--text-muted)";
                 indicator.style.textAlign = "right";
-                indicator.style.marginTop = "4px";
-                document.getElementById("scan-result").insertBefore(indicator, document.getElementById("scan-checklist"));
+                indicator.style.marginTop = "8px";
+                const scanChecklist = document.getElementById('scan-checklist');
+                scanChecklist.parentNode.insertBefore(indicator, scanChecklist);
+            }
+            
+            const debugTextarea = document.getElementById("debug-json");
+            if (debugTextarea) {
+                debugTextarea.value = cleanJson;
+                debugTextarea.style.display = "block";
             }
             
             let debugText = "";
