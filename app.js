@@ -1,4 +1,4 @@
-﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -1584,7 +1584,7 @@ function updateDashboard() {
     const arcFill = document.getElementById('cal-arc');
     if (arcFill) {
         let percent = Math.min(todayEaten / TARGET_CALS, 1);
-        arcFill.style.strokeDashoffset = 188.5 - (188.5 * percent);
+        arcFill.style.strokeDashoffset = 188.5 * percent;
     }
 
     // Macros Text
