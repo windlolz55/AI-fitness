@@ -442,11 +442,23 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 scanChecklist.parentNode.insertBefore(indicator, scanChecklist);
             }
             
-            const debugTextarea = document.getElementById("debug-json");
-            if (debugTextarea) {
-                debugTextarea.value = cleanJson;
-                debugTextarea.style.display = "block";
+            let debugTextarea = document.getElementById("debug-json");
+            if (!debugTextarea) {
+                debugTextarea = document.createElement("textarea");
+                debugTextarea.id = "debug-json";
+                debugTextarea.style.width = "100%";
+                debugTextarea.style.height = "150px";
+                debugTextarea.style.fontSize = "12px";
+                debugTextarea.style.color = "#fff";
+                debugTextarea.style.background = "#222";
+                debugTextarea.style.marginTop = "10px";
+                debugTextarea.style.padding = "8px";
+                debugTextarea.style.border = "1px solid #444";
+                const scanChecklist = document.getElementById('scan-checklist');
+                scanChecklist.parentNode.insertBefore(debugTextarea, scanChecklist);
             }
+            debugTextarea.value = "Raw JSON: " + cleanJson;
+            debugTextarea.style.display = "block";
             
             let debugText = "";
             if (window.modelErrorLog && window.modelErrorLog.length > 0) {
