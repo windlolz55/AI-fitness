@@ -319,10 +319,7 @@ function customCallGeminiVisionAPI(file, customPrompt) {
                     { text: customPrompt },
                     { inline_data: { mime_type: "image/jpeg", data: base64String } }
                 ]
-            }],
-            generationConfig: {
-                response_mime_type: "application/json"
-            }
+            }]
         };
 
         try {
@@ -377,17 +374,25 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             }
             
             let startIndex = 0;
+            let isObject = false;
+            
             if (firstBrace !== -1 && firstBracket !== -1) {
                 startIndex = Math.min(firstBrace, firstBracket);
+                isObject = (firstBrace < firstBracket);
             } else {
                 startIndex = Math.max(firstBrace, firstBracket);
+                isObject = (firstBrace !== -1);
             }
             
             let cleanJson = jsonText.substring(startIndex);
             // Also trim any trailing text after the last } or ]
-            const lastBrace = cleanJson.lastIndexOf('}');
-            const lastBracket = cleanJson.lastIndexOf(']');
-            const endIndex = Math.max(lastBrace, lastBracket);
+            let endIndex = -1;
+            if (isObject) {
+                endIndex = cleanJson.lastIndexOf('}');
+            } else {
+                endIndex = cleanJson.lastIndexOf(']');
+            }
+            
             if (endIndex !== -1) {
                 cleanJson = cleanJson.substring(0, endIndex + 1);
             }
