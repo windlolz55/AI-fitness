@@ -246,11 +246,18 @@ window.handleFileSelectForPreview = function(input) {
             
             preview.src = e.target.result;
             preview.style.display = 'block';
-            document.getElementById('btn-capture').style.display = 'none';
             
-            // If they pick a file, we probably default to food unless they selected ingredient mode
-            const modeToUse = currentScanMode === 'barcode' ? 'food' : currentScanMode;
-            executeCustomScan(modeToUse);
+            const cameraIcon = document.getElementById('camera-icon');
+            if (cameraIcon) cameraIcon.style.display = 'none';
+            
+            document.getElementById('btn-camera').style.display = 'none';
+            
+            const allBtns = document.querySelectorAll("#scanner-main-content .btn-secondary");
+            allBtns.forEach(b => {
+                if(b.innerText.includes("從相簿")) b.style.display = "none";
+            });
+            
+            executeCustomScan(currentScanMode);
         };
         reader.readAsDataURL(file);
     }
