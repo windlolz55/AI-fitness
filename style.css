@@ -486,35 +486,35 @@ input[type=number] {
 .scan-mode-btn {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 8px 16px;
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 12px 20px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: bold;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
 }
 .scan-mode-btn.active {
     background: rgba(255, 255, 255, 0.2);
     color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .scan-mode-btn i {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 #scanner-mask {
     position: absolute;
     left: 50%;
-    top: 45%;
+    top: 50%;
     transform: translate(-50%, -50%);
     box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);
-    border: 2px solid rgba(255,255,255,0.8);
-    border-radius: 16px;
-    transition: all 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
 }
 

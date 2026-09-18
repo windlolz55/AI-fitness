@@ -1,4 +1,4 @@
-let currentScanMode = 'barcode';
+﻿let currentScanMode = 'barcode';
 let html5QrCode = null;
 let isCameraRunning = false;
 let barcodeLastScanned = null;
@@ -99,16 +99,15 @@ async function stopCamera() {
 }
 
 function onBarcodeDetected(decodedText, decodedResult) {
-    if (currentScanMode !== 'barcode') return;
+    if (currentScanMode !== "barcode") return;
     if (barcodeLastScanned === decodedText) return;
     
     barcodeLastScanned = decodedText;
     
-    // Provide haptic feedback if available
     if (navigator.vibrate) navigator.vibrate(200);
     
-    // Stop scanning visually, show progress
-    document.getElementById('scan-progress-container').style.display = 'flex';
+    closeLiveCamera();
+    document.getElementById("scan-progress-container").style.display = "flex";
     document.getElementById('scan-progress-text').innerText = '查詢中...';
     document.getElementById('scan-progress-bar').style.width = '50%';
     
@@ -166,16 +165,19 @@ function onBarcodeDetected(decodedText, decodedResult) {
         });
 }
 
-// Override openScanner
-window.openScanner = function() {
-    originalOpenScanner();
+
+window.openLiveCamera = function() {
+    document.getElementById("view-live-camera").style.display = "flex";
     startCamera();
 };
 
-window.closeScanner = function() {
-    originalCloseScanner();
+window.closeLiveCamera = function() {
+    document.getElementById("view-live-camera").style.display = "none";
     stopCamera();
 };
+
+// We DO NOT override openScanner anymore. It will just open the normal scanner view.
+;
 
 window.resetScanner = function() {
     originalResetScanner();
