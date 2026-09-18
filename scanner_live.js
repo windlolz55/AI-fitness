@@ -181,8 +181,13 @@ window.closeLiveCamera = function() {
 
 window.resetScanner = function() {
     originalResetScanner();
-    document.getElementById('image-preview').style.display = 'none';
-    document.getElementById('camera-feed').style.display = 'block';
+    const preview = document.getElementById("image-preview");
+    const cameraIcon = document.getElementById("camera-icon");
+    if (preview) preview.style.display = "none";
+    if (cameraIcon) cameraIcon.style.display = "block";
+    
+    const feed = document.getElementById("camera-feed");
+    if (feed) feed.style.display = "block";
     document.getElementById('scan-progress-container').style.display = 'none';
     
     // Ensure capture button is shown/hidden based on mode
@@ -272,11 +277,15 @@ function customCallGeminiVisionAPI(file, customPrompt) {
         return;
     }
 
-    const progContainer = document.getElementById('scan-progress-container');
-    const progBar = document.getElementById('scan-progress-bar');
-    const progText = document.getElementById('scan-progress-text');
+    const progContainer = document.getElementById("scan-progress-container");
+    const progBar = document.getElementById("scan-progress-bar");
+    const progText = document.getElementById("scan-progress-text");
     
-    progContainer.style.display = 'flex';
+    if (progContainer) {
+        // The original UI expects block, the live camera one expects flex.
+        // Since we are using the original one (because getElementById returns the first match), use block.
+        progContainer.style.display = "block";
+    }
     progBar.style.width = '10%';
     progText.innerText = '10%';
     
