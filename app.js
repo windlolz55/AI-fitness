@@ -1809,7 +1809,18 @@ function closeFoodDB() {
 function selectFood(foodId) {
     selectedFood = foodDatabase.foods.find(f => f.id === foodId);
     document.getElementById('setup-food-name').innerText = selectedFood.name;
-    document.getElementById('setup-grams').value = 100;
+    
+    let isGrams = selectedFood.name.includes('100g');
+    let unitLabel = isGrams ? 'g' : '份';
+    let defaultAmount = isGrams ? 100 : 1;
+    
+    selectedFood.unit = unitLabel;
+    selectedFood.baseAmount = defaultAmount;
+    
+    const unitLabelEl = document.getElementById('setup-unit-label');
+    if (unitLabelEl) unitLabelEl.innerText = unitLabel;
+    
+    document.getElementById('setup-grams').value = defaultAmount;
     updateFoodSetup();
     document.getElementById('food-setup-modal').classList.add('open');
 }
@@ -1853,8 +1864,9 @@ document.getElementById('setup-grams').addEventListener('input', updateFoodSetup
 
 function updateFoodSetup() {
     if(!selectedFood) return;
-    const grams = parseFloat(document.getElementById('setup-grams').value) || 0;
-    const multi = grams / 100;
+    const inputVal = parseFloat(document.getElementById('setup-grams').value) || 0;
+    const baseAmount = selectedFood.baseAmount || 100;
+    const multi = inputVal / baseAmount;
     document.getElementById('setup-cal').innerText = Math.round(selectedFood.cals * multi);
     document.getElementById('setup-pro').innerText = Math.round(selectedFood.macros.p * multi);
     document.getElementById('setup-carb').innerText = Math.round(selectedFood.macros.c * multi);
@@ -1863,8 +1875,10 @@ function updateFoodSetup() {
 
 document.getElementById('btn-add-food').addEventListener('click', () => {
     if(!selectedFood) return;
-    const grams = parseFloat(document.getElementById('setup-grams').value) || 0;
-    const multi = grams / 100;
+    const inputVal = parseFloat(document.getElementById('setup-grams').value) || 0;
+    const baseAmount = selectedFood.baseAmount || 100;
+    const unitLabel = selectedFood.unit || 'g';
+    const multi = inputVal / baseAmount;
 
     const newLog = {
         id: Date.now() + Math.random(),
@@ -1872,7 +1886,7 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
         date: window.currentAddingDate || todayDateStr,
         meal: currentAddingMeal,
-        name: `${selectedFood.name} (${grams}g)`,
+        name: `${selectedFood.name} (${inputVal}${unitLabel})`,
         cal: Math.round(selectedFood.cals * multi),
         pro: Math.round(selectedFood.macros.p * multi),
         carb: Math.round(selectedFood.macros.c * multi),
