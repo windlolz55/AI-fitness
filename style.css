@@ -480,3 +480,8 @@ input[type=number] {
         margin-left: 0;
     }
 }
+
+[data-theme="dark"] select option {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
