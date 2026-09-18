@@ -2545,8 +2545,9 @@ function renderLogs() {
                                         <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
                                     </div>
                                 </div>
-                                <div class="meal-item-cal" style="display:flex; align-items:center; gap:12px;">
+                                <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px;">
                                     <span>${item.cal}kcal</span>
+                                    <div style="width:24px; height:24px;"></div>
                                     <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="deleteLogItem(${item.id})">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
