@@ -317,7 +317,31 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 ]
             }],
             generationConfig: {
-                response_mime_type: "application/json"
+                response_mime_type: "application/json",
+                temperature: 0.2,
+                response_schema: {
+                    type: "OBJECT",
+                    properties: {
+                        reasoning: { type: "STRING" },
+                        meal_name: { type: "STRING" },
+                        items: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    name: { type: "STRING" },
+                                    grams: { type: "INTEGER" },
+                                    cal: { type: "INTEGER" },
+                                    pro: { type: "NUMBER" },
+                                    carb: { type: "NUMBER" },
+                                    fat: { type: "NUMBER" }
+                                },
+                                required: ["name", "grams", "cal", "pro", "carb", "fat"]
+                            }
+                        }
+                    },
+                    required: ["reasoning", "meal_name", "items"]
+                }
             }
         };
 
@@ -325,7 +349,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             progBar.style.width = '40%';
             progText.innerText = '40%';
 
-            const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
+            const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
             let response = null;
             let lastError = null;
             window.modelErrorLog = [];
