@@ -316,19 +316,33 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             progBar.style.width = '40%';
             progText.innerText = '40%';
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+            let response = null;
+            let lastError = null;
 
-            progBar.style.width = '80%';
-            progText.innerText = '80%';
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API 錯誤 (${response.status}): ${errorText}`);
+            for (const model of modelsToTry) {
+                try {
+                    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        break; // Success!
+                    } else {
+                        const errorText = await response.text();
+                        lastError = new Error(`API 錯誤 (${model} - ${response.status}): ${errorText}`);
+                    }
+                } catch (e) {
+                    lastError = e;
+                }
             }
+
+            if (!response || !response.ok) {
+                throw lastError;
+            }
+
             const data = await response.json();
             
             let jsonText = data.candidates[0].content.parts[0].text;
