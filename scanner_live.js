@@ -1,4 +1,4 @@
-﻿let currentScanMode = 'barcode';
+let currentScanMode = 'barcode';
 let html5QrCode = null;
 let isCameraRunning = false;
 let barcodeLastScanned = null;
@@ -325,25 +325,33 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             progBar.style.width = '80%';
             progText.innerText = '80%';
 
-            if (!response.ok) throw new Error("API 請求失敗: " + response.status);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API 錯誤 (${response.status}): ${errorText}`);
+            }
             const data = await response.json();
             
             let jsonText = data.candidates[0].content.parts[0].text;
-            jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+            
+            const match = jsonText.match(/\{[\s\S]*\}/);
+            if (match) {
+                jsonText = match[0];
+            } else {
+                jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+            }
+            
             const aiResults = JSON.parse(jsonText);
             
-            document.getElementById('scan-meal-name').value = aiResults.meal_name || '掃描結果';
+            document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 綜合辨識';
             
-            const itemsArray = Array.isArray(aiResults.items) ? aiResults.items : (Array.isArray(aiResults) ? aiResults : []);
-            
-            currentScanItems = itemsArray.map(item => ({
-                id: Date.now() + Math.random(),
-                name: item.name || '未知',
-                cal: item.cal || 0,
-                pro: item.pro || 0,
-                carb: item.carb || 0,
-                fat: item.fat || 0,
-                grams: item.grams || 100,
+            currentScanItems = aiResults.items.map(item => ({
+                id: 'scan_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                name: item.name,
+                cal: parseFloat(item.cal) || 0,
+                pro: parseFloat(item.pro) || 0,
+                fat: parseFloat(item.fat) || 0,
+                carb: parseFloat(item.carb) || 0,
+                baseGrams: parseFloat(item.grams) || 100,
                 checked: true
             }));
             
@@ -352,7 +360,7 @@ function customCallGeminiVisionAPI(file, customPrompt) {
             }
             
             progBar.style.width = '100%';
-            progText.innerText = '100%';
+            progText.innerText = '完成！';
             
             setTimeout(() => {
                 progContainer.style.display = 'none';
