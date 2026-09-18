@@ -319,33 +319,7 @@ function customCallGeminiVisionAPI(file, customPrompt) {
                     { text: customPrompt },
                     { inline_data: { mime_type: "image/jpeg", data: base64String } }
                 ]
-            }],
-            generationConfig: {
-                response_mime_type: "application/json",
-                response_schema: {
-                    type: "OBJECT",
-                    properties: {
-                        reasoning: { type: "STRING" },
-                        meal_name: { type: "STRING" },
-                        items: {
-                            type: "ARRAY",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    name: { type: "STRING" },
-                                    grams: { type: "NUMBER" },
-                                    cal: { type: "NUMBER" },
-                                    pro: { type: "NUMBER" },
-                                    carb: { type: "NUMBER" },
-                                    fat: { type: "NUMBER" }
-                                },
-                                required: ["name", "grams", "cal", "pro", "carb", "fat"]
-                            }
-                        }
-                    },
-                    required: ["reasoning", "meal_name", "items"]
-                }
-            }
+            }]
         };
 
         try {
