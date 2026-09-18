@@ -1,4 +1,4 @@
-let currentScanMode = 'barcode';
+﻿let currentScanMode = 'barcode';
 let html5QrCode = null;
 let isCameraRunning = false;
 let barcodeLastScanned = null;
