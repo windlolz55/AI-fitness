@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     /* Light Theme (Default) */
     --bg-main: #f4f6f8;
     --text-main: #333333;
@@ -15,6 +15,7 @@
 }
 
 [data-theme="dark"] {
+    color-scheme: dark;
     /* Dark Theme */
     --bg-main: #121212;
     --text-main: #ffffff;
