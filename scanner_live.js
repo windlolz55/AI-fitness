@@ -405,11 +405,30 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             
             if (Array.isArray(aiResults)) {
                 aiResults = { meal_name: '綜合食物', items: aiResults };
-            } else if (!aiResults.items) {
-                aiResults.items = [aiResults];
+            } else if (!aiResults.items || !Array.isArray(aiResults.items)) {
+                let foundItems = [];
+                for (let key of Object.keys(aiResults)) {
+                    if (Array.isArray(aiResults[key])) {
+                        foundItems = aiResults[key];
+                        break;
+                    }
+                }
+                aiResults.items = foundItems.length > 0 ? foundItems : [aiResults];
             }
             
-            document.getElementById('scan-meal-name').value = aiResults.meal_name || 'AI 綜合辨識';
+            let finalMealName = aiResults.meal_name;
+            if (!finalMealName) {
+                for (let key of Object.keys(aiResults)) {
+                    let k = key.toLowerCase();
+                    if ((k.includes('meal') || k.includes('name') || k.includes('名稱') || k.includes('標題')) && typeof aiResults[key] === 'string') {
+                        finalMealName = aiResults[key];
+                        break;
+                    }
+                }
+                if (!finalMealName) finalMealName = '綜合食物';
+            }
+            
+            document.getElementById('scan-meal-name').value = finalMealName;
             
             let indicator = document.getElementById("model-indicator");
             if (!indicator) {
@@ -428,16 +447,35 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             }
             indicator.innerHTML = `Powered by ${window.lastSuccessfulModel || 'gemini-1.5-flash'}${debugText}`;
             
-            currentScanItems = aiResults.items.map(item => ({
-                id: 'scan_' + Date.now() + Math.random().toString(36).substr(2, 9),
-                name: item.name,
-                cal: parseFloat(item.cal) || 0,
-                pro: parseFloat(item.pro) || 0,
-                fat: parseFloat(item.fat) || 0,
-                carb: parseFloat(item.carb) || 0,
-                grams: parseFloat(item.grams) || 100,
-                checked: true
-            }));
+            currentScanItems = aiResults.items.map(item => {
+                let nameStr = item.name;
+                let calVal = item.cal;
+                let proVal = item.pro;
+                let fatVal = item.fat;
+                let carbVal = item.carb;
+                let gramsVal = item.grams;
+                
+                for (let key of Object.keys(item)) {
+                    let k = key.toLowerCase();
+                    if (!nameStr && (k.includes('name') || k.includes('品名') || k.includes('食材') || k.includes('名稱') || k.includes('標題'))) nameStr = item[key];
+                    if (calVal === undefined && (k.includes('cal') || k.includes('熱量') || k.includes('卡'))) calVal = item[key];
+                    if (proVal === undefined && (k.includes('pro') || k.includes('蛋白'))) proVal = item[key];
+                    if (fatVal === undefined && (k.includes('fat') || k.includes('脂'))) fatVal = item[key];
+                    if (carbVal === undefined && (k.includes('carb') || k.includes('碳水'))) carbVal = item[key];
+                    if (gramsVal === undefined && (k.includes('gram') || k.includes('重量') || k.includes('公克') || k === 'g')) gramsVal = item[key];
+                }
+                
+                return {
+                    id: 'scan_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                    name: nameStr,
+                    cal: parseFloat(calVal) || 0,
+                    pro: parseFloat(proVal) || 0,
+                    fat: parseFloat(fatVal) || 0,
+                    carb: parseFloat(carbVal) || 0,
+                    grams: parseFloat(gramsVal) || 100,
+                    checked: true
+                };
+            });
             
             if (typeof renderScanChecklist === 'function') {
                 renderScanChecklist();
