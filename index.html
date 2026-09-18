@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.95</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v2.96</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -427,7 +427,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.95 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v2.96 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -518,7 +518,10 @@
             </div>
             <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 24px;">
                 <input type="number" id="setup-grams" class="input-field" value="100" style="margin-bottom: 0;">
-                <span id="setup-unit-label" style="font-weight: 600; width: 40px;">g</span>
+                <select id="setup-unit-label" class="input-field" style="margin-bottom: 0; width: 80px; padding: 12px; font-weight: bold; background: var(--bg-main);" onchange="handleUnitChange()">
+                    <option value="serving">份</option>
+                    <option value="g">g</option>
+                </select>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
                 <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">熱量</div><strong id="setup-cal">0</strong> kcal</div>
@@ -936,11 +939,11 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=2.95"></script>
-    <script src="food_db.js?v=2.95"></script>
-    <script src="templates.js?v=2.95"></script>
-    <script src="routine.js?v=2.95"></script>
-    <script src="app.js?v=2.95"></script>
+    <script src="exercise_db.js?v=2.96"></script>
+    <script src="food_db.js?v=2.96"></script>
+    <script src="templates.js?v=2.96"></script>
+    <script src="routine.js?v=2.96"></script>
+    <script src="app.js?v=2.96"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

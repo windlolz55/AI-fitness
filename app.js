@@ -1816,20 +1816,41 @@ function selectFood(foodId) {
     selectedFood = foodDatabase.foods.find(f => f.id === foodId);
     document.getElementById('setup-food-name').innerText = selectedFood.name;
     
+    let weightMatch = selectedFood.name.match(/(\d+)\s*g/i);
+    let weightPerServing = weightMatch ? parseFloat(weightMatch[1]) : null;
     let isGrams = selectedFood.name.includes('100g');
-    let unitLabel = isGrams ? 'g' : '份';
+    
+    let defaultUnit = isGrams ? 'g' : 'serving';
     let defaultAmount = isGrams ? 100 : 1;
     
-    selectedFood.unit = unitLabel;
+    selectedFood.baseUnit = defaultUnit;
     selectedFood.baseAmount = defaultAmount;
+    selectedFood.weightPerServing = weightPerServing;
     
-    const unitLabelEl = document.getElementById('setup-unit-label');
-    if (unitLabelEl) unitLabelEl.innerText = unitLabel;
+    const unitSelectEl = document.getElementById('setup-unit-label');
+    if (unitSelectEl) {
+        unitSelectEl.value = defaultUnit;
+        const gOption = unitSelectEl.querySelector('option[value="g"]');
+        if (gOption) {
+            gOption.disabled = !weightPerServing && !isGrams;
+        }
+    }
     
     document.getElementById('setup-grams').value = defaultAmount;
     updateFoodSetup();
     document.getElementById('food-setup-modal').classList.add('open');
 }
+
+window.handleUnitChange = function() {
+    if (!selectedFood) return;
+    const unit = document.getElementById('setup-unit-label').value;
+    if (unit === 'g') {
+        document.getElementById('setup-grams').value = selectedFood.weightPerServing || 100;
+    } else {
+        document.getElementById('setup-grams').value = 1;
+    }
+    updateFoodSetup();
+};
 
 function toggleFavorite(e, id) {
     e.stopPropagation();
@@ -1871,8 +1892,19 @@ document.getElementById('setup-grams').addEventListener('input', updateFoodSetup
 function updateFoodSetup() {
     if(!selectedFood) return;
     const inputVal = parseFloat(document.getElementById('setup-grams').value) || 0;
-    const baseAmount = selectedFood.baseAmount || 100;
-    const multi = inputVal / baseAmount;
+    const unit = document.getElementById('setup-unit-label').value;
+    
+    let multi = 0;
+    if (unit === 'serving') {
+        multi = inputVal / 1;
+    } else {
+        if (selectedFood.name.includes('100g')) {
+            multi = inputVal / 100;
+        } else {
+            multi = inputVal / selectedFood.weightPerServing;
+        }
+    }
+    
     document.getElementById('setup-cal').innerText = Math.round(selectedFood.cals * multi);
     document.getElementById('setup-pro').innerText = Math.round(selectedFood.macros.p * multi);
     document.getElementById('setup-carb').innerText = Math.round(selectedFood.macros.c * multi);
@@ -1882,9 +1914,19 @@ function updateFoodSetup() {
 document.getElementById('btn-add-food').addEventListener('click', () => {
     if(!selectedFood) return;
     const inputVal = parseFloat(document.getElementById('setup-grams').value) || 0;
-    const baseAmount = selectedFood.baseAmount || 100;
-    const unitLabel = selectedFood.unit || 'g';
-    const multi = inputVal / baseAmount;
+    const unit = document.getElementById('setup-unit-label').value;
+    const displayUnit = unit === 'g' ? 'g' : '份';
+    
+    let multi = 0;
+    if (unit === 'serving') {
+        multi = inputVal / 1;
+    } else {
+        if (selectedFood.name.includes('100g')) {
+            multi = inputVal / 100;
+        } else {
+            multi = inputVal / selectedFood.weightPerServing;
+        }
+    }
 
     const newLog = {
         id: Date.now() + Math.random(),
@@ -1892,7 +1934,7 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
         date: window.currentAddingDate || todayDateStr,
         meal: currentAddingMeal,
-        name: `${selectedFood.name} (${inputVal}${unitLabel})`,
+        name: `${selectedFood.name} (${inputVal}${displayUnit})`,
         cal: Math.round(selectedFood.cals * multi),
         pro: Math.round(selectedFood.macros.p * multi),
         carb: Math.round(selectedFood.macros.c * multi),
