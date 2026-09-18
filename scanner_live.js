@@ -277,19 +277,19 @@ function executeCustomScan(mode) {
     
     let promptText = "";
     if (mode === 'food') {
-        promptText = "你是一個專業營養師。請分析這張食物照片。如果有多項請分開列出，並估算重量(g)、熱量(kcal)、蛋白質(g)、脂肪(g)、碳水(g)。\n重要：你必須嚴格遵守以下JSON格式，欄位名稱(key)必須是純英文，請勿翻譯成中文，且全部數值皆為純數字：\n{\n  \"reasoning\": \"推論過程(字串)\",\n  \"meal_name\": \"名稱(字串)\",\n  \"items\": [\n    {\n      \"name\": \"食材名(字串)\",\n      \"grams\": 重量(數字),\n      \"cal\": 熱量(數字),\n      \"pro\": 蛋白質(數字),\n      \"carb\": 碳水(數字),\n      \"fat\": 脂肪(數字)\n    }\n  ]\n}";
+        promptText = "你是一個專業營養師。請分析這張食物照片。如果有多項請分開列出，並估算重量(g)、熱量(kcal)、蛋白質(g)、脂肪(g)、碳水(g)。\n【極度重要指令】：你「只准」輸出 JSON 格式的資料，絕對不可以包含任何說明文字、開場白（例如 This delicious...）或 markdown 符號（不要用 ```json）！字串必須以 { 開頭，以 } 結尾。\n請嚴格遵守以下格式，且欄位名稱(key)必須完全一模一樣，不要翻譯：\n{\n  \"reasoning\": \"你的推論\",\n  \"meal_name\": \"食物名稱\",\n  \"items\": [\n    {\n      \"name\": \"品名\",\n      \"grams\": 100,\n      \"cal\": 100,\n      \"pro\": 10,\n      \"carb\": 10,\n      \"fat\": 10\n    }\n  ]\n}";
     } else if (mode === 'ingredient') {
-        promptText = "這是一張營養標示的照片。請幫我讀取數據。如果是一整包營養標示，請換算成以 100g 或是 1份（若以 1份為數據基準，請在 name 顯示如'營養標示(1份)'）。\n重要：你必須嚴格遵守以下JSON格式，欄位名稱(key)必須是純英文，請勿翻譯成中文，且全部數值皆為純數字：\n{\n  \"reasoning\": \"推論過程(字串)\",\n  \"meal_name\": \"營養標示數據\",\n  \"items\": [\n    {\n      \"name\": \"標題(字串)\",\n      \"grams\": 重量或公克數(數字),\n      \"cal\": 熱量(數字),\n      \"pro\": 蛋白質(數字),\n      \"carb\": 碳水(數字),\n      \"fat\": 脂肪(數字)\n    }\n  ]\n}";
+        promptText = "這是一張營養標示的照片。請幫我讀取數據。如果是一整包營養標示，請換算成以 100g 或是 1份。\n【極度重要指令】：你「只准」輸出 JSON 格式的資料，絕對不可以包含任何說明文字、開場白或 markdown 符號（不要用 ```json）！字串必須以 { 開頭，以 } 結尾。\n請嚴格遵守以下格式，且欄位名稱(key)必須完全一模一樣，不要翻譯：\n{\n  \"reasoning\": \"你的推論\",\n  \"meal_name\": \"標示名稱\",\n  \"items\": [\n    {\n      \"name\": \"標題\",\n      \"grams\": 100,\n      \"cal\": 100,\n      \"pro\": 10,\n      \"carb\": 10,\n      \"fat\": 10\n    }\n  ]\n}";
     }
     
     customCallGeminiVisionAPI(window.currentPreviewFile, promptText);
 }
 
 // Function to call Gemini with a custom prompt
-function customCallGeminiVisionAPI(file, customPrompt) {
+async function customCallGeminiVisionAPI(file, customPrompt) {
     const apiKey = document.getElementById('gemini-api-key').value.trim();
     if (!apiKey) {
-        alert("請先輸入 Gemini API Key");
+        alert("請輸入 Gemini API Key");
         resetScanner();
         return;
     }
@@ -299,14 +299,10 @@ function customCallGeminiVisionAPI(file, customPrompt) {
     const progText = document.getElementById("scan-progress-text");
     
     if (progContainer) {
-        // The original UI expects block, the live camera one expects flex.
-        // Since we are using the original one (because getElementById returns the first match), use block.
-        progContainer.style.display = "block";
+        progContainer.style.display = "flex";
+        progBar.style.width = '10%';
+        progText.innerText = '10%';
     }
-    progBar.style.width = '10%';
-    progText.innerText = '10%';
-    
-    document.getElementById('btn-capture').style.display = 'none';
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
