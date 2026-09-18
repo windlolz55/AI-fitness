@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.15">
+    <link rel="stylesheet" href="style.css?v=3.16">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.15</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.16</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -425,7 +425,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.15 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.16 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -938,11 +938,11 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.15"></script>
-    <script src="food_db.js?v=3.15"></script>
-    <script src="templates.js?v=3.15"></script>
-    <script src="routine.js?v=3.15"></script>
-    <script src="app.js?v=3.15"></script>`n    <script src="scanner_live.js?v=3.15"></script>
+    <script src="exercise_db.js?v=3.16"></script>
+    <script src="food_db.js?v=3.16"></script>
+    <script src="templates.js?v=3.16"></script>
+    <script src="routine.js?v=3.16"></script>
+    <script src="app.js?v=3.16"></script>`n    <script src="scanner_live.js?v=3.16"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -1000,7 +1000,7 @@
             
             <!-- Shutter & Gallery -->
             <div style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 24px;">
-                <button id="btn-gallery" style="position: absolute; left: 0; width: 50px; height: 50px; border-radius: 16px; background: rgba(255,255,255,0.15); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; backdrop-filter: blur(8px);" onclick="closeLiveCamera(); document.getElementById('file-input').click();"><i class="fa-solid fa-image"></i></button>
+                
                 
                 <button id="btn-capture" style="width: 80px; height: 80px; border-radius: 50%; background: #fff; border: none; display: none; cursor: pointer; transition: transform 0.1s; position: relative;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'" onclick="captureImage()">
                     <div style="position: absolute; inset: 4px; border-radius: 50%; border: 2px solid #000;"></div>

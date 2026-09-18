@@ -186,6 +186,13 @@ window.resetScanner = function() {
     if (preview) preview.style.display = "none";
     if (cameraIcon) cameraIcon.style.display = "block";
     
+    const btnCamera = document.getElementById("btn-camera");
+    if (btnCamera) btnCamera.style.display = "block";
+    const allBtns = document.querySelectorAll("#scanner-main-content .btn-secondary");
+    allBtns.forEach(b => {
+        if(b.innerText.includes("從相簿")) b.style.display = "block";
+    });
+    
     const feed = document.getElementById("camera-feed");
     if (feed) feed.style.display = "block";
     document.getElementById('scan-progress-container').style.display = 'none';
