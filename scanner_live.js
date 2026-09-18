@@ -370,7 +370,7 @@ function customCallGeminiVisionAPI(file, customPrompt) {
 
         } catch (error) {
             console.error(error);
-            alert("解析失敗，請確認照片清晰或重試。");
+            alert("錯誤: " + error.message);
             resetScanner();
         }
     };
