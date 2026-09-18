@@ -1,7 +1,26 @@
-﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
+
+function getEstimatedWeight(food) {
+    if (food.weightPerServing) return food.weightPerServing;
+    let m = food.name.match(/(\d+)\s*(g|ml)/i);
+    if (m) return parseFloat(m[1]);
+    if (food.name.includes('100g')) return 100;
+    const categoryEstimates = {
+        'street': 250,
+        'bento': 450,
+        'breakfast': 200,
+        'store': 150,
+        'raw': 100,
+        'fruit': 150,
+        'supp': 30,
+        'cheat': 500
+    };
+    return categoryEstimates[food.categoryId] || 100;
+}
+
 
 // Firebase Config
 const firebaseConfig = {
@@ -1702,9 +1721,17 @@ function renderDBContent(searchQuery = '') {
         let displayName = food.name;
         let unitName = "";
         const match = food.name.match(/^(.*?)\s*(\(.*?\))$/);
+        let estWeight = getEstimatedWeight(food);
+        
         if (match) {
             displayName = match[1];
-            unitName = `<div style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">${match[2]}</div>`;
+            if (match[2].toLowerCase().includes("g") || match[2].toLowerCase().includes("ml")) {
+                unitName = `<div style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">${match[2]}</div>`;
+            } else {
+                unitName = `<div style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">${match[2]} <span style="color:#aaa;">(約 ${estWeight}g)</span></div>`;
+            }
+        } else {
+            unitName = `<div style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">1份 <span style="color:#aaa;">(約 ${estWeight}g)</span></div>`;
         }
 
         if (isFoodDBEditMode) {
