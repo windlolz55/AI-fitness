@@ -277,9 +277,9 @@ function executeCustomScan(mode) {
     
     let promptText = "";
     if (mode === 'food') {
-        promptText = "你是一個專業營養師。請分析這張照片。如果是食物，請辨識名稱，並估算重量(g)、熱量(kcal)、蛋白質(g)、碳水(g)、脂肪(g)。以JSON格式回傳，不要markdown語法。格式：{ \"reasoning\": \"思考過程\", \"meal_name\": \"名稱\", \"items\": [ { \"name\": \"品名\", \"grams\": 數字, \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }";
+        promptText = "你是一個專業營養師。請分析這張食物照片。如果有多項請分開列出，並估算重量(g)、熱量(kcal)、蛋白質(g)、脂肪(g)、碳水(g)。\n重要：你必須嚴格遵守以下JSON格式，欄位名稱(key)必須是純英文，請勿翻譯成中文，且全部數值皆為純數字：\n{\n  \"reasoning\": \"推論過程(字串)\",\n  \"meal_name\": \"名稱(字串)\",\n  \"items\": [\n    {\n      \"name\": \"食材名(字串)\",\n      \"grams\": 重量(數字),\n      \"cal\": 熱量(數字),\n      \"pro\": 蛋白質(數字),\n      \"carb\": 碳水(數字),\n      \"fat\": 脂肪(數字)\n    }\n  ]\n}";
     } else if (mode === 'ingredient') {
-        promptText = "這是一張營養標示表的照片。請精準讀取表上的數據。如果不清楚請合理推估。回傳一份完整的營養數據，通常以 100g 或是 1份 為單位（請優先選擇 1份 的數據若有的話，並在 name 中標示單位如：'營養標示(1份)'）。以JSON格式回傳，不要markdown語法。格式：{ \"reasoning\": \"思考過程\", \"meal_name\": \"營養標示數據\", \"items\": [ { \"name\": \"品名\", \"grams\": 數字(通常是份量克數), \"cal\": 數字, \"pro\": 數字, \"carb\": 數字, \"fat\": 數字 } ] }";
+        promptText = "這是一張營養標示的照片。請幫我讀取數據。如果是一整包營養標示，請換算成以 100g 或是 1份（若以 1份為數據基準，請在 name 顯示如'營養標示(1份)'）。\n重要：你必須嚴格遵守以下JSON格式，欄位名稱(key)必須是純英文，請勿翻譯成中文，且全部數值皆為純數字：\n{\n  \"reasoning\": \"推論過程(字串)\",\n  \"meal_name\": \"營養標示數據\",\n  \"items\": [\n    {\n      \"name\": \"標題(字串)\",\n      \"grams\": 重量或公克數(數字),\n      \"cal\": 熱量(數字),\n      \"pro\": 蛋白質(數字),\n      \"carb\": 碳水(數字),\n      \"fat\": 脂肪(數字)\n    }\n  ]\n}";
     }
     
     customCallGeminiVisionAPI(window.currentPreviewFile, promptText);
@@ -319,7 +319,10 @@ function customCallGeminiVisionAPI(file, customPrompt) {
                     { text: customPrompt },
                     { inline_data: { mime_type: "image/jpeg", data: base64String } }
                 ]
-            }]
+            }],
+            generationConfig: {
+                response_mime_type: "application/json"
+            }
         };
 
         try {
