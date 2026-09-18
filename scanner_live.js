@@ -325,7 +325,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             progBar.style.width = '40%';
             progText.innerText = '40%';
 
-            const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+            const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
             let response = null;
             let lastError = null;
             window.modelErrorLog = [];
