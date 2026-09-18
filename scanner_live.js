@@ -321,8 +321,8 @@ function customCallGeminiVisionAPI(file, customPrompt) {
                 ]
             }],
             generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: {
+                response_mime_type: "application/json",
+                response_schema: {
                     type: "OBJECT",
                     properties: {
                         reasoning: { type: "STRING" },
