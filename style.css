@@ -482,3 +482,47 @@ input[type=number] {
 }
 
 [data-theme="dark"] select, [data-theme="dark"] option { color-scheme: dark; background-color: #121212 !important; color: #ffffff !important; }
+/* Scanner UI */
+.scan-mode-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.scan-mode-btn.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+.scan-mode-btn i {
+    font-size: 18px;
+}
+
+#scanner-mask {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);
+    border: 2px solid rgba(255,255,255,0.8);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.scanner-mask-barcode {
+    width: 80%;
+    height: 120px;
+}
+.scanner-mask-food, .scanner-mask-ingredient {
+    width: 85%;
+    height: 70%;
+}
