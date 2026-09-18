@@ -1,4 +1,4 @@
-﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -2491,16 +2491,14 @@ function renderLogs() {
 
                         itemsHTML += `
                             <div class="meal-item" style="flex-direction:column; align-items:stretch;">
-                                <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleSubItems('${item.id}')">
-                                    <div style="display:flex; align-items:center; gap:12px;">
-                                        <div class="meal-item-icon" style="background: var(--accent-primary); color: var(--bg-main); font-size:16px;"><i class="fa-solid fa-layer-group"></i></div>
-                                        <div class="meal-item-info">
-                                            <div class="meal-item-name">${item.name}</div>
-                                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
-                                                <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
-                                                <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
-                                                <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
-                                            </div>
+                                <div style="display:flex; align-items:center; cursor:pointer; width:100%;" onclick="toggleSubItems('${item.id}')">
+                                    <div class="meal-item-icon" style="background: var(--accent-primary); color: var(--bg-main); font-size:16px;"><i class="fa-solid fa-layer-group"></i></div>
+                                    <div class="meal-item-info">
+                                        <div class="meal-item-name">${item.name}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
+                                            <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
+                                            <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
+                                            <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
                                         </div>
                                     </div>
                                     <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px;">
