@@ -462,7 +462,8 @@ if (!dailyData[todayDateStr]) {
 // // Food database is loaded from food_db.js (foodDatabase)
 
 // Initialize 'custom' category dynamically
-foodDatabase.categories.unshift({ id: 'custom', name: '我的最愛', icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' });
+foodDatabase.categories.unshift({ id: 'favorites', name: '我的最愛', icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' });
+foodDatabase.categories.push({ id: 'custom', name: '自訂', icon: 'fluent-emoji-flat:memo', color: '#a29bfe' });
 
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
@@ -1635,7 +1636,7 @@ function updateDashboard() {
 let currentAddingMeal = 'snack';
 let selectedFood = null;
 let currentCart = [];
-let activeCategory = 'custom';
+let activeCategory = 'favorites';
 
 function openFoodDB(meal, targetDateStr) {
     if (!targetDateStr) targetDateStr = todayDateStr;
@@ -1650,7 +1651,7 @@ function openFoodDB(meal, targetDateStr) {
     document.getElementById('db-meal-selector').value = meal;
     changeAddingMeal(meal);
     
-    activeCategory = 'custom';
+    activeCategory = 'favorites';
     renderDBSidebar();
     renderDBContent();
 
@@ -1698,8 +1699,8 @@ function renderDBContent(searchQuery = '') {
         const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
         document.getElementById('db-category-title').innerText = title + '類';
         
-        if (activeCategory === 'custom') {
-            filteredFoods = visibleFoods.filter(f => f.categoryId === 'custom' || favoriteFoodIds.includes(f.id));
+        if (activeCategory === 'favorites') {
+            filteredFoods = visibleFoods.filter(f => favoriteFoodIds.includes(f.id));
         } else {
             filteredFoods = visibleFoods.filter(f => f.categoryId === activeCategory);
         }
@@ -1886,12 +1887,7 @@ window.handleUnitChange = function() {
 
 function toggleFavorite(e, id) {
     e.stopPropagation();
-    // Cannot unfavorite a purely custom food unless we delete it entirely
-    const food = foodDatabase.foods.find(f => f.id === id);
-    if(food && food.categoryId === 'custom') {
-        alert('這是您建立的自訂食物，預設會在我的最愛中喔！');
-        return;
-    }
+    
     
     if (favoriteFoodIds.includes(id)) {
         favoriteFoodIds = favoriteFoodIds.filter(fId => fId !== id);
