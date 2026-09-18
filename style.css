@@ -481,7 +481,4 @@ input[type=number] {
     }
 }
 
-[data-theme="dark"] select option {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-}
+[data-theme="dark"] select, [data-theme="dark"] option { color-scheme: dark; background-color: #121212 !important; color: #ffffff !important; }

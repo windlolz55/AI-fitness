@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.04">
+    <link rel="stylesheet" href="style.css?v=3.05">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -41,7 +41,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.04</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.05</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -352,9 +352,9 @@
 
             <div class="card" style="padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-weight: 500;">主題模式</span>
-                <select id="theme-select" style="padding: 6px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer;">
-                    <option value="light" style="background: var(--bg-color); color: var(--text-main);">淺色模式</option>
-                    <option value="dark" style="background: var(--bg-color); color: var(--text-main);">深色模式</option>
+                <select id="theme-select" style="color-scheme: dark; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer;">
+                    <option value="light" class="themed-option">淺色模式</option>
+                    <option value="dark" class="themed-option">深色模式</option>
                 </select>
             </div>
 
@@ -425,7 +425,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.04 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.05 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -517,8 +517,8 @@
             <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 24px;">
                 <input type="number" id="setup-grams" class="input-field" value="100" style="margin-bottom: 0;">
                 <select id="setup-unit-label" class="input-field" style="margin-bottom: 0; width: 80px; padding: 12px; font-weight: bold; background: var(--bg-main);" onchange="handleUnitChange()">
-                    <option value="serving">份</option>
-                    <option value="g">g</option>
+                    <option value="serving" class="themed-option">份</option>
+                    <option value="g" class="themed-option">g</option>
                 </select>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
@@ -937,11 +937,11 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.04"></script>
-    <script src="food_db.js?v=3.04"></script>
-    <script src="templates.js?v=3.04"></script>
-    <script src="routine.js?v=3.04"></script>
-    <script src="app.js?v=3.04"></script>
+    <script src="exercise_db.js?v=3.05"></script>
+    <script src="food_db.js?v=3.05"></script>
+    <script src="templates.js?v=3.05"></script>
+    <script src="routine.js?v=3.05"></script>
+    <script src="app.js?v=3.05"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
