@@ -114,7 +114,7 @@ function renderTemplateManager() {
         return;
     }
     
-    let html = '';
+    let html = '<div id="template-sortable-list">';
     FITNESS_TEMPLATES.forEach((tpl, idx) => {
         let tagsHtml = '';
         if (tpl.tags && tpl.tags.length > 0) {
@@ -122,7 +122,10 @@ function renderTemplateManager() {
         }
         
         html += `
-            <div class="card log-item" style="padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+            <div class="card log-item" data-idx="${idx}" style="padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="drag-handle" style="padding-right: 12px; color: var(--card-border); cursor: grab; font-size: 18px;">
+                    <i class="fa-solid fa-grip-lines"></i>
+                </div>
                 <div style="flex: 1; cursor: pointer;" onclick="openTemplateEditor(${idx})">
                     <h4 style="margin: 0; font-size: 16px;">${tpl.title}</h4>
                     <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted);">${tpl.exercises.length} 個動作</p>
@@ -142,6 +145,8 @@ function renderTemplateManager() {
         `;
     });
     
+    html += '</div>';
+    
     html += `
         <button class="btn-secondary" style="width: 100%; padding: 16px; border-radius: 12px; margin-top: 16px;" onclick="openTemplateEditor(-1)">
             <i class="fa-solid fa-plus" style="color: var(--accent-primary);"></i> 新增課表範本
@@ -149,6 +154,18 @@ function renderTemplateManager() {
     `;
     
     container.innerHTML = html;
+    
+    if (window.templateSortable) window.templateSortable.destroy();
+    window.templateSortable = new Sortable(document.getElementById('template-sortable-list'), {
+        animation: 150,
+        handle: '.drag-handle',
+        onEnd: function (evt) {
+            const movedItem = FITNESS_TEMPLATES.splice(evt.oldIndex, 1)[0];
+            FITNESS_TEMPLATES.splice(evt.newIndex, 0, movedItem);
+            setAndSync('fitness_templates', JSON.stringify(FITNESS_TEMPLATES));
+            renderTemplateManager();
+        }
+    });
 }
 
 window.deleteTemplate = function(idx) {
@@ -181,6 +198,12 @@ window.openTemplateEditor = function(idx) {
     }
     
     document.getElementById('template-editor-modal').style.display = 'flex';
+    
+    if (window.templateExSortable) window.templateExSortable.destroy();
+    window.templateExSortable = new Sortable(document.getElementById('template-edit-exercises'), {
+        animation: 150,
+        handle: '.drag-handle'
+    });
 };
 
 window.closeTemplateEditor = function() {
@@ -242,7 +265,12 @@ function appendExerciseToEditor(ex, exIdx) {
     
     div.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;" title="${ex.name}">${ex.name}</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="drag-handle" style="color: var(--card-border); cursor: grab;">
+                    <i class="fa-solid fa-grip-lines"></i>
+                </div>
+                <div style="font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ex.name}">${ex.name}</div>
+            </div>
             <div style="color: #ff6b81; cursor: pointer; padding: 4px; flex-shrink: 0;" onclick="if(confirm('確定要從清單移除這個動作嗎？')) this.parentElement.parentElement.remove()">
                 <i class="fa-solid fa-times"></i>
             </div>

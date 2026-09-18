@@ -1,4 +1,4 @@
-let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
+﻿let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
 let dbSortable = null;
@@ -741,6 +741,7 @@ function renderWorkout() {
     const nonCardio = loggedWorkouts.filter(ex => ex.type !== 'cardio');
     const cardios = loggedWorkouts.filter(ex => ex.type === 'cardio');
     
+    html += '<div id="workout-sortable-list">';
     nonCardio.forEach((ex, idx) => {
         let isCompleted = ex.completed === undefined ? true : ex.completed;
         
@@ -751,7 +752,10 @@ function renderWorkout() {
         let icon = ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell';
         
         html += `
-            <div class="card log-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
+            <div class="card log-item" data-name="${ex.name}" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
+                <div class="drag-handle" style="padding-right: 12px; color: var(--card-border); cursor: grab; font-size: 18px;">
+                    <i class="fa-solid fa-grip-lines"></i>
+                </div>
                 <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; min-width: 0;" onclick="openWorkoutModal('${ex.name}')">
                     <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main); flex-shrink: 0;">
                         <i class="fa-solid ${icon}"></i>
@@ -767,6 +771,7 @@ function renderWorkout() {
             </div>
         `;
     });
+    html += '</div>';
     
     if (cardios.length > 0) {
         let allCardioCompleted = true;
