@@ -1,4 +1,4 @@
-let currentScanMode = 'barcode';
+﻿let currentScanMode = 'barcode';
 let html5QrCode = null;
 let isCameraRunning = false;
 let barcodeLastScanned = null;
@@ -296,15 +296,36 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
         return;
     }
 
-    const progContainer = document.getElementById("scan-progress-container");
-    const progBar = document.getElementById("scan-progress-bar");
-    const progText = document.getElementById("scan-progress-text");
+    const progContainer1 = document.getElementById("scan-progress-container");
+    const progBar1 = document.getElementById("scan-progress-bar");
+    const progText1 = document.getElementById("scan-progress-text");
+    const progContainer2 = document.getElementById("live-scan-progress-container");
+    const progBar2 = document.getElementById("live-scan-progress-bar");
+    const progText2 = document.getElementById("live-scan-progress-text");
     
-    if (progContainer) {
-        progContainer.style.display = "block";
-        progBar.style.width = '10%';
-        progText.innerText = '10%';
+    function updateProgress(percent, text) {
+        if (progContainer1) {
+            if (percent === 'none') {
+                progContainer1.style.display = 'none';
+            } else {
+                progContainer1.style.display = "block";
+                if (progBar1) progBar1.style.width = percent;
+                if (progText1) progText1.innerText = text || percent;
+            }
+        }
+        if (progContainer2) {
+            if (percent === 'none') {
+                progContainer2.style.display = 'none';
+            } else {
+                // live overlay requires flex
+                progContainer2.style.display = "flex";
+                if (progBar2) progBar2.style.width = percent;
+                if (progText2) progText2.innerText = text || percent;
+            }
+        }
     }
+    
+    updateProgress('10%', '10%');
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -348,8 +369,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
         };
 
         try {
-            progBar.style.width = '40%';
-            progText.innerText = '40%';
+            updateProgress('40%', '40%');
 
             const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
             let response = null;
@@ -394,8 +414,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 throw lastError || new Error("所有模型皆無法回應");
             }
             
-            progBar.style.width = '80%';
-            progText.innerText = '80%';
+            updateProgress('80%', '80%');
 
             const data = await response.json();
             
@@ -544,11 +563,10 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 renderScanChecklist();
             }
             
-            progBar.style.width = '100%';
-            progText.innerText = '完成！';
+            updateProgress('100%', '完成！');
             
             setTimeout(() => {
-                progContainer.style.display = 'none';
+                updateProgress('none');
                 document.getElementById('scan-result').classList.remove('hidden');
                 document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
             }, 400);
