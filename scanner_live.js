@@ -1,249 +1,85 @@
-let currentScanMode = 'barcode';
-let html5QrCode = null;
-let isCameraRunning = false;
-let barcodeLastScanned = null;
+﻿let currentScanMode = 'barcode';
 
-const originalOpenScanner = window.openScanner;
-const originalCloseScanner = window.closeScanner;
-const originalResetScanner = window.resetScanner;
-const originalHandleFileSelect = window.handleFileSelectForPreview;
-
-window.setScanMode = function(mode) {
-    currentScanMode = mode;
-    barcodeLastScanned = null; // Reset debounce
-    
-    // Update UI buttons
-    document.querySelectorAll('.scan-mode-btn').forEach(btn => {
-        if (btn.getAttribute('data-mode') === mode) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
-
-    // Update overlay mask and hint
-    const mask = document.getElementById('scanner-mask');
-    const hint = document.getElementById('scanner-hint');
-    const captureBtn = document.getElementById('btn-capture');
-    
-    mask.className = '';
-    mask.classList.add('scanner-mask-' + mode);
-    
-    if (mode === 'barcode') {
-        hint.innerText = '對準條碼進行掃描';
-        captureBtn.style.display = 'none';
-        
-        // Show scanning animation if we want, or just wait for callback
-        document.getElementById('scan-progress-container').style.display = 'none';
-    } else if (mode === 'food') {
-        hint.innerText = '對準食物進行拍攝';
-        captureBtn.style.display = 'block';
-    } else if (mode === 'ingredient') {
-        hint.innerText = '對準營養標示進行拍攝';
-        captureBtn.style.display = 'block';
-    }
-};
-
-async function startCamera() {
-    if (isCameraRunning) return;
-    try {
-        if (!html5QrCode && window.Html5Qrcode) {
-            html5QrCode = new Html5Qrcode("camera-feed");
-        }
-        
-        if (html5QrCode) {
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: function(viewfinderWidth, viewfinderHeight) {
-                        return {
-                            width: viewfinderWidth * 0.8,
-                            height: viewfinderHeight * 0.4
-                        };
-                    }
-                },
-                onBarcodeDetected,
-                (errorMessage) => {
-                    // ignore generic errors as it constantly checks for barcodes
-                }
-            );
-            
-            // Override video styles created by html5-qrcode
-            const video = document.querySelector('#camera-feed video');
-            if (video) {
-                video.style.objectFit = 'cover';
-                video.style.width = '100%';
-                video.style.height = '100%';
-            }
-            
-            isCameraRunning = true;
-            setScanMode('barcode');
-        }
-    } catch (err) {
-        console.error("Camera access failed:", err);
-        alert("無法存取相機，請確認已授予權限。若無法使用，請點擊左下角從相簿挑選照片。");
-    }
-}
-
-async function stopCamera() {
-    if (html5QrCode && isCameraRunning) {
-        try {
-            await html5QrCode.stop();
-            html5QrCode.clear();
-        } catch(e) {
-            console.error("Stop camera error:", e);
-        }
-    }
-    isCameraRunning = false;
-}
-
-function onBarcodeDetected(decodedText, decodedResult) {
-    if (currentScanMode !== "barcode") return;
-    if (barcodeLastScanned === decodedText) return;
-    
-    barcodeLastScanned = decodedText;
-    
-    if (navigator.vibrate) navigator.vibrate(200);
-    
-    closeLiveCamera();
-    document.getElementById("scan-progress-container").style.display = "flex";
-    document.getElementById('scan-progress-text').innerText = '查詢中...';
-    document.getElementById('scan-progress-bar').style.width = '50%';
-    
-    // Search in OpenFoodFacts API
-    fetch(`https://world.openfoodfacts.org/api/v2/product/${decodedText}.json`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 1 && data.product) {
-                const p = data.product;
-                const cal = p.nutriments['energy-kcal_100g'] || 0;
-                const pro = p.nutriments['proteins_100g'] || 0;
-                const carb = p.nutriments['carbohydrates_100g'] || 0;
-                const fat = p.nutriments['fat_100g'] || 0;
-                
-                let name = p.product_name || '條碼商品';
-                if (p.brands) name = p.brands + ' ' + name;
-                
-                document.getElementById('scan-meal-name').value = '條碼掃描結果';
-                
-                currentScanItems = [{
-                    id: Date.now(),
-                    name: name,
-                    cal: Math.round(cal),
-                    pro: Math.round(pro * 10) / 10,
-                    carb: Math.round(carb * 10) / 10,
-                    fat: Math.round(fat * 10) / 10,
-                    grams: 100,
-                    checked: true
-                }];
-                
-                if (typeof renderScanChecklist === 'function') {
-                    renderScanChecklist();
-                }
-                
-                document.getElementById('scan-progress-bar').style.width = '100%';
-                document.getElementById('scan-progress-text').innerText = '100%';
-                
-                setTimeout(() => {
-                    document.getElementById('scan-progress-container').style.display = 'none';
-                    document.getElementById('scan-result').classList.remove('hidden');
-                    document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
-                }, 400);
-
-            } else {
-                alert(`查無此條碼商品 (${decodedText})`);
-                barcodeLastScanned = null;
-                document.getElementById('scan-progress-container').style.display = 'none';
-            }
-        })
-        .catch(err => {
-            console.error("OpenFoodFacts API Error:", err);
-            alert("查詢失敗，請重試");
-            barcodeLastScanned = null;
-            document.getElementById('scan-progress-container').style.display = 'none';
-        });
-}
-
-
-window.openLiveCamera = function() {
-    document.getElementById("view-live-camera").style.display = "flex";
-    startCamera();
-};
-
-window.closeLiveCamera = function() {
-    document.getElementById("view-live-camera").style.display = "none";
-    stopCamera();
-};
-
-// We DO NOT override openScanner anymore. It will just open the normal scanner view.
-;
-
-window.resetScanner = function() {
-    originalResetScanner();
-    const preview = document.getElementById("image-preview");
-    const cameraIcon = document.getElementById("camera-icon");
-    if (preview) preview.style.display = "none";
-    if (cameraIcon) cameraIcon.style.display = "block";
-    
-    const btnCamera = document.getElementById("btn-camera");
-    if (btnCamera) btnCamera.style.display = "block";
-    const allBtns = document.querySelectorAll("#scanner-main-content .btn-secondary");
-    allBtns.forEach(b => {
-        if(b.innerText.includes("從相簿")) b.style.display = "block";
-    });
-    
-    const feed = document.getElementById("camera-feed");
-    if (feed) feed.style.display = "block";
-    document.getElementById('scan-progress-container').style.display = 'none';
-    
-    // Ensure capture button is shown/hidden based on mode
-    setScanMode(currentScanMode);
-};
-
-window.captureImage = function() {
-    const video = document.querySelector('#camera-feed video');
-    if (!video) return;
-    
-    const canvas = document.getElementById('camera-canvas');
-    const preview = document.getElementById('image-preview');
-    
-    // Set canvas size to video resolution
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // Convert to Data URL
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-    
-    // Show preview
-    preview.src = dataUrl;
-    preview.style.display = 'block';
-    
-    const cameraIcon = document.getElementById('camera-icon');
-    if (cameraIcon) cameraIcon.style.display = 'none';
-    
-    // Hide capture button during processing
-    document.getElementById('btn-capture').style.display = 'none';
-    
-    // Prepare for Gemini API call
-    window.currentPreviewFile = dataUrlToFile(dataUrl, 'capture.jpg');
-    
-    // Execute API call based on mode
-    executeCustomScan(currentScanMode);
-};
-
-// Also override handleFileSelectForPreview to use new flow
 window.handleFileSelectForPreview = function(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         window.currentPreviewFile = file;
         
+        if (currentScanMode === 'barcode') {
+            if (!window.html5QrCode) {
+                window.html5QrCode = new Html5Qrcode('dummy-barcode-reader');
+            }
+            
+            const progContainer = document.getElementById('scan-progress-container');
+            const progBar = document.getElementById('scan-progress-bar');
+            const progText = document.getElementById('scan-progress-text');
+            if (progContainer) {
+                progContainer.style.display = 'block';
+                progBar.style.width = '10%';
+                progText.innerText = '讀取條碼...';
+            }
+
+            window.html5QrCode.scanFile(file, true)
+                .then(decodedText => {
+                    if (navigator.vibrate) navigator.vibrate(200);
+                    if (progBar) progBar.style.width = '50%';
+                    if (progText) progText.innerText = '搜尋商品中...';
+                    
+                    fetch('https://world.openfoodfacts.org/api/v2/product/' + decodedText + '.json')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 1 && data.product) {
+                                const p = data.product;
+                                const cal = p.nutriments['energy-kcal_100g'] || 0;
+                                const pro = p.nutriments['proteins_100g'] || 0;
+                                const carb = p.nutriments['carbohydrates_100g'] || 0;
+                                const fat = p.nutriments['fat_100g'] || 0;
+                                const name = p.product_name || '商品';
+                                
+                                document.getElementById('scan-meal-name').value = name;
+                                
+                                currentScanItems = [{
+                                    id: Date.now(),
+                                    name: name,
+                                    cal: Math.round(cal),
+                                    pro: Math.round(pro * 10) / 10,
+                                    carb: Math.round(carb * 10) / 10,
+                                    fat: Math.round(fat * 10) / 10,
+                                    grams: 100,
+                                    checked: true
+                                }];
+                                
+                                if (typeof renderScanChecklist === 'function') {
+                                    renderScanChecklist();
+                                }
+                                
+                                setTimeout(() => {
+                                    if (progContainer) progContainer.style.display = 'none';
+                                    document.getElementById('scan-result').classList.remove('hidden');
+                                    document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
+                                }, 400);
+
+                            } else {
+                                alert(查無此商品 ());
+                                if (progContainer) progContainer.style.display = 'none';
+                            }
+                        })
+                        .catch(err => {
+                            console.error('OpenFoodFacts API Error:', err);
+                            alert('查詢失敗，請重試');
+                            if (progContainer) progContainer.style.display = 'none';
+                        });
+                })
+                .catch(err => {
+                    alert('找不到條碼，請確認照片清晰或重新拍攝');
+                    if (progContainer) progContainer.style.display = 'none';
+                });
+            return;
+        }
+        
         const reader = new FileReader();
         reader.onload = function(e) {
             const preview = document.getElementById('image-preview');
-            
             preview.src = e.target.result;
             preview.style.display = 'block';
             
@@ -252,9 +88,9 @@ window.handleFileSelectForPreview = function(input) {
             
             document.getElementById('btn-camera').style.display = 'none';
             
-            const allBtns = document.querySelectorAll("#scanner-main-content .btn-secondary");
+            const allBtns = document.querySelectorAll('#scanner-main-content .btn-secondary');
             allBtns.forEach(b => {
-                if(b.innerText.includes("從相簿")) b.style.display = "none";
+                if(b.innerText.includes('相簿')) b.style.display = 'none';
             });
             
             executeCustomScan(currentScanMode);
