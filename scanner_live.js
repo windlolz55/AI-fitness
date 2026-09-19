@@ -277,9 +277,9 @@ function executeCustomScan(mode) {
     
     let promptText = "";
     if (mode === 'food') {
-        promptText = "你是一個專業營養師。請分析這張食物照片。如果有多項請分開列出，並估算重量(g)、熱量(kcal)、蛋白質(g)、脂肪(g)、碳水(g)。\n【極度重要指令】：你「只准」輸出 JSON 格式的資料，絕對不可以包含任何說明文字、開場白（例如 This delicious...）或 markdown 符號（不要用 ```json）！字串必須以 { 開頭，以 } 結尾。\n請嚴格遵守以下格式，且欄位名稱(key)必須完全一模一樣，不要翻譯：\n{\n  \"reasoning\": \"你的推論\",\n  \"meal_name\": \"食物名稱\",\n  \"items\": [\n    {\n      \"name\": \"品名\",\n      \"grams\": 100,\n      \"cal\": 100,\n      \"pro\": 10,\n      \"carb\": 10,\n      \"fat\": 10\n    }\n  ]\n}";
+        promptText = "你是一個專業營養師。請分析這張食物照片。如果有多項請分開列出，並估算重量(g)、熱量(kcal)、蛋白質(g)、脂肪(g)、碳水(g)。\n【極度重要指令】：你「只准」輸出 JSON 格式的資料，絕對不可以包含任何說明文字、開場白（例如 This delicious...）或 markdown 符號（不要用 ```json）！字串必須以 { 開頭，以 } 結尾。\n請嚴格遵守以下格式，且欄位名稱(key)必須完全一模一樣，不要翻譯。\n*** 所有內容 (包含 reasoning, meal_name, name 的值) 請務必使用「繁體中文」回答！ ***\n{\n  \"reasoning\": \"你的推論\",\n  \"meal_name\": \"食物名稱\",\n  \"items\": [\n    {\n      \"name\": \"品名\",\n      \"grams\": 100,\n      \"cal\": 100,\n      \"pro\": 10,\n      \"carb\": 10,\n      \"fat\": 10\n    }\n  ]\n}";
     } else if (mode === 'ingredient') {
-        promptText = "這是一張營養標示的照片。請幫我讀取數據。如果是一整包營養標示，請換算成以 100g 或是 1份。\n【極度重要指令】：你「只准」輸出 JSON 格式的資料，絕對不可以包含任何說明文字、開場白或 markdown 符號（不要用 ```json）！字串必須以 { 開頭，以 } 結尾。\n請嚴格遵守以下格式，且欄位名稱(key)必須完全一模一樣，不要翻譯：\n{\n  \"reasoning\": \"你的推論\",\n  \"meal_name\": \"標示名稱\",\n  \"items\": [\n    {\n      \"name\": \"標題\",\n      \"grams\": 100,\n      \"cal\": 100,\n      \"pro\": 10,\n      \"carb\": 10,\n      \"fat\": 10\n    }\n  ]\n}";
+        promptText = "這是一張營養標示的照片。請幫我讀取數據。如果是一整包營養標示，請換算成以 100g 或是 1份。\n【極度重要指令】：你「只准」輸出 JSON 格式的資料，絕對不可以包含任何說明文字、開場白或 markdown 符號（不要用 ```json）！字串必須以 { 開頭，以 } 結尾。\n請嚴格遵守以下格式，且欄位名稱(key)必須完全一模一樣，不要翻譯。\n*** 所有內容 (包含 reasoning, meal_name, name 的值) 請務必使用「繁體中文」回答！ ***\n{\n  \"reasoning\": \"你的推論\",\n  \"meal_name\": \"標示名稱\",\n  \"items\": [\n    {\n      \"name\": \"標題\",\n      \"grams\": 100,\n      \"cal\": 100,\n      \"pro\": 10,\n      \"carb\": 10,\n      \"fat\": 10\n    }\n  ]\n}";
     }
     
     customCallGeminiVisionAPI(window.currentPreviewFile, promptText);
@@ -366,22 +366,32 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                     if (response.ok) {
                         window.lastSuccessfulModel = model;
                         break; // Success!
-                    } else {
-                        const errorText = await response.text();
-                        window.modelErrorLog.push(`${model} (${response.status})`);
-                        lastError = new Error(`API 錯誤 (${model} - ${response.status}): ${errorText}`);
+                    }
+                    
+                    const errorText = await response.text();
+                    window.modelErrorLog.push(`${model} (${response.status})`);
+                    lastError = new Error(`API 錯誤 (${model} - ${response.status}): ${errorText}`);
+                    if (response.status === 400) {
+                        break;
                     }
                 } catch (e) {
-                    window.modelErrorLog.push(`${model} (Fetch Error)`);
+                    window.modelErrorLog.push(`${model} (Network Error)`);
                     lastError = e;
                 }
             }
 
             if (!response || !response.ok) {
-                throw lastError;
+                throw lastError || new Error("所有模型皆無法回應");
             }
+            
+            progBar.style.width = '80%';
+            progText.innerText = '80%';
 
             const data = await response.json();
+            
+            if (!data.candidates || data.candidates.length === 0) {
+                throw new Error("AI 沒有回傳有效的內容");
+            }
             
             let jsonText = data.candidates[0].content.parts[0].text;
             
@@ -393,7 +403,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             const firstBracket = jsonText.indexOf('[');
             
             if (firstBrace === -1 && firstBracket === -1) {
-                throw new Error("AI 無法正確解析食物 (找不到有效的 JSON)。\n\nAI 回覆：" + jsonText.substring(0, 50));
+                throw new Error("AI 無法正確解析食物 (找不到有效的 JSON)。\n\nAI 回覆：" + jsonText.substring(0, 50) + "...");
             }
             
             let startIndex = 0;
@@ -424,7 +434,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             try {
                 aiResults = JSON.parse(cleanJson);
             } catch (e) {
-                throw new Error(`JSON 解析失敗: ${e.message}\n原始字串: ${cleanJson.substring(0, 100)}`);
+                throw new Error("AI 無法正確解析食物 (找不到有效的 JSON)。\n\nAI 回覆：" + cleanJson.substring(0, 50) + "...");
             }
             
             if (Array.isArray(aiResults)) {
@@ -482,7 +492,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 scanChecklist.parentNode.insertBefore(debugTextarea, scanChecklist);
             }
             debugTextarea.value = "Raw JSON: " + cleanJson;
-            debugTextarea.style.display = "block";
+            debugTextarea.style.display = "none";
             
             let debugText = "";
             if (window.modelErrorLog && window.modelErrorLog.length > 0) {
