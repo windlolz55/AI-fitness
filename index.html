@@ -617,8 +617,10 @@
                         <button class="btn-secondary" style="width: 100%; font-size: 12px; padding: 8px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" onclick="resetScanner()">取消辨識</button>
                     </div>
                     
-                    <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelectForPreview(this)" onclick="this.value=null;">
-                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px;" onclick="openLiveCamera()"><i class="fa-solid fa-camera" style="margin-right: 8px;"></i>開啟相機掃描</button>
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelectForPreview(this)" onclick="this.value=null;">
+                      <div id="dummy-barcode-reader" style="display: none;"></div>
+                      <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelectForPreview(this)" onclick="this.value=null;">
+                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px;" onclick="document.getElementById('camera-input').click()"><i class="fa-solid fa-camera" style="margin-right: 8px;"></i>開啟相機掃描</button>
 <button class="btn-secondary" style="width: 100%; padding: 12px; border-radius: 12px; margin-bottom: 16px; font-weight: bold; border: 1px solid var(--card-border);" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image" style="margin-right: 8px;"></i>從相簿選取照片</button>
                 </div>
             </div>
