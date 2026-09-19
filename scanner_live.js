@@ -1,4 +1,23 @@
-﻿let currentScanMode = 'barcode';
+let currentScanMode = 'barcode';
+
+window.setScanMode = function(mode) {
+    currentScanMode = mode;
+    
+    // Update UI buttons
+    document.querySelectorAll('.scan-mode-btn').forEach(btn => {
+        if (btn.getAttribute('data-mode') === mode) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    const mask = document.getElementById('scanner-mask');
+    if (mask) {
+        mask.className = '';
+        mask.classList.add('scanner-mask-' + mode);
+    }
+};
 
 window.handleFileSelectForPreview = function(input) {
     if (input.files && input.files[0]) {
