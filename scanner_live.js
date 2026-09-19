@@ -196,6 +196,42 @@ window.resetScanner = function() {
 };
 
 window.captureImage = function() {
+    // Shutter sound
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(150, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.1);
+        }
+    } catch(e) {}
+
+    // Flash animation
+    const flash = document.createElement('div');
+    flash.style.position = 'fixed';
+    flash.style.inset = '0';
+    flash.style.backgroundColor = 'white';
+    flash.style.zIndex = '99999';
+    flash.style.opacity = '1';
+    flash.style.transition = 'opacity 0.25s ease-out';
+    document.body.appendChild(flash);
+    
+    // Force reflow
+    flash.offsetHeight;
+    
+    setTimeout(() => {
+        flash.style.opacity = '0';
+        setTimeout(() => flash.remove(), 250);
+    }, 50);
     try {
         const video = document.querySelector('#camera-feed video');
         if (!video) {
@@ -571,10 +607,20 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
             }, 400);
 
-        } catch (error) {
+                } catch (error) {
             console.error(error);
-            alert("錯誤: " + error.message);
-            resetScanner();
+            const progContainer2 = document.getElementById("live-scan-progress-container");
+            if (progContainer2 && progContainer2.style.display !== 'none') {
+                const progText2 = document.getElementById("live-scan-progress-text");
+                const progBar2 = document.getElementById("live-scan-progress-bar");
+                if (progText2) progText2.innerHTML = <span style="color:#ef4444;">錯誤:  + error.message + </span>;
+                if (progBar2) progBar2.style.backgroundColor = '#ef4444';
+                // Do not auto-close, let user read it
+                setTimeout(() => resetScanner(), 4000);
+            } else {
+                alert("錯誤: " + error.message);
+                resetScanner();
+            }
         }
     };
 }
