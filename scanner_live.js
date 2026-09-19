@@ -299,7 +299,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
     const progText = document.getElementById("scan-progress-text");
     
     if (progContainer) {
-        progContainer.style.display = "flex";
+        progContainer.style.display = "block";
         progBar.style.width = '10%';
         progText.innerText = '10%';
     }
@@ -322,14 +322,14 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                 response_schema: {
                     type: "OBJECT",
                     properties: {
-                        reasoning: { type: "STRING" },
-                        meal_name: { type: "STRING" },
+                        reasoning: { type: "STRING", description: "用繁體中文回答 (Traditional Chinese)" },
+                        meal_name: { type: "STRING", description: "用繁體中文回答 (Traditional Chinese)" },
                         items: {
                             type: "ARRAY",
                             items: {
                                 type: "OBJECT",
                                 properties: {
-                                    name: { type: "STRING" },
+                                    name: { type: "STRING", description: "用繁體中文回答 (Traditional Chinese)" },
                                     grams: { type: "INTEGER" },
                                     cal: { type: "INTEGER" },
                                     pro: { type: "NUMBER" },
@@ -355,6 +355,13 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             window.modelErrorLog = [];
             window.lastSuccessfulModel = null;
 
+            const errorCodes = {
+                429: "流量限制",
+                503: "伺服器超載",
+                400: "格式錯誤",
+                500: "系統內部錯誤"
+            };
+
             for (const model of modelsToTry) {
                 try {
                     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
@@ -365,11 +372,12 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                     
                     if (response.ok) {
                         window.lastSuccessfulModel = model;
-                        break; // Success!
+                        break; 
                     }
                     
                     const errorText = await response.text();
-                    window.modelErrorLog.push(`${model} (${response.status})`);
+                    const errMsg = errorCodes[response.status] || response.status;
+                    window.modelErrorLog.push(`${model} (${errMsg})`);
                     lastError = new Error(`API 錯誤 (${model} - ${response.status}): ${errorText}`);
                     if (response.status === 400) {
                         break;
@@ -496,7 +504,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             
             let debugText = "";
             if (window.modelErrorLog && window.modelErrorLog.length > 0) {
-                debugText = `<br><span style="color: #ef4444; font-size: 8px;">Errors: ${window.modelErrorLog.join(", ")}</span>`;
+                debugText = `<br><span style="color:#ef4444;">備用切換紀錄: ${window.modelErrorLog.join(', ')}</span>`;
             }
             indicator.innerHTML = `Powered by ${window.lastSuccessfulModel || 'gemini-1.5-flash'}${debugText}`;
             
