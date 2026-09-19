@@ -55,13 +55,7 @@ async function startCamera() {
             await html5QrCode.start(
                 { facingMode: "environment" },
                 {
-                    fps: 10,
-                    qrbox: function(viewfinderWidth, viewfinderHeight) {
-                        return {
-                            width: viewfinderWidth * 0.8,
-                            height: viewfinderHeight * 0.4
-                        };
-                    }
+                    fps: 10
                 },
                 onBarcodeDetected,
                 (errorMessage) => {
