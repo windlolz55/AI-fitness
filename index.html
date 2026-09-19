@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.40">
+    <link rel="stylesheet" href="style.css?v=3.41">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -42,7 +42,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.40</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.41</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -426,7 +426,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.40 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.41 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -617,10 +617,8 @@
                         <button class="btn-secondary" style="width: 100%; font-size: 12px; padding: 8px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" onclick="resetScanner()">取消辨識</button>
                     </div>
                     
-                    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelectForPreview(this)" onclick="this.value=null;">
-                    <div id="dummy-barcode-reader" style="display: none;"></div>
                     <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelectForPreview(this)" onclick="this.value=null;">
-                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px;" onclick="document.getElementById('camera-input').click()"><i class="fa-solid fa-camera" style="margin-right: 8px;"></i>開啟相機掃描</button>
+                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px;" onclick="openLiveCamera()"><i class="fa-solid fa-camera" style="margin-right: 8px;"></i>開啟相機掃描</button>
 <button class="btn-secondary" style="width: 100%; padding: 12px; border-radius: 12px; margin-bottom: 16px; font-weight: bold; border: 1px solid var(--card-border);" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image" style="margin-right: 8px;"></i>從相簿選取照片</button>
                 </div>
             </div>
@@ -941,12 +939,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.40"></script>
-    <script src="food_db.js?v=3.40"></script>
-    <script src="templates.js?v=3.40"></script>
-    <script src="routine.js?v=3.40"></script>
-    <script src="app.js?v=3.40"></script>
-    <script src="scanner_live.js?v=3.40"></script>
+    <script src="exercise_db.js?v=3.41"></script>
+    <script src="food_db.js?v=3.41"></script>
+    <script src="templates.js?v=3.41"></script>
+    <script src="routine.js?v=3.41"></script>
+    <script src="app.js?v=3.41"></script>
+    <script src="scanner_live.js?v=3.41"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
