@@ -138,7 +138,7 @@ function startBarcodeCamera() {
 }
 let currentScanMode = 'barcode';
 let barcodeLastScanned = null;
-let currentScanItems = [];
+
 
 const originalResetScanner = window.resetScanner;
 
