@@ -1,4 +1,4 @@
-let currentScanSource = 'camera';
+﻿let currentScanSource = 'camera';
 
 window.openScanTypeModal = function(source) {
     currentScanSource = source;
@@ -117,7 +117,7 @@ function startBarcodeCamera() {
                             }, 400);
 
                         } else {
-                            alert("查無此商品 (" + decodedText + ")");
+                            alert(查無此商品 ( + decodedText + ));
                             barcodeLastScanned = null;
                             progContainer.style.display = 'none';
                         }
@@ -221,9 +221,9 @@ function executeCustomScan(mode) {
     
     let promptText = "";
     if (mode === 'food') {
-        promptText = `你是一個專業營養師。請分析這張食物的照片。如果有好幾種食物，請拆解出來，並估算重量(g)、熱量(kcal)、碳水化合物(g)、蛋白質(g)、脂肪(g)。\n請務必以嚴格的、純粹的 JSON 格式回答，絕對不能包含任何說明文字、開頭或結尾（例如 This is...）！字串必須以 { 開頭，以 } 結尾。\n若只有一種食物，也請當作只有一項，並請翻譯。\n*** 所有欄位 (包含 reasoning, meal_name, name 等) 請務必使用「繁體中文」回答！ ***\n{\n  "reasoning": "說明",\n  "meal_name": "餐點名稱",\n  "items": [\n    {\n      "name": "食物名稱",\n      "grams": 100,\n      "cal": 100,\n      "pro": 10,\n      "carb": 10,\n      "fat": 10\n    }\n  ]\n}`;
+        promptText = `你是一個專業營養師。請分析這張食物的照片。如果有好幾種食物，請拆解出來，並估算重量(g)、熱量(kcal)、碳水化合物(g)、蛋白質(g)、脂肪(g)。\n請務必以嚴格的、純粹的 JSON 格式回答，絕對不能包含任何說明文字、開頭或結尾（例如 This is...）或 markdown 標籤（例如 \`\`\`json）！字串必須以 { 開頭，以 } 結尾。\n若只有一種食物，也請當作只有一項，並請翻譯。\n*** 所有欄位 (包含 reasoning, meal_name, name 等) 請務必使用「繁體中文」回答！ ***\n{\n  "reasoning": "說明",\n  "meal_name": "餐點名稱",\n  "items": [\n    {\n      "name": "食物名稱",\n      "grams": 100,\n      "cal": 100,\n      "pro": 10,\n      "carb": 10,\n      "fat": 10\n    }\n  ]\n}`;
     } else if (mode === 'ingredient') {
-        promptText = `這是一張營養標示圖或是成分表閱讀截圖。如果是營養標示，請估算成 100g 或是 1份。\n請務必以嚴格的、純粹的 JSON 格式回答，絕對不能包含任何說明文字、開頭！字串必須以 { 開頭，以 } 結尾。\n若只有一種食物，也請當作只有一項，並請翻譯。\n*** 所有欄位 (包含 reasoning, meal_name, name 等) 請務必使用「繁體中文」回答！ ***\n{\n  "reasoning": "說明",\n  "meal_name": "營養標示名稱",\n  "items": [\n    {\n      "name": "總計",\n      "grams": 100,\n      "cal": 100,\n      "pro": 10,\n      "carb": 10,\n      "fat": 10\n    }\n  ]\n}`;
+        promptText = `這是一張營養標示圖或是成分表閱讀截圖。如果是營養標示，請估算成 100g 或是 1份。\n請務必以嚴格的、純粹的 JSON 格式回答，絕對不能包含任何說明文字、開頭或 markdown 標籤（例如 \`\`\`json）！字串必須以 { 開頭，以 } 結尾。\n若只有一種食物，也請當作只有一項，並請翻譯。\n*** 所有欄位 (包含 reasoning, meal_name, name 等) 請務必使用「繁體中文」回答！ ***\n{\n  "reasoning": "說明",\n  "meal_name": "營養標示名稱",\n  "items": [\n    {\n      "name": "總計",\n      "grams": 100,\n      "cal": 100,\n      "pro": 10,\n      "carb": 10,\n      "fat": 10\n    }\n  ]\n}`;
     }
     
     customCallGeminiVisionAPI(window.currentPreviewFile, promptText);
@@ -315,7 +315,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
 
             for (const model of modelsToTry) {
                 try {
-                    response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey, {
+                    response = await fetch(https://generativelanguage.googleapis.com/v1beta/models/ + model + :generateContent?key= + apiKey, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
