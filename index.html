@@ -47,7 +47,7 @@ window.onerror = function(msg, url, line, col, error) {
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.70</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.71</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -431,7 +431,7 @@ window.onerror = function(msg, url, line, col, error) {
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.70 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.71 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -633,7 +633,13 @@ window.onerror = function(msg, url, line, col, error) {
                 
                 <div style="margin-bottom: 16px;">
                     <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px; text-align: left;">幫這個組合取個名字 (例如：排骨便當)</label>
-                    <input type="text" id="scan-meal-name" class="input-field" placeholder="預設：AI 智慧組合餐">
+                      <div style="display: flex; gap: 8px;">
+                          <input type="text" id="scan-meal-name" class="input-field" placeholder="預設：AI 辨識組合名稱" style="flex: 1;">
+                          <div style="display: flex; align-items: center; background: var(--bg-main); border: 1px solid var(--input-border); border-radius: 8px; padding: 0 12px;">
+                              <input type="number" id="scan-global-servings" value="1" min="0.1" max="99" step="0.1" oninput="applyGlobalServings(this.value)" style="width: 50px; background: transparent; border: none; color: var(--text-main); font-size: 16px; text-align: center; outline: none;">
+                              <span style="color: var(--text-muted); font-size: 14px; margin-left: 4px;">份</span>
+                          </div>
+                      </div>
                 </div>
                 
                 <p style="text-align: left; font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">取消勾選你不想要的項目：</p>

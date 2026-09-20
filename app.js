@@ -1487,8 +1487,6 @@ function renderScanChecklist() {
                     <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <input type="number" id="scan-grams-input-${index}" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" oninput="updateScanItemGrams(${index}, this.value, 'input')" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g
-                            <span style="color: var(--card-border); margin: 0 4px;">|</span>
-                            <input type="number" id="scan-servings-input-${index}" inputmode="decimal" value="${Math.round((item.grams || 0) / (item.baseGrams || 100) * 10) / 10}" min="0.1" max="99" step="0.1" oninput="updateScanItemServings(${index}, this.value)" style="width: 50px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> 份
                         </div>
                         <input type="range" id="scan-grams-slider-${index}" value="${item.grams || 0}" min="1" max="${Math.max(item.baseGrams || 100, item.grams || 100)}" oninput="updateScanItemGrams(${index}, this.value, 'slider')" style="width: 100%; accent-color: var(--accent-primary);">
                     </div>
@@ -1558,13 +1556,15 @@ function updateScanItemGrams(index, newGrams, source) {
     }
 }
 
-function updateScanItemServings(index, newServings) {
-    const item = currentScanItems[index];
-    const servings = parseFloat(newServings) || 0;
-    if (servings <= 0) return;
-    const baseGrams = item.baseGrams || 100;
-    const newGrams = Math.round(servings * baseGrams);
-    updateScanItemGrams(index, newGrams, 'servings');
+function applyGlobalServings(servings) {
+    const multiplier = parseFloat(servings) || 1;
+    if (multiplier <= 0) return;
+    
+    currentScanItems.forEach((item, index) => {
+        const baseGrams = item.baseGrams || 100;
+        const newGrams = Math.round(baseGrams * multiplier);
+        updateScanItemGrams(index, newGrams, 'global');
+    });
 }
 
 function resetScanner() {
