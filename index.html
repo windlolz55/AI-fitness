@@ -47,7 +47,7 @@ window.onerror = function(msg, url, line, col, error) {
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.60</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.61</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -431,7 +431,7 @@ window.onerror = function(msg, url, line, col, error) {
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.60 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.61 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -500,7 +500,7 @@ window.onerror = function(msg, url, line, col, error) {
         </div>
 
         <!-- Cart Modal -->
-        <div id="cart-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: flex-end; z-index: 1001; align-items: center;">
+        <div id="cart-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: flex-end; z-index: 1001; align-items: center;" onclick="if(event.target === this) closeCartModal()">
             <div style="background: var(--card-bg); width: 100%; max-width: 480px; border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 24px; max-height: 70vh; display: flex; flex-direction: column; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);">
                 <div style="width: 40px; height: 5px; background: var(--card-border); border-radius: 3px; margin: 0 auto 20px auto;"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -714,7 +714,7 @@ window.onerror = function(msg, url, line, col, error) {
         </nav>
 
         <!-- Info Modal -->
-        <div id="info-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div id="info-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000;" onclick="if(event.target === this) closeInfoModal()">
             <div class="card" style="width: 85%; max-width: 360px; padding: 24px; position: relative;">
                 <button class="btn-icon" onclick="closeInfoModal()" style="position: absolute; top: 12px; right: 12px; border:none; background: var(--bg-main); width: 28px; height: 28px;"><i class="fa-solid fa-xmark"></i></button>
                 <h3 id="info-modal-title" style="margin-bottom: 16px; font-size: 18px; color: var(--text-main);">--</h3>
@@ -724,7 +724,7 @@ window.onerror = function(msg, url, line, col, error) {
 
 
         <!-- Calendar Modal -->
-        <div id="calendar-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div id="calendar-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999;" onclick="if(event.target === this) closeCalendarModal()">
             <div class="card" style="width: 90%; max-width: 350px; padding: 20px; background: var(--card-bg);">
                 <!-- Header -->
                 <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--card-border); margin-bottom: 16px;">
@@ -750,7 +750,7 @@ window.onerror = function(msg, url, line, col, error) {
         </div>
 
         <!-- Water Edit Modal -->
-        <div id="water-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+        <div id="water-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target === this) closeWaterModal()">
             <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
                 <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeWaterModal()"><i class="fa-solid fa-xmark"></i></button>
                 <h2 style="margin-bottom: 8px;">編輯總水量</h2>
@@ -768,7 +768,7 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 
     <!-- Burned Kcal Modal -->
-    <div id="burned-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    <div id="burned-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target === this) closeBurnedModal()">
         <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
             <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeBurnedModal()"><i class="fa-solid fa-xmark"></i></button>
             <h2 style="margin-bottom: 8px;">記錄運動消耗</h2>
@@ -803,7 +803,7 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 
     <!-- Workout Edit Modal -->
-    </div><!-- End Main App Wrapper --><div id="workout-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    </div><!-- End Main App Wrapper --><div id="workout-setup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target === this) closeWorkoutModal()">
         <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px; padding: 24px; position: relative;">
             <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeWorkoutModal()"><i class="fa-solid fa-xmark"></i></button>
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
@@ -853,7 +853,7 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 
         <!-- Template Selector Modal -->
-    <div id="template-selector-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; justify-content: center; padding: 0;">
+    <div id="template-selector-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; justify-content: center; padding: 0;" onclick="if(event.target === this) closeTemplateSelector()">
         <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 24px; position: relative; max-height: 85vh; display: flex; flex-direction: column;">
             <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeTemplateSelector()"><i class="fa-solid fa-xmark"></i></button>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -911,7 +911,7 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 
     <!-- Template Manager Modal -->
-    <div id="template-manager-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1050; align-items: flex-end; justify-content: center; padding: 0;">
+    <div id="template-manager-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1050; align-items: flex-end; justify-content: center; padding: 0;" onclick="if(event.target === this) closeTemplateManager()">
         <div style="background: var(--bg-main); width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 24px; position: relative; max-height: 90vh; display: flex; flex-direction: column;">
             <button class="btn-icon" style="position: absolute; top: 16px; right: 16px; font-size: 20px;" onclick="closeTemplateManager()"><i class="fa-solid fa-xmark"></i></button>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -926,7 +926,7 @@ window.onerror = function(msg, url, line, col, error) {
     </div>
 
     <!-- Exercise Library Modal -->
-    <div id="exercise-library-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1200; align-items: flex-end; justify-content: center;">
+    <div id="exercise-library-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1200; align-items: flex-end; justify-content: center;" onclick="if(event.target === this) closeExerciseLibrary()">
         <div style="background: var(--bg-main); width: 100%; max-width: 480px; height: 85vh; border-radius: 24px 24px 0 0; padding: 24px; position: relative; display: flex; flex-direction: column; margin: 0 auto;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
                 <h2 style="margin: 0;">動作庫</h2>
