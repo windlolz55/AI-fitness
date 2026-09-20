@@ -1152,6 +1152,8 @@ function handleFileSelectForPreview(input) {
             if (cameraIcon) cameraIcon.style.display = 'none';
             const btnCamera = document.getElementById('btn-camera');
             if (btnCamera) btnCamera.style.display = 'none';
+            const btnGallery = document.getElementById('btn-gallery');
+            if (btnGallery) btnGallery.style.display = 'none';
             const previewContainer = document.getElementById('scan-preview-container');
             if (previewContainer) previewContainer.style.display = 'block';
         };
@@ -1165,6 +1167,8 @@ function cancelScanPreview() {
     if (previewContainer) previewContainer.style.display = 'none';
     const btnCamera = document.getElementById('btn-camera');
     if (btnCamera) btnCamera.style.display = 'block';
+    const btnGallery = document.getElementById('btn-gallery');
+    if (btnGallery) btnGallery.style.display = 'block';
     const fileInput = document.getElementById('file-input');
     if (fileInput) fileInput.value = '';
     const previewImg = document.getElementById('image-preview');
@@ -1518,6 +1522,8 @@ function resetScanner() {
     document.getElementById('camera-icon').style.display = 'block';
     document.getElementById('scan-result').classList.add('hidden');
     document.getElementById('btn-camera').style.display = 'block';
+    const btnGallery = document.getElementById('btn-gallery');
+    if (btnGallery) btnGallery.style.display = 'block';
     
     const mealNameInput = document.getElementById('scan-meal-name');
     if(mealNameInput) mealNameInput.value = '';
