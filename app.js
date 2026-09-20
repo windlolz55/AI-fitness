@@ -1477,7 +1477,9 @@ async function callGeminiVisionAPI(input) {
 
 function renderScanChecklist() {
     const list = document.getElementById('scan-checklist');
-    list.innerHTML = currentScanItems.map((item, index) => `
+    list.innerHTML = currentScanItems.map((item, index) => {
+        const showServings = (typeof currentScanMode !== 'undefined' && (currentScanMode === 'barcode' || currentScanMode === 'ingredient'));
+        return `
         <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
             <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
                 <input type="checkbox" id="scan-chk-${index}" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary); margin-top: 2px;">
@@ -1486,8 +1488,10 @@ function renderScanChecklist() {
                     <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 6px;">
                             <input type="number" id="scan-grams-input-${index}" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" oninput="updateScanItemGrams(${index}, this.value, 'input')" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g
+                            ${showServings ? `
                             <span style="color: var(--card-border); margin: 0 4px;">|</span>
                             <input type="number" id="scan-servings-input-${index}" inputmode="decimal" value="${Math.round((item.grams || 0) / (item.baseGrams || 100) * 10) / 10}" min="0.1" max="99" step="0.1" oninput="updateScanItemServings(${index}, this.value)" style="width: 50px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> 份
+                            ` : ''}
                         </div>
                         <input type="range" id="scan-grams-slider-${index}" value="${item.grams || 0}" min="1" max="${Math.max(item.baseGrams || 100, item.grams || 100)}" oninput="updateScanItemGrams(${index}, this.value, 'slider')" style="width: 100%; accent-color: var(--accent-primary);">
                     </div>
@@ -1502,7 +1506,8 @@ function renderScanChecklist() {
                 </div>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function toggleScanItem(index) {
