@@ -1485,9 +1485,11 @@ function renderScanChecklist() {
                     <label for="scan-chk-${index}" style="font-weight: 600; display: block; cursor: pointer;">${item.name || '未知項目'}</label>
                     <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; align-items: center; gap: 6px;">
-                            <input type="number" id="scan-grams-input-${index}" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" oninput="updateScanItemGrams(${index}, this.value, 'input')" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g (或 ml)
+                            <input type="number" id="scan-grams-input-${index}" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" oninput="updateScanItemGrams(${index}, this.value, 'input')" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g
+                            <span style="color: var(--card-border); margin: 0 4px;">|</span>
+                            <input type="number" id="scan-servings-input-${index}" inputmode="decimal" value="${Math.round((item.grams || 0) / (item.baseGrams || 100) * 10) / 10}" min="0.1" max="99" step="0.1" oninput="updateScanItemServings(${index}, this.value)" style="width: 50px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> 份
                         </div>
-                        <input type="range" id="scan-grams-slider-${index}" value="${item.grams || 0}" min="1" max="${Math.max(500, (item.baseGrams || 100) * 3)}" oninput="updateScanItemGrams(${index}, this.value, 'slider')" style="width: 100%; accent-color: var(--accent-primary);">
+                        <input type="range" id="scan-grams-slider-${index}" value="${item.grams || 0}" min="1" max="${Math.max(item.baseGrams || 100, item.grams || 100)}" oninput="updateScanItemGrams(${index}, this.value, 'slider')" style="width: 100%; accent-color: var(--accent-primary);">
                     </div>
                 </div>
             </div>
@@ -1537,13 +1539,30 @@ function updateScanItemGrams(index, newGrams, source) {
     const fatEl = document.getElementById(`scan-fat-${index}`);
     if (fatEl) fatEl.innerText = Math.round(item.fat);
     
-    if (source === 'slider') {
+    if (source === 'slider' || source === 'servings') {
         const inputEl = document.getElementById(`scan-grams-input-${index}`);
         if (inputEl) inputEl.value = grams;
-    } else if (source === 'input') {
-        const sliderEl = document.getElementById(`scan-grams-slider-${index}`);
-        if (sliderEl) sliderEl.value = grams;
     }
+    if (source === 'input' || source === 'servings') {
+        const sliderEl = document.getElementById(`scan-grams-slider-${index}`);
+        if (sliderEl) {
+            if (grams > parseFloat(sliderEl.max)) sliderEl.max = grams;
+            sliderEl.value = grams;
+        }
+    }
+    if (source === 'input' || source === 'slider') {
+        const servingsEl = document.getElementById(`scan-servings-input-${index}`);
+        if (servingsEl) servingsEl.value = Math.round((grams / item.baseGrams) * 10) / 10;
+    }
+}
+
+function updateScanItemServings(index, newServings) {
+    const item = currentScanItems[index];
+    const servings = parseFloat(newServings) || 0;
+    if (servings <= 0) return;
+    const baseGrams = item.baseGrams || 100;
+    const newGrams = Math.round(servings * baseGrams);
+    updateScanItemGrams(index, newGrams, 'servings');
 }
 
 function resetScanner() {
