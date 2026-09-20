@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.52">
+    <link rel="stylesheet" href="style.css?v=3.53">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -42,7 +42,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.52</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.53</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -426,7 +426,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.52 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.53 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -591,12 +591,6 @@
             
             <div class="card" style="padding: 16px; text-align: center;">
                 <div id="scanner-main-content">
-                    <div class="scan-mode-selector" style="display: flex; background: var(--bg-secondary); border-radius: 12px; margin-bottom: 24px; padding: 4px;">
-                        <button class="scan-mode-btn active" data-mode="barcode" onclick="setScanMode('barcode')" style="flex: 1; padding: 12px 0; border: none; background: transparent; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; color: var(--text-main);">條碼</button>
-                        <button class="scan-mode-btn" data-mode="food" onclick="setScanMode('food')" style="flex: 1; padding: 12px 0; border: none; background: transparent; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; color: var(--text-main);">食物</button>
-                        <button class="scan-mode-btn" data-mode="ingredient" onclick="setScanMode('ingredient')" style="flex: 1; padding: 12px 0; border: none; background: transparent; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; color: var(--text-main);">配料</button>
-                    </div>
-
                     <div style="width: 100%; height: 250px; background: var(--card-border); border-radius: 12px; margin-bottom: 16px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                         <i id="camera-icon" class="fa-solid fa-camera" style="font-size: 48px; color: var(--text-muted);"></i>
                         <img id="image-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
@@ -624,8 +618,8 @@
                     
                     <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelectForPreview(this)" onclick="this.value=null;">
                     <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleFileSelectForPreview(this)" onclick="this.value=null;">
-                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px; padding: 16px; font-size: 16px; font-weight: bold;" onclick="document.getElementById('camera-input').click()"><i class="fa-solid fa-camera" style="margin-right: 8px;"></i>開啟原生相機</button>
-                    <button class="btn-secondary" style="width: 100%; padding: 16px; border-radius: 12px; margin-bottom: 16px; font-weight: bold; font-size: 16px; border: 1px solid var(--card-border);" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-image" style="margin-right: 8px;"></i>從相簿選取</button>
+                    <button id="btn-camera" class="btn-primary" style="margin-bottom: 16px; padding: 16px; font-size: 16px; font-weight: bold;" onclick="openScanTypeModal('camera')" ><i class="fa-solid fa-camera" style="margin-right: 8px;"></i>拍照辨識</button>
+                    <button class="btn-secondary" style="width: 100%; padding: 16px; border-radius: 12px; margin-bottom: 16px; font-weight: bold; font-size: 16px; border: 1px solid var(--card-border);" onclick="openScanTypeModal('album')" ><i class="fa-solid fa-image" style="margin-right: 8px;"></i>從相簿選取</button>
                 </div>
             </div>
 
@@ -945,12 +939,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.52"></script>
-    <script src="food_db.js?v=3.52"></script>
-    <script src="templates.js?v=3.52"></script>
-    <script src="routine.js?v=3.52"></script>
-    <script src="app.js?v=3.52"></script>
-    <script src="scanner_live.js?v=3.52"></script>
+    <script src="exercise_db.js?v=3.53"></script>
+    <script src="food_db.js?v=3.53"></script>
+    <script src="templates.js?v=3.53"></script>
+    <script src="routine.js?v=3.53"></script>
+    <script src="app.js?v=3.53"></script>
+    <script src="scanner_live.js?v=3.53"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -1013,6 +1007,57 @@
                 <button id="btn-capture" style="width: 80px; height: 80px; border-radius: 50%; background: #fff; border: none; display: none; cursor: pointer; transition: transform 0.1s; position: relative;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'" onclick="captureImage()">
                     <div style="position: absolute; inset: 4px; border-radius: 50%; border: 2px solid #000;"></div>
                 </button>
+            </div>
+        </div>
+    </div>
+    <!-- Action Sheet Modal for Scan Type -->
+    <div id="scan-type-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+        <div style="background: var(--bg-primary); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 24px; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <div style="width: 40px; height: 5px; background: var(--card-border); border-radius: 3px; margin: 0 auto 20px auto;"></div>
+            <h3 id="scan-type-title" style="text-align: center; margin-bottom: 24px; color: var(--text-main); font-size: 18px;">請選擇辨識項目</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-secondary" style="padding: 16px; border-radius: 16px; font-size: 16px; font-weight: bold; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); display: flex; align-items: center; justify-content: flex-start;" onclick="selectScanType('barcode')">
+                    <div style="width: 40px; height: 40px; background: rgba(168, 85, 247, 0.1); color: var(--accent-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 20px;">
+                        <i class="fa-solid fa-barcode"></i>
+                    </div>
+                    商品條碼 (開啟條碼掃描器)
+                </button>
+                <button class="btn-secondary" style="padding: 16px; border-radius: 16px; font-size: 16px; font-weight: bold; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); display: flex; align-items: center; justify-content: flex-start;" onclick="selectScanType('food')">
+                    <div style="width: 40px; height: 40px; background: rgba(168, 85, 247, 0.1); color: var(--accent-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 20px;">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    食物 / 餐點
+                </button>
+                <button class="btn-secondary" style="padding: 16px; border-radius: 16px; font-size: 16px; font-weight: bold; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); display: flex; align-items: center; justify-content: flex-start;" onclick="selectScanType('ingredient')">
+                    <div style="width: 40px; height: 40px; background: rgba(168, 85, 247, 0.1); color: var(--accent-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 20px;">
+                        <i class="fa-solid fa-table-list"></i>
+                    </div>
+                    營養標示 / 成分表
+                </button>
+            </div>
+            <button class="btn-secondary" style="width: 100%; padding: 16px; border-radius: 16px; margin-top: 16px; font-weight: bold; font-size: 16px; background: var(--bg-secondary); border: none; color: var(--text-muted);" onclick="closeScanTypeModal()">取消</button>
+        </div>
+    </div>
+    <!-- Live Camera Overlay for Barcode Only -->
+    <div id="view-live-barcode" style="display: none; position: fixed; inset: 0; z-index: 9999; background: #000; overflow: hidden; flex-direction: column;">
+        <div style="position: absolute; top: 0; left: 0; width: 100%; padding: 24px 20px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 50; background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);">
+            <button class="btn-icon" onclick="closeBarcodeCamera()" style="color: white; background: rgba(0,0,0,0.5); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px);"><i class="fa-solid fa-chevron-down" style="font-size: 18px;"></i></button>
+        </div>
+        <div style="flex: 1; position: relative;">
+            <div id="barcode-feed" style="width: 100%; height: 100%; overflow: hidden; background: #000;"></div>
+            <div id="scanner-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;">
+                <div id="scanner-mask" class="scanner-mask-barcode"></div>
+                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <span id="scanner-hint" style="color: white; font-size: 15px; font-weight: bold; text-shadow: 0 2px 8px rgba(0,0,0,0.8); margin-bottom: 16px; position: absolute; top: 18%; background: rgba(0,0,0,0.5); padding: 8px 20px; border-radius: 20px; backdrop-filter: blur(8px);">請對準商品條碼</span>
+                </div>
+            </div>
+            <div id="barcode-progress-container" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 30; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+                <div class="spinner" style="margin-bottom: 16px; border-color: var(--card-border); border-top-color: var(--accent-primary);"></div>
+                <div id="barcode-progress-text" style="color: white; font-size: 16px; font-weight: bold; margin-bottom: 16px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">讀取中...</div>
+                <div style="width: 200px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; margin-bottom: 24px;">
+                    <div id="barcode-progress-bar" style="height: 100%; background: var(--accent-primary); width: 0%; transition: width 0.2s linear;"></div>
+                </div>
             </div>
         </div>
     </div>

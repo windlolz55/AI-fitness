@@ -1,4 +1,142 @@
-﻿let currentScanMode = 'barcode';
+﻿let currentScanSource = 'camera';
+
+window.openScanTypeModal = function(source) {
+    currentScanSource = source;
+    const modal = document.getElementById('scan-type-modal');
+    modal.style.display = 'flex';
+    // Force reflow
+    modal.offsetHeight;
+    modal.style.opacity = '1';
+    modal.children[0].style.transform = 'translateY(0)';
+};
+
+window.closeScanTypeModal = function() {
+    const modal = document.getElementById('scan-type-modal');
+    modal.style.opacity = '0';
+    modal.children[0].style.transform = 'translateY(100%)';
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+};
+
+window.selectScanType = function(mode) {
+    closeScanTypeModal();
+    setScanMode(mode);
+    
+    setTimeout(() => {
+        if (mode === 'barcode' && currentScanSource === 'camera') {
+            openBarcodeScanner();
+        } else {
+            if (currentScanSource === 'camera') {
+                document.getElementById('camera-input').click();
+            } else {
+                document.getElementById('file-input').click();
+            }
+        }
+    }, 350);
+};
+
+window.openBarcodeScanner = function() {
+    document.getElementById('view-live-barcode').style.display = 'flex';
+    startBarcodeCamera();
+};
+
+window.closeBarcodeCamera = function() {
+    if (window.html5QrCodeLive && window.html5QrCodeLive.isScanning) {
+        window.html5QrCodeLive.stop().catch(err => console.error(err));
+    }
+    document.getElementById('view-live-barcode').style.display = 'none';
+};
+
+function startBarcodeCamera() {
+    if (!window.html5QrCodeLive) {
+        window.html5QrCodeLive = new Html5Qrcode("barcode-feed");
+    }
+    
+    if (window.html5QrCodeLive.isScanning) {
+        return;
+    }
+    
+    const config = { 
+        fps: 10,
+        aspectRatio: 1.0,
+        disableFlip: false,
+        videoConstraints: { facingMode: "environment" }
+    };
+    
+    document.getElementById('barcode-progress-container').style.display = 'none';
+    
+    window.html5QrCodeLive.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText, decodedResult) => {
+            if (!barcodeLastScanned) {
+                barcodeLastScanned = decodedText;
+                if (navigator.vibrate) navigator.vibrate(200);
+                
+                const progContainer = document.getElementById('barcode-progress-container');
+                const progBar = document.getElementById('barcode-progress-bar');
+                const progText = document.getElementById('barcode-progress-text');
+                
+                progContainer.style.display = 'flex';
+                progBar.style.width = '50%';
+                progText.innerText = '搜尋商品中...';
+                
+                fetch('https://world.openfoodfacts.org/api/v2/product/' + decodedText + '.json')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 1 && data.product) {
+                            const p = data.product;
+                            const cal = p.nutriments['energy-kcal_100g'] || 0;
+                            const pro = p.nutriments['proteins_100g'] || 0;
+                            const carb = p.nutriments['carbohydrates_100g'] || 0;
+                            const fat = p.nutriments['fat_100g'] || 0;
+                            const name = p.product_name || '商品';
+                            
+                            document.getElementById('scan-meal-name').value = name;
+                            
+                            currentScanItems = [{
+                                id: Date.now(),
+                                name: name,
+                                cal: Math.round(cal),
+                                pro: Math.round(pro * 10) / 10,
+                                carb: Math.round(carb * 10) / 10,
+                                fat: Math.round(fat * 10) / 10,
+                                grams: 100,
+                                checked: true
+                            }];
+                            
+                            if (typeof renderScanChecklist === 'function') {
+                                renderScanChecklist();
+                            }
+                            
+                            setTimeout(() => {
+                                closeBarcodeCamera();
+                                document.getElementById('scan-result').classList.remove('hidden');
+                                document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
+                            }, 400);
+
+                        } else {
+                            alert(查無此商品 ( + decodedText + ));
+                            barcodeLastScanned = null;
+                            progContainer.style.display = 'none';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('API Error:', err);
+                        alert('查詢失敗，請重試');
+                        barcodeLastScanned = null;
+                        progContainer.style.display = 'none';
+                    });
+            }
+        },
+        (errorMessage) => { }
+    ).catch(err => {
+        console.error("Camera start error:", err);
+        alert("無法啟動相機：" + err);
+    });
+}
+let currentScanMode = 'barcode';
 let barcodeLastScanned = null;
 let currentScanItems = [];
 
