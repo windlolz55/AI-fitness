@@ -613,7 +613,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
             if (progContainer2 && progContainer2.style.display !== 'none') {
                 const progText2 = document.getElementById("live-scan-progress-text");
                 const progBar2 = document.getElementById("live-scan-progress-bar");
-                if (progText2) progText2.innerHTML = <span style="color:#ef4444;">錯誤:  + error.message + </span>;
+                if (progText2) progText2.innerHTML = '<span style="color:#ef4444;">錯誤: ' + error.message + '</span>';
                 if (progBar2) progBar2.style.backgroundColor = '#ef4444';
                 // Do not auto-close, let user read it
                 setTimeout(() => resetScanner(), 4000);
