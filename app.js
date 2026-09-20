@@ -1477,6 +1477,35 @@ async function callGeminiVisionAPI(input) {
 
 function renderScanChecklist() {
     const list = document.getElementById('scan-checklist');
+    
+    // Render global controls
+    const globalControls = document.getElementById('scan-global-controls');
+    if (globalControls && currentScanItems.length > 0) {
+        let totalBaseGrams = currentScanItems.reduce((sum, item) => sum + (item.baseGrams || 100), 0);
+        let totalCurrentGrams = currentScanItems.reduce((sum, item) => sum + (item.grams || 0), 0);
+        let globalServings = Math.round((totalCurrentGrams / totalBaseGrams) * 10) / 10;
+        
+        globalControls.style.display = 'block';
+        globalControls.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 14px; font-weight: 600;">整體份量微調</span>
+                <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; align-items: center; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 6px; padding: 2px 8px;">
+                        <input type="number" id="scan-global-grams-input" inputmode="numeric" value="${Math.round(totalCurrentGrams)}" min="1" max="9999" oninput="applyGlobalGrams(this.value, 'input')" style="width: 50px; background: transparent; border: none; color: var(--text-main); font-size: 14px; text-align: center; outline: none;">
+                        <span style="color: var(--text-muted); font-size: 12px; margin-left: 2px;">g</span>
+                    </div>
+                    <div style="display: flex; align-items: center; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 6px; padding: 2px 8px;">
+                        <input type="number" id="scan-global-servings-input" inputmode="decimal" value="${globalServings}" min="0.1" max="99" step="0.1" oninput="applyGlobalServings(this.value)" style="width: 40px; background: transparent; border: none; color: var(--text-main); font-size: 14px; text-align: center; outline: none;">
+                        <span style="color: var(--text-muted); font-size: 12px; margin-left: 2px;">份</span>
+                    </div>
+                </div>
+            </div>
+            <input type="range" id="scan-global-slider" value="${Math.round(totalCurrentGrams)}" min="1" max="${Math.max(totalBaseGrams, totalCurrentGrams)}" oninput="applyGlobalGrams(this.value, 'slider')" style="width: 100%; accent-color: var(--accent-primary);">
+        `;
+    } else if (globalControls) {
+        globalControls.style.display = 'none';
+    }
+
     list.innerHTML = currentScanItems.map((item, index) => {
         return `
         <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
@@ -1555,6 +1584,48 @@ function updateScanItemGrams(index, newGrams, source) {
 function applyGlobalServings(servings) {
     const multiplier = parseFloat(servings) || 1;
     if (multiplier <= 0) return;
+    
+    // Update global grams input and slider
+    const totalBaseGrams = currentScanItems.reduce((sum, item) => sum + (item.baseGrams || 100), 0);
+    const newTotalGrams = Math.round(totalBaseGrams * multiplier);
+    
+    const gramsInput = document.getElementById('scan-global-grams-input');
+    if (gramsInput) gramsInput.value = newTotalGrams;
+    
+    const slider = document.getElementById('scan-global-slider');
+    if (slider) {
+        if (newTotalGrams > parseFloat(slider.max)) slider.max = newTotalGrams;
+        slider.value = newTotalGrams;
+    }
+    
+    currentScanItems.forEach((item, index) => {
+        const baseGrams = item.baseGrams || 100;
+        const newGrams = Math.round(baseGrams * multiplier);
+        updateScanItemGrams(index, newGrams, 'global');
+    });
+}
+
+function applyGlobalGrams(grams, source) {
+    const newTotalGrams = parseFloat(grams) || 0;
+    if (newTotalGrams <= 0) return;
+    
+    const totalBaseGrams = currentScanItems.reduce((sum, item) => sum + (item.baseGrams || 100), 0);
+    const multiplier = newTotalGrams / totalBaseGrams;
+    
+    // Sync other global inputs
+    if (source === 'slider') {
+        const inputEl = document.getElementById('scan-global-grams-input');
+        if (inputEl) inputEl.value = newTotalGrams;
+    } else if (source === 'input') {
+        const sliderEl = document.getElementById('scan-global-slider');
+        if (sliderEl) {
+            if (newTotalGrams > parseFloat(sliderEl.max)) sliderEl.max = newTotalGrams;
+            sliderEl.value = newTotalGrams;
+        }
+    }
+    
+    const servingsEl = document.getElementById('scan-global-servings-input');
+    if (servingsEl) servingsEl.value = Math.round(multiplier * 10) / 10;
     
     currentScanItems.forEach((item, index) => {
         const baseGrams = item.baseGrams || 100;
