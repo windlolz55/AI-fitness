@@ -1483,17 +1483,20 @@ function renderScanChecklist() {
                 <input type="checkbox" id="scan-chk-${index}" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary); margin-top: 2px;">
                 <div style="flex: 1;">
                     <label for="scan-chk-${index}" style="font-weight: 600; display: block; cursor: pointer;">${item.name || '未知項目'}</label>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 6px;">
-                        <input type="number" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" onchange="updateScanItemGrams(${index}, this.value)" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g (或 ml)
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <input type="number" id="scan-grams-input-${index}" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" oninput="updateScanItemGrams(${index}, this.value, 'input')" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g (或 ml)
+                        </div>
+                        <input type="range" id="scan-grams-slider-${index}" value="${item.grams || 0}" min="1" max="${Math.max(500, (item.baseGrams || 100) * 3)}" oninput="updateScanItemGrams(${index}, this.value, 'slider')" style="width: 100%; accent-color: var(--accent-primary);">
                     </div>
                 </div>
             </div>
             <div style="text-align: right;">
-                <div style="font-weight: 600; color: var(--text-main);">${item.cal || 0} <span style="color: var(--text-muted); font-size: 12px; font-weight: 400;">kcal</span></div>
+                <div style="font-weight: 600; color: var(--text-main);"><span id="scan-cal-${index}">${item.cal || 0}</span> <span style="color: var(--text-muted); font-size: 12px; font-weight: 400;">kcal</span></div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
-                    <span><span style="color: #f59e0b;">碳</span> ${Math.round(item.carb || 0)}g</span>
-                    <span><span style="color: #38bdf8;">蛋</span> ${Math.round(item.pro || 0)}g</span>
-                    <span><span style="color: #a855f7;">脂</span> ${Math.round(item.fat || 0)}g</span>
+                    <span><span style="color: #f59e0b;">碳</span> <span id="scan-carb-${index}">${Math.round(item.carb || 0)}</span>g</span>
+                    <span><span style="color: #38bdf8;">蛋</span> <span id="scan-pro-${index}">${Math.round(item.pro || 0)}</span>g</span>
+                    <span><span style="color: #a855f7;">脂</span> <span id="scan-fat-${index}">${Math.round(item.fat || 0)}</span>g</span>
                 </div>
             </div>
         </div>
@@ -1504,7 +1507,7 @@ function toggleScanItem(index) {
     currentScanItems[index].checked = !currentScanItems[index].checked;
 }
 
-function updateScanItemGrams(index, newGrams) {
+function updateScanItemGrams(index, newGrams, source) {
     const item = currentScanItems[index];
     const grams = parseFloat(newGrams) || 0;
     if (grams <= 0) return;
@@ -1525,7 +1528,22 @@ function updateScanItemGrams(index, newGrams) {
     item.carb = Math.round((item.baseCarb * ratio) * 10) / 10;
     item.fat = Math.round((item.baseFat * ratio) * 10) / 10;
     
-    renderScanChecklist();
+    const calEl = document.getElementById(`scan-cal-${index}`);
+    if (calEl) calEl.innerText = item.cal;
+    const proEl = document.getElementById(`scan-pro-${index}`);
+    if (proEl) proEl.innerText = Math.round(item.pro);
+    const carbEl = document.getElementById(`scan-carb-${index}`);
+    if (carbEl) carbEl.innerText = Math.round(item.carb);
+    const fatEl = document.getElementById(`scan-fat-${index}`);
+    if (fatEl) fatEl.innerText = Math.round(item.fat);
+    
+    if (source === 'slider') {
+        const inputEl = document.getElementById(`scan-grams-input-${index}`);
+        if (inputEl) inputEl.value = grams;
+    } else if (source === 'input') {
+        const sliderEl = document.getElementById(`scan-grams-slider-${index}`);
+        if (sliderEl) sliderEl.value = grams;
+    }
 }
 
 function resetScanner() {
