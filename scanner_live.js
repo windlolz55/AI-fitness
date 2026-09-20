@@ -315,7 +315,7 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
 
             for (const model of modelsToTry) {
                 try {
-                    response = await fetch(https://generativelanguage.googleapis.com/v1beta/models/ + model + :generateContent?key= + apiKey, {
+                    response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
