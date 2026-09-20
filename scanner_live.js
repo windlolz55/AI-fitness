@@ -58,10 +58,14 @@ function startBarcodeCamera() {
     }
     
     const config = { 
-        fps: 10,
-        aspectRatio: 1.0,
+        fps: 15,
         disableFlip: false,
-        videoConstraints: { facingMode: "environment" }
+        videoConstraints: { 
+            facingMode: "environment",
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 480, ideal: 720, max: 1080 },
+            advanced: [{ focusMode: "continuous" }]
+        }
     };
     
     document.getElementById('barcode-progress-container').style.display = 'none';
