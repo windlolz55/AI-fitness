@@ -1513,11 +1513,8 @@ function renderScanChecklist() {
                 <input type="checkbox" id="scan-chk-${index}" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary); margin-top: 2px;">
                 <div style="flex: 1;">
                     <label for="scan-chk-${index}" style="font-weight: 600; display: block; cursor: pointer;">${item.name || '未知項目'}</label>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <input type="number" id="scan-grams-input-${index}" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" oninput="updateScanItemGrams(${index}, this.value, 'input')" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g
-                        </div>
-                        <input type="range" id="scan-grams-slider-${index}" value="${item.grams || 0}" min="1" max="${Math.max(item.baseGrams || 100, item.grams || 100)}" oninput="updateScanItemGrams(${index}, this.value, 'slider')" style="width: 100%; accent-color: var(--accent-primary);">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+                        約 <span id="scan-grams-text-${index}">${item.grams || 0}</span>g
                     </div>
                 </div>
             </div>
@@ -1568,17 +1565,8 @@ function updateScanItemGrams(index, newGrams, source) {
     const fatEl = document.getElementById(`scan-fat-${index}`);
     if (fatEl) fatEl.innerText = Math.round(item.fat);
     
-    if (source === 'slider' || source === 'global') {
-        const inputEl = document.getElementById(`scan-grams-input-${index}`);
-        if (inputEl) inputEl.value = grams;
-    }
-    if (source === 'input' || source === 'global') {
-        const sliderEl = document.getElementById(`scan-grams-slider-${index}`);
-        if (sliderEl) {
-            if (grams > parseFloat(sliderEl.max)) sliderEl.max = grams;
-            sliderEl.value = grams;
-        }
-    }
+    const gramsTextEl = document.getElementById(`scan-grams-text-${index}`);
+    if (gramsTextEl) gramsTextEl.innerText = Math.round(item.grams);
 }
 
 function applyGlobalServings(servings) {
