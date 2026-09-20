@@ -117,7 +117,7 @@ function startBarcodeCamera() {
                             }, 400);
 
                         } else {
-                            alert(查無此商品 ( + decodedText + ));
+                            alert("查無此商品 (" + decodedText + ")");
                             barcodeLastScanned = null;
                             progContainer.style.display = 'none';
                         }
