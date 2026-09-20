@@ -1478,12 +1478,14 @@ async function callGeminiVisionAPI(input) {
 function renderScanChecklist() {
     const list = document.getElementById('scan-checklist');
     list.innerHTML = currentScanItems.map((item, index) => `
-        <label style="display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
-            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary);">
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border);">
+            <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
+                <input type="checkbox" id="scan-chk-${index}" ${item.checked ? 'checked' : ''} onchange="toggleScanItem(${index})" style="width: 20px; height: 20px; accent-color: var(--accent-primary); margin-top: 2px;">
                 <div style="flex: 1;">
-                    <div style="font-weight: 600;">${item.name || '未知項目'}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">約 ${item.grams || 0}g</div>
+                    <label for="scan-chk-${index}" style="font-weight: 600; display: block; cursor: pointer;">${item.name || '未知項目'}</label>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" value="${item.grams || 0}" min="1" max="9999" onchange="updateScanItemGrams(${index}, this.value)" style="width: 60px; background: var(--bg-main); border: 1px solid var(--card-border); color: var(--text-main); padding: 4px; border-radius: 4px; font-size: 14px; text-align: center;"> g (或 ml)
+                    </div>
                 </div>
             </div>
             <div style="text-align: right;">
@@ -1494,12 +1496,36 @@ function renderScanChecklist() {
                     <span><span style="color: #a855f7;">脂</span> ${Math.round(item.fat || 0)}g</span>
                 </div>
             </div>
-        </label>
+        </div>
     `).join('');
 }
 
 function toggleScanItem(index) {
     currentScanItems[index].checked = !currentScanItems[index].checked;
+}
+
+function updateScanItemGrams(index, newGrams) {
+    const item = currentScanItems[index];
+    const grams = parseFloat(newGrams) || 0;
+    if (grams <= 0) return;
+    
+    if (!item.baseGrams) {
+        item.baseGrams = item.grams || 100;
+        item.baseCal = item.cal || 0;
+        item.basePro = item.pro || 0;
+        item.baseCarb = item.carb || 0;
+        item.baseFat = item.fat || 0;
+    }
+    
+    const ratio = grams / item.baseGrams;
+    
+    item.grams = grams;
+    item.cal = Math.round(item.baseCal * ratio);
+    item.pro = Math.round((item.basePro * ratio) * 10) / 10;
+    item.carb = Math.round((item.baseCarb * ratio) * 10) / 10;
+    item.fat = Math.round((item.baseFat * ratio) * 10) / 10;
+    
+    renderScanChecklist();
 }
 
 function resetScanner() {

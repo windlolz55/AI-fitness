@@ -107,6 +107,11 @@ function startBarcodeCamera() {
                                 carb: Math.round(carb * 10) / 10,
                                 fat: Math.round(fat * 10) / 10,
                                 grams: 100,
+                                baseGrams: 100,
+                                baseCal: cal,
+                                basePro: pro,
+                                baseCarb: carb,
+                                baseFat: fat,
                                 checked: true
                             }];
                             
@@ -421,6 +426,11 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                     carb: Math.round((item.carb || 0) * 10) / 10,
                     fat: Math.round((item.fat || 0) * 10) / 10,
                     grams: item.grams || 100,
+                    baseGrams: item.grams || 100,
+                    baseCal: item.cal || 0,
+                    basePro: item.pro || 0,
+                    baseCarb: item.carb || 0,
+                    baseFat: item.fat || 0,
                     checked: true
                 }));
             } else {
@@ -432,6 +442,11 @@ async function customCallGeminiVisionAPI(file, customPrompt) {
                     carb: Math.round((item.carb || 0) * 10) / 10,
                     fat: Math.round((item.fat || 0) * 10) / 10,
                     grams: item.grams || 100,
+                    baseGrams: item.grams || 100,
+                    baseCal: item.cal || 0,
+                    basePro: item.pro || 0,
+                    baseCarb: item.carb || 0,
+                    baseFat: item.fat || 0,
                     checked: true
                 }));
                 document.getElementById('scan-meal-name').value = '辨識結果';
