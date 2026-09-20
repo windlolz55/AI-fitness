@@ -121,15 +121,25 @@ function startBarcodeCamera() {
                             }, 400);
 
                         } else {
-                            alert("查無此商品 (" + decodedText + ")");
-                            barcodeLastScanned = null;
+                            if (confirm("國際商品庫查無此條碼 (" + decodedText + ")\n\n台灣在地商品建議您改用「營養標示 / 成分表」模式，讓 AI 直接為您讀取包裝！\n\n是否立即開啟相機拍攝營養標示？")) {
+                                closeBarcodeCamera();
+                                setScanMode('nutrition');
+                                document.getElementById('camera-input').click();
+                            } else {
+                                barcodeLastScanned = null;
+                            }
                             progContainer.style.display = 'none';
                         }
                     })
                     .catch(err => {
                         console.error('API Error:', err);
-                        alert('查詢失敗，請重試');
-                        barcodeLastScanned = null;
+                        if (confirm("查詢失敗或網路異常\n\n是否改用「營養標示」模式直接拍攝包裝？")) {
+                            closeBarcodeCamera();
+                            setScanMode('nutrition');
+                            document.getElementById('camera-input').click();
+                        } else {
+                            barcodeLastScanned = null;
+                        }
                         progContainer.style.display = 'none';
                     });
             }
