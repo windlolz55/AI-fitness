@@ -160,85 +160,10 @@ window.setScanMode = function(mode) {
     });
 };
 
-window.handleFileSelectForPreview = function(input) {
+window.handleNativeCameraSelect = function(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         window.currentPreviewFile = file;
-        
-        if (currentScanMode === 'barcode') {
-            if (!window.html5QrCode) {
-                window.html5QrCode = new Html5Qrcode('dummy-barcode-reader');
-            }
-            
-            const progContainer1 = document.getElementById('scan-progress-container');
-            const progBar1 = document.getElementById('scan-progress-bar');
-            const progText1 = document.getElementById('scan-progress-text');
-            if (progContainer1) {
-                progContainer1.style.display = 'block';
-                if (progBar1) progBar1.style.width = '10%';
-                if (progText1) progText1.innerText = '讀取條碼...';
-            }
-
-            window.html5QrCode.scanFile(file, true)
-                .then(decodedText => {
-                    if (navigator.vibrate) navigator.vibrate(200);
-                    if (progBar1) progBar1.style.width = '50%';
-                    if (progText1) progText1.innerText = '搜尋商品中...';
-                    
-                    fetch('https://world.openfoodfacts.org/api/v2/product/' + decodedText + '.json')
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === 1 && data.product) {
-                                const p = data.product;
-                                const cal = p.nutriments['energy-kcal_100g'] || 0;
-                                const pro = p.nutriments['proteins_100g'] || 0;
-                                const carb = p.nutriments['carbohydrates_100g'] || 0;
-                                const fat = p.nutriments['fat_100g'] || 0;
-                                const name = p.product_name || '商品';
-                                
-                                document.getElementById('scan-meal-name').value = name;
-                                
-                                currentScanItems = [{
-                                    id: Date.now(),
-                                    name: name,
-                                    cal: Math.round(cal),
-                                    pro: Math.round(pro * 10) / 10,
-                                    carb: Math.round(carb * 10) / 10,
-                                    fat: Math.round(fat * 10) / 10,
-                                    grams: 100,
-                                    checked: true
-                                }];
-                                
-                                if (typeof renderScanChecklist === 'function') {
-                                    renderScanChecklist();
-                                }
-                                
-                                setTimeout(() => {
-                                    if (progContainer1) progContainer1.style.display = 'none';
-                                    document.getElementById('scan-result').classList.remove('hidden');
-                                    document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth' });
-                                }, 400);
-
-                            } else {
-                                alert(查無此商品 ( + decodedText + ));
-                                if (progContainer1) progContainer1.style.display = 'none';
-                                resetScanner();
-                            }
-                        })
-                        .catch(err => {
-                            console.error('OpenFoodFacts API Error:', err);
-                            alert('查詢失敗，請重試');
-                            if (progContainer1) progContainer1.style.display = 'none';
-                            resetScanner();
-                        });
-                })
-                .catch(err => {
-                    alert('找不到條碼，請確認照片清晰或重新拍攝');
-                    if (progContainer1) progContainer1.style.display = 'none';
-                    resetScanner();
-                });
-            return;
-        }
 
         const reader = new FileReader();
         reader.onload = function(e) {
