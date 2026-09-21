@@ -876,15 +876,11 @@ function renderWorkout() {
             btn.style.color = "#ff6b81";
         }
         
-        // Async fetch burned time and append
-        (async () => {
-            try {
-                const bt = await db.get('daily_burned_time', selectedLogDate);
-                if (bt > 0) {
-                    completeAllText.innerText += ` (${bt}m)`;
-                }
-            } catch (e) {}
-        })();
+        // Append burned time
+        const bt = (dailyData[selectedLogDate] && dailyData[selectedLogDate].burnedTime) ? dailyData[selectedLogDate].burnedTime : 0;
+        if (bt > 0) {
+            completeAllText.innerText += ` (${bt}m)`;
+        }
     }
 
     if (window.workoutSortable) window.workoutSortable.destroy();
