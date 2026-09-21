@@ -880,6 +880,8 @@ function renderWorkout() {
         const bt = (dailyData[selectedLogDate] && dailyData[selectedLogDate].burnedTime) ? dailyData[selectedLogDate].burnedTime : 0;
         if (bt > 0) {
             completeAllText.innerText += ` (${bt}m)`;
+        } else {
+            completeAllText.innerText += ` (無)`;
         }
     }
 
