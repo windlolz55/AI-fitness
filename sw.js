@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'calicorie-v3.77';
+﻿const CACHE_NAME = 'calicorie-v3.78';
 const urlsToCache = [
   './',
   './index.html',
