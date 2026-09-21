@@ -873,6 +873,17 @@ function renderWorkout() {
             completeAllText.innerText = "今日未完成";
             completeAllIcon.className = "fa-regular fa-circle-check";
             btn.style.background = "rgba(255, 107, 129, 0.1)";
+        }
+        
+        // Async fetch burned time and append
+        (async () => {
+            try {
+                const bt = await db.get('daily_burned_time', selectedLogDate);
+                if (bt > 0) {
+                    completeAllText.innerText += ` (${bt}m)`;
+                }
+            } catch (e) {}
+        })();
             btn.style.color = "#ff6b81";
         }
     }
@@ -3146,7 +3157,7 @@ function renderOverview() {
     
     document.getElementById('overview-current-weight').innerText = `${lastValidWeight} kg`;
     const avgCal = daysWithCal > 0 ? Math.round(sumCal / daysWithCal) : 0;
-    document.getElementById('overview-avg-cal').innerText = `${avgCal} 大卡`;
+    document.getElementById('overview-avg-cal').innerText = `${avgCal} kcal`;
     
     const avgBurned = daysWithBurned > 0 ? Math.round(sumBurned / daysWithBurned) : 0;
     const avgBurnedTime = daysWithBurned > 0 ? Math.round(sumBurnedTime / daysWithBurned) : 0;
