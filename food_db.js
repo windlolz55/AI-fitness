@@ -209,6 +209,13 @@ const foodDatabase = {
         { id: 'd8', categoryId: 'cheat', name: '鮮奶茶 (微糖/大杯)', cals: 250, macros: { p: 8, c: 35, f: 8 }, icon: 'fluent-emoji-flat:bubble-tea' },
         { id: 'd9', categoryId: 'cheat', name: '手搖果茶 (半糖/大杯)', cals: 300, macros: { p: 0, c: 75, f: 0 }, icon: 'fluent-emoji-flat:tropical-drink' },
         { id: 'd11', categoryId: 'cheat', name: '可口可樂 (330ml)', cals: 140, macros: { p: 0, c: 35, f: 0 }, icon: 'fluent-emoji-flat:cup-with-straw' },
-        { id: 'd12', categoryId: 'cheat', name: '運動飲料 (600ml)', cals: 160, macros: { p: 0, c: 40, f: 0 }, icon: 'fluent-emoji-flat:droplet' }
+        { id: 'd12', categoryId: 'cheat', name: '運動飲料 (600ml)', cals: 160, macros: { p: 0, c: 40, f: 0 }, icon: 'fluent-emoji-flat:droplet' },
+        { id: 'st97', categoryId: 'store', name: '卜蜂川味椒麻雞胸肉 (100g)', cals: 132, macros: { p: 21, c: 2, f: 3 }, icon: 'fluent-emoji-flat:chicken' },
+        { id: 'st98', categoryId: 'store', name: '卜蜂紐奧良風味雞胸肉 (100g)', cals: 127, macros: { p: 23, c: 3.5, f: 1.5 }, icon: 'fluent-emoji-flat:chicken' },
+        { id: 'st99', categoryId: 'store', name: '大成舒迷雞胸-義式香草 (95g)', cals: 114, macros: { p: 22, c: 2, f: 2 }, icon: 'fluent-emoji-flat:chicken' },
+        { id: 'st100', categoryId: 'store', name: '大成舒迷雞胸肉-經典原味 (95g)', cals: 104, macros: { p: 26, c: 1, f: 1.5 }, icon: 'fluent-emoji-flat:chicken' },
+        { id: 'st101', categoryId: 'store', name: '大成舒迷雞胸肉-椒鹽風味 (90g)', cals: 88, macros: { p: 15, c: 2, f: 1.5 }, icon: 'fluent-emoji-flat:chicken' },
+        { id: 'st102', categoryId: 'store', name: '卜蜂舒食沙拉胸 (130g)', cals: 153, macros: { p: 26.1, c: 3, f: 4 }, icon: 'fluent-emoji-flat:chicken' },
+        { id: 'st103', categoryId: 'store', name: '卜蜂黑胡椒沙拉胸 (110g)', cals: 132, macros: { p: 25.5, c: 3, f: 2.5 }, icon: 'fluent-emoji-flat:chicken' }
     ]
 };
