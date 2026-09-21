@@ -873,6 +873,7 @@ function renderWorkout() {
             completeAllText.innerText = "今日未完成";
             completeAllIcon.className = "fa-regular fa-circle-check";
             btn.style.background = "rgba(255, 107, 129, 0.1)";
+            btn.style.color = "#ff6b81";
         }
         
         // Async fetch burned time and append
@@ -884,8 +885,6 @@ function renderWorkout() {
                 }
             } catch (e) {}
         })();
-            btn.style.color = "#ff6b81";
-        }
     }
 
     if (window.workoutSortable) window.workoutSortable.destroy();
