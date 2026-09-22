@@ -988,10 +988,12 @@ function deleteWorkoutRecord(name) {
             dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
             setAndSync('fitness_daily', JSON.stringify(dailyData));
             renderWorkout();
+        }
     }
 
     closeWorkoutModal();
 }
+
 
 
 function closeWorkoutModal() {
