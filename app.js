@@ -99,6 +99,18 @@ document.addEventListener("visibilitychange", () => {
                     changed = true;
                 }
                 
+                const currentTemplatesStr = JSON.stringify(typeof window.FITNESS_TEMPLATES !== 'undefined' ? window.FITNESS_TEMPLATES : []);
+                if (data.fitness_templates && data.fitness_templates !== currentTemplatesStr) {
+                    window.FITNESS_TEMPLATES = JSON.parse(data.fitness_templates);
+                    changed = true;
+                }
+                
+                const currentRoutinePlanStr = JSON.stringify(typeof fitnessRoutinePlan !== 'undefined' ? fitnessRoutinePlan : {});
+                if (data.fitness_routine_plan && data.fitness_routine_plan !== currentRoutinePlanStr) {
+                    fitnessRoutinePlan = JSON.parse(data.fitness_routine_plan);
+                    changed = true;
+                }
+                
                 const currentCustomFoodsStr = JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []);
                 if (data.customFoods && data.customFoods !== currentCustomFoodsStr) {
                     customFoods = JSON.parse(data.customFoods);
@@ -287,6 +299,18 @@ function setupFirestoreListener(uid) {
             const currentRoutinesStr = JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {});
             if (data.fitness_routines && data.fitness_routines !== currentRoutinesStr) {
                 WORKOUT_ROUTINES = JSON.parse(data.fitness_routines);
+                changed = true;
+            }
+            
+            const currentTemplatesStr = JSON.stringify(typeof window.FITNESS_TEMPLATES !== 'undefined' ? window.FITNESS_TEMPLATES : []);
+            if (data.fitness_templates && data.fitness_templates !== currentTemplatesStr) {
+                window.FITNESS_TEMPLATES = JSON.parse(data.fitness_templates);
+                changed = true;
+            }
+            
+            const currentRoutinePlanStr = JSON.stringify(typeof fitnessRoutinePlan !== 'undefined' ? fitnessRoutinePlan : {});
+            if (data.fitness_routine_plan && data.fitness_routine_plan !== currentRoutinePlanStr) {
+                fitnessRoutinePlan = JSON.parse(data.fitness_routine_plan);
                 changed = true;
             }
             
