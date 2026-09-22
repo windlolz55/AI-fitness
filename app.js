@@ -888,9 +888,9 @@ function renderWorkout() {
             btn.style.color = "#ff6b81";
         }
         
-        // Append burned time
+        // Append burned time — only show if workout is marked as completed
         const bt = (dailyData[selectedLogDate] && dailyData[selectedLogDate].burnedTime) ? dailyData[selectedLogDate].burnedTime : 0;
-        if (bt > 0) {
+        if (allCompleted && bt > 0) {
             completeAllText.innerText += ` (${bt}m)`;
         } else {
             completeAllText.innerText += ` (無)`;
