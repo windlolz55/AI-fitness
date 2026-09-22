@@ -183,10 +183,9 @@ function handleSignup() {
 
 function handleLogout() {
     if (confirm("確定要登出嗎？")) {
-        // Change UI to indicate saving
         const btn = document.querySelector('[onclick="handleLogout()"]');
         if (btn) {
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在同步並登出...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 登出中...';
             btn.style.pointerEvents = 'none';
             btn.style.opacity = '0.7';
         }
@@ -194,24 +193,14 @@ function handleLogout() {
         const forceClearAndReload = () => {
             const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated', 'gemini_api_key'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
-            
-            setTimeout(() => {
-                window.location.reload(true);
-            }, 100);
+            setTimeout(() => { window.location.reload(true); }, 100);
         };
 
-        // Extreme absolute failsafe: reload no matter what after 4 seconds
-        setTimeout(forceClearAndReload, 4000);
-
-        // Try to save, wait at most 3 seconds
-        const savePromise = saveToFirestore();
-        const saveTimeout = new Promise(resolve => setTimeout(resolve, 3000));
-        
-        Promise.race([savePromise, saveTimeout]).finally(() => {
-            // Then try to sign out (guaranteed to be called now)
-            auth.signOut().finally(() => {
-                forceClearAndReload();
-            });
+        // 不在登出時 saveToFirestore，因為每次修改已即時上傳
+        // 登出時存舊資料反而會蓋掉其他裝置剛寫入的新資料
+        setTimeout(forceClearAndReload, 3000); // failsafe
+        auth.signOut().finally(() => {
+            forceClearAndReload();
         });
     }
 }
@@ -265,12 +254,11 @@ window.setAndSync = function(key, value) {
 function setupFirestoreListener(uid) {
     if (typeof unsubscribeFirestore === 'function') unsubscribeFirestore();
     
-    unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot((doc) => {
+    unsubscribeFirestore = db.collection('users').doc(uid).onSnapshot({ includeMetadataChanges: true }, (doc) => {
         if (doc.exists) {
-            // If local storage was written in the last 3 seconds, ignore cloud data to prevent overwriting local data
-            const pendingSyncTime = parseInt(localStorage.getItem('pending_sync_time') || '0');
-            if (Date.now() - pendingSyncTime < 3000) {
-                console.log("Recent local write detected. Ignoring cloud reflection...");
+            // 只有「本裝置自己的 write 反射回來」才忽略，真正從其他裝置來的更新一定要套用
+            if (doc.metadata.hasPendingWrites) {
+                console.log("Own write reflection. Skipping to avoid overwrite loop.");
                 return;
             }
 
