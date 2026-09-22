@@ -397,11 +397,13 @@ function formatDate(d) {
     return `${year}-${month}-${day}`;
 }
 
-const todayDateStr = formatDate(new Date());
-let selectedLogDate = todayDateStr;
+// getTodayDateStr() 改成 function，每次呼叫都算當下日期，避免跨午夜 bug
+function getTodayDateStr() { return formatDate(new Date()); }
+// 為了向後相容，保留一個初始化時的快照供「選擇日期」初始值使用
+let selectedLogDate = getTodayDateStr();
 
-if (!dailyData[todayDateStr]) {
-    dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || '' };
+if (!dailyData[getTodayDateStr()]) {
+    dailyData[getTodayDateStr()] = { water: 0, weight: userProfile.weight || '' };
 }
 
 // // Food database is loaded from food_db.js (foodDatabase)
@@ -474,27 +476,30 @@ function init() {
     }
 
     updateDailyData();
-    selectLogDate(todayDateStr);
+    selectLogDate(getTodayDateStr());
+}
+
+// ========================
+// BMR / TDEE Helper（單一計算來源，避免多處重複）
+// ========================
+function calcBMR() {
+    const p = userProfile;
+    if (!p.weight || !p.height || !p.age) return 0;
+    const constant = p.gender === 'male' ? 5 : -161;
+    return (10 * p.weight) + (6.25 * p.height) - (5 * p.age) + constant;
+}
+
+function calcTDEE() {
+    return calcBMR() * parseFloat(userProfile.activity || 1);
 }
 
 function calculateTargets() {
-    if (!userProfile.weight || !userProfile.height || !userProfile.age || !userProfile.activity) {
-        TARGET_CALS = 2000;
-        TARGET_PRO = 120;
-        TARGET_FAT = 65;
-        TARGET_CARB = 200;
-        TARGET_WATER = 2000;
-        return; // Skip advanced calculation if profile is incomplete
+    let bmr = calcBMR();
+    if (!bmr) {
+        TARGET_CALS = 2000; TARGET_PRO = 120; TARGET_FAT = 65; TARGET_CARB = 200; TARGET_WATER = 2000;
+        return;
     }
-
-    let bmr;
-    if (userProfile.gender === 'male') {
-        bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) + 5;
-    } else {
-        bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
-    }
-
-    let tdee = bmr * parseFloat(userProfile.activity);
+    let tdee = calcTDEE();
     
     let pace = userProfile.pace || 'standard';
     
@@ -993,11 +998,8 @@ function deleteWorkoutRecord(name) {
             dailyData[selectedLogDate].workouts = dailyData[selectedLogDate].workouts.filter(w => w.name !== name);
             setAndSync('fitness_daily', JSON.stringify(dailyData));
             renderWorkout();
-        }
-    } else {
-        return;
     }
-    
+
     closeWorkoutModal();
 }
 
@@ -1635,7 +1637,7 @@ function confirmScanResults() {
         
         const newLog = {
             id: Date.now() + Math.floor(Math.random() * 1000),
-            date: todayDateStr,
+            date: getTodayDateStr(),
             time: now.toTimeString().substring(0,5),
             meal: mealType,
             name: groupName,
@@ -1678,7 +1680,7 @@ function updateDashboard() {
     // Calculate today's totals
     let todayEaten = 0, todayPro = 0, todayCarb = 0, todayFat = 0;
     logs.forEach(log => {
-        if(log.date === todayDateStr || !log.date) {
+        if(log.date === getTodayDateStr() || !log.date) {
             todayEaten += log.cal;
             todayPro += log.pro;
             todayCarb += log.carb;
@@ -1720,7 +1722,7 @@ let currentCart = [];
 let activeCategory = 'favorites';
 
 function openFoodDB(meal, targetDateStr) {
-    if (!targetDateStr) targetDateStr = todayDateStr;
+    if (!targetDateStr) targetDateStr = getTodayDateStr();
     window.currentAddingDate = targetDateStr;
     currentAddingMeal = meal;
     currentCart = [];
@@ -2005,7 +2007,7 @@ function updateFoodSetup() {
     
     let multi = 0;
     if (unit === 'serving') {
-        multi = inputVal / 1;
+        multi = inputVal;
     } else {
         if (selectedFood.name.includes('100g')) {
             multi = inputVal / 100;
@@ -2041,7 +2043,7 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         id: Date.now() + Math.random(),
         img: '', 
         time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
-        date: window.currentAddingDate || todayDateStr,
+        date: window.currentAddingDate || getTodayDateStr(),
         meal: currentAddingMeal,
         name: `${selectedFood.name} (${inputVal}${displayUnit})`,
         cal: Math.round(selectedFood.cals * multi),
@@ -2115,14 +2117,14 @@ function copyYesterdayMeal() {
     d.setDate(d.getDate() - 1);
     const yestStr = d.toLocaleDateString('en-CA');
     
-    const yestLogs = logs.filter(log => (log.date || todayDateStr) === yestStr && log.meal === currentAddingMeal);
+    const yestLogs = logs.filter(log => (log.date || getTodayDateStr()) === yestStr && log.meal === currentAddingMeal);
     
     if(yestLogs.length > 0) {
         yestLogs.forEach(log => {
             currentCart.push({
                 ...log,
                 id: Date.now() + Math.random(),
-                date: window.currentAddingDate || todayDateStr
+                date: window.currentAddingDate || getTodayDateStr()
             });
         });
         updateCartUI();
@@ -2140,45 +2142,45 @@ function setupDailyTracking() {
     const waterVal = document.getElementById('water-val');
     const inputDailyWeight = document.getElementById('daily-weight');
 
-    waterVal.innerText = dailyData[todayDateStr].water;
-    inputDailyWeight.value = dailyData[todayDateStr].weight;
+    waterVal.innerText = dailyData[getTodayDateStr()].water;
+    inputDailyWeight.value = dailyData[getTodayDateStr()].weight;
 
     document.getElementById('btn-water-plus').addEventListener('click', () => {
-        dailyData[todayDateStr].water += 250; 
+        dailyData[getTodayDateStr()].water += 250; 
         updateDailyData();
     });
 
     document.getElementById('btn-water-minus').addEventListener('click', () => {
-        dailyData[todayDateStr].water = Math.max(0, dailyData[todayDateStr].water - 250);
+        dailyData[getTodayDateStr()].water = Math.max(0, dailyData[getTodayDateStr()].water - 250);
         updateDailyData();
     });
 
     inputDailyWeight.addEventListener('change', (e) => {
         const newWeight = parseFloat(e.target.value);
         if (!isNaN(newWeight)) {
-            dailyData[todayDateStr].weight = newWeight;
+            dailyData[getTodayDateStr()].weight = newWeight;
             updateDailyData();
         }
     });
 }
 
 function updateDailyData() {
-    document.getElementById('water-val').innerText = dailyData[todayDateStr].water;
+    document.getElementById('water-val').innerText = dailyData[getTodayDateStr()].water;
     
     const inputDailyWeight = document.getElementById('daily-weight');
     if (inputDailyWeight && document.activeElement !== inputDailyWeight) {
-        inputDailyWeight.value = dailyData[todayDateStr].weight || userProfile.weight || 70;
+        inputDailyWeight.value = dailyData[getTodayDateStr()].weight || userProfile.weight || 70;
     }
     
     // Also update burned
     const burnedEl = document.getElementById('cal-burned');
     if (burnedEl) {
-        burnedEl.innerText = dailyData[todayDateStr].burned || 0;
+        burnedEl.innerText = dailyData[getTodayDateStr()].burned || 0;
     }
     const burnedTimeEl = document.getElementById('cal-burned-time');
     const burnedTimeValEl = document.getElementById('cal-burned-time-val');
     if (burnedTimeEl && burnedTimeValEl) {
-        const bTime = dailyData[todayDateStr].burnedTime || 0;
+        const bTime = dailyData[getTodayDateStr()].burnedTime || 0;
         if (bTime > 0) {
             burnedTimeValEl.innerText = bTime;
             burnedTimeEl.style.display = 'inline-flex';
@@ -2192,10 +2194,10 @@ function updateDailyData() {
 }
 
 window.promptEditWater = function() {
-    if (!dailyData[todayDateStr]) {
-        dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || 70 };
+    if (!dailyData[getTodayDateStr()]) {
+        dailyData[getTodayDateStr()] = { water: 0, weight: userProfile.weight || 70 };
     }
-    const current = dailyData[todayDateStr].water || 0;
+    const current = dailyData[getTodayDateStr()].water || 0;
     document.getElementById('water-input-val').value = current;
     document.getElementById('water-setup-modal').style.display = 'flex';
 };
@@ -2207,7 +2209,7 @@ window.closeWaterModal = function() {
 window.confirmWaterEdit = function() {
     const val = document.getElementById('water-input-val').value;
     if (val !== null && val.trim() !== '' && !isNaN(val)) {
-        dailyData[todayDateStr].water = Math.max(0, parseInt(val) || 0);
+        dailyData[getTodayDateStr()].water = Math.max(0, parseInt(val) || 0);
         updateDailyData();
         renderLogs();
     }
@@ -2215,11 +2217,11 @@ window.confirmWaterEdit = function() {
 };
 
 window.promptEditBurned = function() {
-    if (!dailyData[todayDateStr]) {
-        dailyData[todayDateStr] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
+    if (!dailyData[getTodayDateStr()]) {
+        dailyData[getTodayDateStr()] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
     }
-    const current = dailyData[todayDateStr].burned || 0;
-    const currentTime = dailyData[todayDateStr].burnedTime || 0;
+    const current = dailyData[getTodayDateStr()].burned || 0;
+    const currentTime = dailyData[getTodayDateStr()].burnedTime || 0;
     document.getElementById('burned-input-val').value = current;
     document.getElementById('burned-time-input-val').value = currentTime;
     document.getElementById('burned-setup-modal').style.display = 'flex';
@@ -2243,8 +2245,8 @@ window.confirmBurnedEdit = function() {
     const val = document.getElementById('burned-input-val').value;
     const timeVal = document.getElementById('burned-time-input-val').value;
     if (val !== null && val.trim() !== '' && !isNaN(val)) {
-        dailyData[todayDateStr].burned = Math.max(0, parseInt(val) || 0);
-        dailyData[todayDateStr].burnedTime = Math.max(0, parseInt(timeVal) || 0);
+        dailyData[getTodayDateStr()].burned = Math.max(0, parseInt(val) || 0);
+        dailyData[getTodayDateStr()].burnedTime = Math.max(0, parseInt(timeVal) || 0);
         updateDailyData();
     }
     closeBurnedModal();
@@ -2297,17 +2299,12 @@ function showInfo(type) {
             <p style="margin-top: 12px; color: var(--text-muted); font-size: 12px;">* 請直接照著「剩餘 kcal」安心吃，有去運動就來這裡記上一筆即可！</p>
         `;
     } else if (type === 'cals') {
-        let bmr = 0;
+        let bmr = calcBMR();
+
         let bmrFormula = '';
         let genderConstant = userProfile.gender === 'male' ? '+ 5 (男性常數)' : '- 161 (女性常數)';
         let constantVal = userProfile.gender === 'male' ? '+ 5' : '- 161';
-        
-        if (userProfile.gender === 'male') {
-            bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) + 5;
-        } else {
-            bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
-        }
-        
+        let tdee = calcTDEE();
         bmrFormula = `
             <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 6px; line-height: 1.5;">
                 <span style="color: var(--text-main);">10</span> × 體重(kg) + <span style="color: var(--text-main);">6.25</span> × 身高(cm) - <span style="color: var(--text-main);">5</span> × 年齡 <span style="color: var(--text-main);">${genderConstant}</span>
@@ -2317,8 +2314,7 @@ function showInfo(type) {
             </div>
         `;
 
-        let tdee = bmr * parseFloat(userProfile.activity);
-        
+
         let goalText = '維持現狀 (無調整)';
         let targetCalText = `TDEE = <strong>${TARGET_CALS} kcal</strong>`;
         let pace = userProfile.pace || 'standard';
@@ -2374,13 +2370,8 @@ function showInfo(type) {
     } else if (type === 'macros') {
         let proMultiplier = 1.8;
         let fatMultiplier = 1.0;
-        let bmr = 0;
-        if (userProfile.gender === 'male') {
-            bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) + 5;
-        } else {
-            bmr = (10 * userProfile.weight) + (6.25 * userProfile.height) - (5 * userProfile.age) - 161;
-        }
-        let tdee = bmr * parseFloat(userProfile.activity);
+        let bmr = calcBMR();
+        let tdee = calcTDEE();
 
         let goalText = '維持現狀';
         let pace = userProfile.pace || 'standard';
@@ -2448,7 +2439,7 @@ function closeInfoModal() {
 // Logs Rendering
 function renderDateStrip() {
     const strips = document.querySelectorAll('.date-strip');
-    const baseDate = new Date(selectedLogDate || todayDateStr);
+    const baseDate = new Date(selectedLogDate || getTodayDateStr());
     const currentDayOfWeek = baseDate.getDay();
     const days = ['日', '一', '二', '三', '四', '五', '六'];
     
@@ -2458,7 +2449,7 @@ function renderDateStrip() {
         d.setDate(baseDate.getDate() - currentDayOfWeek + i);
         
         const dateStr = formatDate(d);
-        const dayName = (dateStr === todayDateStr) ? '今' : days[i];
+        const dayName = (dateStr === getTodayDateStr()) ? '今' : days[i];
         const dateNum = d.getDate();
         
         const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
@@ -2524,7 +2515,7 @@ function renderLogs() {
 
 
 
-    const dayLogs = logs.filter(log => (log.date || todayDateStr) === selectedLogDate);
+    const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === selectedLogDate);
     
     // Removing the early return so that empty meal categories are always rendered.
 
@@ -2996,7 +2987,7 @@ window.updateLogWater = function(delta) {
     dailyData[selectedLogDate].water = currentWater;
     setAndSync('fitness_daily', JSON.stringify(dailyData));
     
-    if (selectedLogDate === todayDateStr) {
+    if (selectedLogDate === getTodayDateStr()) {
         document.getElementById('water-val').innerText = currentWater;
     }
     
@@ -3070,7 +3061,7 @@ function renderOverview() {
             lastValidWeight = dailyData[dStr].weight;
         }
         
-        const isFuture = new Date(dStr) > new Date(todayDateStr);
+        const isFuture = new Date(dStr) > new Date(getTodayDateStr());
         if (isFuture) {
             weightData.push(null);
             calorieData.push(null);
@@ -3079,7 +3070,7 @@ function renderOverview() {
             weightData.push(lastValidWeight);
             
             let dayCals = 0;
-            const dayLogs = logs.filter(log => (log.date || todayDateStr) === dStr);
+            const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === dStr);
             dayLogs.forEach(log => { dayCals += log.cal; });
             calorieData.push(dayCals);
             if(dayCals > 0) {
@@ -3355,7 +3346,7 @@ function renderCalendar() {
             const dStr = year + '-' + String(month+1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
             
             let isSelected = (dStr === selectedLogDate);
-            let isToday = (dStr === todayDateStr);
+            let isToday = (dStr === getTodayDateStr());
             
             let hasLogs = false;
             if (isWorkoutView) {
@@ -3363,7 +3354,7 @@ function renderCalendar() {
                     hasLogs = true;
                 }
             } else {
-                hasLogs = logs.some(log => (log.date || todayDateStr) === dStr);
+                hasLogs = logs.some(log => (log.date || getTodayDateStr()) === dStr);
             }
             
             let dotHtml = hasLogs ? '<div style="width: 4px; height: 4px; background: var(--accent-secondary); border-radius: 50%; margin: 4px auto 0;"></div>' : '<div style="width: 4px; height: 4px; margin: 4px auto 0;"></div>';
@@ -3436,10 +3427,10 @@ function adjustBurned(amount) {
     burnedEl.innerText = Math.round(burned);
     
     // Save to daily data
-    if (!dailyData[todayDateStr]) {
-        dailyData[todayDateStr] = {};
+    if (!dailyData[getTodayDateStr()]) {
+        dailyData[getTodayDateStr()] = {};
     }
-    dailyData[todayDateStr].burned = Math.round(burned);
+    dailyData[getTodayDateStr()].burned = Math.round(burned);
     
     // Auto sync
     setAndSync('fitness_daily', JSON.stringify(dailyData));
