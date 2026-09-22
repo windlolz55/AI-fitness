@@ -66,79 +66,12 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
-// Fix iOS PWA background suspension: force refresh when app comes to foreground
+// Fix iOS PWA background suspension: re-subscribe onSnapshot when app comes to foreground.
+// The onSnapshot listener (with hasPendingWrites) already handles diff-and-apply logic;
+// we just need to make sure the websocket is alive after being backgrounded.
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && auth.currentUser) {
-        console.log("App resumed. Forcing sync...");
-        db.collection('users').doc(auth.currentUser.uid).get({source: 'server'}).then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                let changed = false;
-                
-                const currentProfileStr = JSON.stringify(typeof userProfile !== 'undefined' ? userProfile : {});
-                if (data.fitness_profile && data.fitness_profile !== currentProfileStr) {
-                    userProfile = JSON.parse(data.fitness_profile);
-                    changed = true;
-                }
-                
-                const currentLogsStr = JSON.stringify(typeof logs !== 'undefined' ? logs : []);
-                if (data.fitness_logs && data.fitness_logs !== currentLogsStr) {
-                    logs = JSON.parse(data.fitness_logs);
-                    changed = true;
-                }
-                
-                const currentDailyStr = JSON.stringify(typeof dailyData !== 'undefined' ? dailyData : {});
-                if (data.fitness_daily && data.fitness_daily !== currentDailyStr) {
-                    dailyData = JSON.parse(data.fitness_daily);
-                    changed = true;
-                }
-                
-                const currentRoutinesStr = JSON.stringify(typeof WORKOUT_ROUTINES !== 'undefined' ? WORKOUT_ROUTINES : {});
-                if (data.fitness_routines && data.fitness_routines !== currentRoutinesStr) {
-                    WORKOUT_ROUTINES = JSON.parse(data.fitness_routines);
-                    changed = true;
-                }
-                
-                const currentTemplatesStr = JSON.stringify(typeof window.FITNESS_TEMPLATES !== 'undefined' ? window.FITNESS_TEMPLATES : []);
-                if (data.fitness_templates && data.fitness_templates !== currentTemplatesStr) {
-                    window.FITNESS_TEMPLATES = JSON.parse(data.fitness_templates);
-                    changed = true;
-                }
-                
-                const currentRoutinePlanStr = JSON.stringify(typeof fitnessRoutinePlan !== 'undefined' ? fitnessRoutinePlan : {});
-                if (data.fitness_routine_plan && data.fitness_routine_plan !== currentRoutinePlanStr) {
-                    fitnessRoutinePlan = JSON.parse(data.fitness_routine_plan);
-                    changed = true;
-                }
-                
-                const currentCustomFoodsStr = JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []);
-                if (data.customFoods && data.customFoods !== currentCustomFoodsStr) {
-                    customFoods = JSON.parse(data.customFoods);
-                    changed = true;
-                }
-                
-                const currentFavoriteFoodIdsStr = JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []);
-                if (data.favoriteFoodIds && data.favoriteFoodIds !== currentFavoriteFoodIdsStr) {
-                    favoriteFoodIds = JSON.parse(data.favoriteFoodIds);
-                    changed = true;
-                }
-                
-                if (changed) {
-                    const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
-                    keys.forEach(k => {
-                        try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
-                    });
-                    if (typeof calculateTargets === 'function') calculateTargets();
-                    if (typeof setupProfile === 'function') setupProfile();
-                    if (typeof updateDashboard === 'function') updateDashboard();
-                    if (typeof renderLogs === 'function') renderLogs();
-                    if (typeof renderWorkout === 'function') renderWorkout();
-                    if (typeof updateDailyData === 'function') updateDailyData();
-                }
-            }
-        }).catch(err => console.error("Resume sync failed:", err));
-        
-        // Also restart listener to ensure websocket is alive
+        console.log("App resumed. Re-subscribing Firestore listener...");
         setupFirestoreListener(auth.currentUser.uid);
     }
 });
@@ -628,6 +561,11 @@ function calculateTargets() {
 // Workout Logic
 // ========================
 
+// Treats undefined completed as true (legacy records before the field existed)
+function isWorkoutCompleted(ex) {
+    return ex.completed === undefined ? true : ex.completed;
+}
+
 window.completeAllWorkouts = function() {
     if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts || dailyData[selectedLogDate].workouts.length === 0) {
         alert("今日尚無訓練紀錄！");
@@ -635,9 +573,7 @@ window.completeAllWorkouts = function() {
     }
     
     const loggedWorkouts = dailyData[selectedLogDate].workouts;
-    const getCompletedStatus = (ex) => ex.completed === undefined ? true : ex.completed;
-    
-    let allCompleted = loggedWorkouts.every(w => getCompletedStatus(w));
+    let allCompleted = loggedWorkouts.every(w => isWorkoutCompleted(w));
     
     if (allCompleted) {
         loggedWorkouts.forEach(w => w.completed = false);
@@ -659,8 +595,7 @@ window.toggleAllCardio = function() {
     const cardios = loggedWorkouts.filter(ex => ex.type === 'cardio');
     if (cardios.length === 0) return;
     
-    const getCompletedStatus = (ex) => ex.completed === undefined ? true : ex.completed;
-    let allLogged = cardios.every(w => getCompletedStatus(w));
+    let allLogged = cardios.every(w => isWorkoutCompleted(w));
     
     if (allLogged) {
         cardios.forEach(w => w.completed = false);
@@ -779,7 +714,7 @@ function renderWorkout() {
     
     html += '<div id="workout-sortable-list">';
     nonCardio.forEach((ex, idx) => {
-        let isCompleted = ex.completed === undefined ? true : ex.completed;
+        let isCompleted = isWorkoutCompleted(ex);
         
         let statusHtml = `<div style="font-size: 12px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
             ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}${!isNaN(ex.reps) && String(ex.reps).trim() !== '' ? '次' : ''}
@@ -818,7 +753,7 @@ function renderWorkout() {
         
         let cardioSubHtml = '';
         cardios.forEach(ex => {
-            let isCompleted = ex.completed === undefined ? true : ex.completed;
+            let isCompleted = isWorkoutCompleted(ex);
             let statusHtml = `<div style="font-size: 10px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
                 ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : ''}${ex.sets}組 ${ex.reps}${!isNaN(ex.reps) && String(ex.reps).trim() !== '' ? '次' : ''}
             </div>`;
