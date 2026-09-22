@@ -648,195 +648,191 @@ function getExerciseCategory(exerciseName) {
     return '';
 }
 
+// ─── renderWorkout HTML Helpers ──────────────────────────────────────────────
+
+function buildEmptyStateHTML(selectedLogDate) {
+    if (typeof getTodayRoutineInfo === 'function') {
+        const routineInfo = getTodayRoutineInfo(selectedLogDate);
+        if (routineInfo && routineInfo.template) {
+            return `
+                <div style="background:rgba(255,107,129,0.1);border:1px solid var(--accent-primary);border-radius:16px;padding:24px;margin-bottom:24px;">
+                    <div style="color:var(--accent-primary);font-size:14px;font-weight:bold;margin-bottom:8px;">✨ 今日分化訓練目標</div>
+                    <h3 style="margin-bottom:16px;font-size:20px;">${routineInfo.template.title}</h3>
+                    <button class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-weight:bold;font-size:16px;" onclick="applyTemplate(${routineInfo.idx})">
+                        <i class="fa-solid fa-bolt" style="margin-right:8px;"></i> 一鍵套用課表
+                    </button>
+                </div>`;
+        }
+        if (routineInfo && routineInfo.isRestDay) {
+            return `
+                <div class="card" style="text-align:center;padding:40px 20px;">
+                    <div style="font-size:40px;margin-bottom:16px;">☕</div>
+                    <h3 style="margin-bottom:8px;color:var(--accent-primary);">今日為休息日</h3>
+                    <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px;">好好休息，讓肌肉恢復生長！</p>
+                    <button class="btn-secondary" style="padding:12px 24px;border-radius:12px;font-weight:bold;" onclick="openTemplateSelector()">
+                        <i class="fa-solid fa-folder-open" style="margin-right:8px;"></i> 還是想練？選擇範本
+                    </button>
+                </div>`;
+        }
+    }
+    return `
+        <div class="card" style="text-align:center;padding:40px 20px;">
+            <div style="font-size:40px;margin-bottom:16px;">💪</div>
+            <h3 style="margin-bottom:8px;">尚未加入動作</h3>
+            <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px;">從範本庫選用，或自己新增動作吧！</p>
+            <button class="btn-primary" style="padding:12px 24px;border-radius:12px;font-weight:bold;" onclick="openTemplateSelector()">
+                <i class="fa-solid fa-folder-open" style="margin-right:8px;"></i> 選擇範本
+            </button>
+        </div>`;
+}
+
+function buildExerciseItemHTML(ex) {
+    const isCompleted = isWorkoutCompleted(ex);
+    const checkColor = isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)';
+    const checkStyle = isCompleted ? 'solid' : 'regular';
+    const statusColor = isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)';
+    const icon = ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell';
+    const cat = getExerciseCategory(ex.name);
+    const catHtml = cat ? ` <span style="font-size:13px;font-weight:normal;color:var(--text-muted);">(${cat})</span>` : '';
+    const repsUnit = (!isNaN(ex.reps) && String(ex.reps).trim() !== '') ? '次' : '';
+    const weightStr = ex.weight > 0 ? ex.weight + 'kg, ' : '';
+
+    return `
+        <div class="card log-item" data-name="${ex.name}" style="display:flex;align-items:center;justify-content:space-between;padding:16px;margin-bottom:12px;">
+            <div class="drag-handle" style="padding-right:12px;color:var(--text-muted);opacity:0.5;cursor:grab;font-size:18px;">
+                <i class="fa-solid fa-grip-lines"></i>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;flex:1;cursor:pointer;min-width:0;" onclick="openWorkoutModal('${ex.name}')">
+                <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text-main);flex-shrink:0;">
+                    <i class="fa-solid ${icon}"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:500;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ex.name}${catHtml}</div>
+                    <div style="font-size:12px;color:${statusColor};margin-top:4px;">
+                        ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${weightStr}${ex.sets}組, ${ex.reps}${repsUnit}
+                    </div>
+                </div>
+            </div>
+            <div style="font-size:28px;color:${checkColor};padding:8px 0 8px 16px;cursor:pointer;" onclick="toggleWorkoutCheck('${ex.name}')">
+                <i class="fa-${checkStyle} fa-circle-check"></i>
+            </div>
+        </div>`;
+}
+
+function buildCardioSectionHTML(cardios) {
+    const allCardioCompleted = cardios.every(ex => ex.completed !== false);
+    const headerCheckColor = allCardioCompleted ? 'var(--accent-secondary)' : 'var(--card-border)';
+    const headerCheckStyle = allCardioCompleted ? 'solid' : 'regular';
+
+    const itemsHtml = cardios.map(ex => {
+        const isCompleted = isWorkoutCompleted(ex);
+        const checkColor = isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)';
+        const checkStyle = isCompleted ? 'solid' : 'regular';
+        const statusColor = isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)';
+        const cat = getExerciseCategory(ex.name);
+        const catHtml = cat ? ` <span style="font-weight:normal;color:var(--text-muted);">(${cat})</span>` : '';
+        const repsUnit = (!isNaN(ex.reps) && String(ex.reps).trim() !== '') ? '次' : '';
+
+        return `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--card-border);">
+                <div style="display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;" onclick="event.stopPropagation();openWorkoutModal('${ex.name}')">
+                    <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-main);">
+                        <i class="fa-solid fa-person-running"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:500;font-size:14px;">${ex.name}${catHtml}</div>
+                        <div style="font-size:10px;color:${statusColor};margin-top:4px;">
+                            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : ''}${ex.sets}組 ${ex.reps}${repsUnit}
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size:24px;color:${checkColor};cursor:pointer;padding:4px;" onclick="event.stopPropagation();toggleWorkoutCheck('${ex.name}')">
+                    <i class="fa-${checkStyle} fa-circle-check"></i>
+                </div>
+            </div>`;
+    }).join('');
+
+    return `
+        <div class="card log-item" style="padding:16px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;cursor:pointer;" onclick="toggleAllCardio()">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:32px;height:32px;border-radius:10px;background:rgba(255,107,129,0.1);color:#ff6b81;display:flex;align-items:center;justify-content:center;font-size:16px;">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <h4 style="margin:0;font-size:16px;font-weight:600;">有氧運動</h4>
+                </div>
+                <div style="font-size:24px;color:${headerCheckColor};">
+                    <i class="fa-${headerCheckStyle} fa-circle-check"></i>
+                </div>
+            </div>
+            ${itemsHtml}
+        </div>`;
+}
+
+// ─── renderWorkout ────────────────────────────────────────────────────────────
+
 function renderWorkout() {
     const container = document.getElementById('workout-list-container');
     if (!container) return;
-    
+
     const d = new Date(selectedLogDate);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
-    const days = ['日', '一', '二', '三', '四', '五', '六'];
-    
+
     const titleEl = document.getElementById('workout-main-title');
-    if (titleEl) {
-        titleEl.innerText = `運動課表 (${m}/${dt})`;
-    }
-    
+    if (titleEl) titleEl.innerText = `運動課表 (${m}/${dt})`;
+
     const dailyDataEntry = dailyData[selectedLogDate] || {};
     const loggedWorkouts = dailyDataEntry.workouts || [];
-    
-    let html = '';
-    
+
+    // ── Empty state ──────────────────────────────────────────────────────────
     if (loggedWorkouts.length === 0) {
-        let suggestedHtml = '';
-        if (typeof getTodayRoutineInfo === 'function') {
-            const routineInfo = getTodayRoutineInfo(selectedLogDate);
-            if (routineInfo && routineInfo.template) {
-                suggestedHtml = `
-                    <div style="background: rgba(255, 107, 129, 0.1); border: 1px solid var(--accent-primary); border-radius: 16px; padding: 24px; margin-bottom: 24px;">
-                        <div style="color: var(--accent-primary); font-size: 14px; font-weight: bold; margin-bottom: 8px;">✨ 今日分化訓練目標</div>
-                        <h3 style="margin-bottom: 16px; font-size: 20px;">${routineInfo.template.title}</h3>
-                        <button class="btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px;" onclick="applyTemplate(${routineInfo.idx})">
-                            <i class="fa-solid fa-bolt" style="margin-right: 8px;"></i> 一鍵套用課表
-                        </button>
-                    </div>
-                `;
-            }
-        }
-        if (suggestedHtml) {
-            container.innerHTML = suggestedHtml;
-        } else if (typeof getTodayRoutineInfo === 'function' && getTodayRoutineInfo(selectedLogDate) && getTodayRoutineInfo(selectedLogDate).isRestDay) {
-            container.innerHTML = `
-                <div class="card" style="text-align: center; padding: 40px 20px;">
-                    <div style="font-size: 40px; margin-bottom: 16px;">☕</div>
-                    <h3 style="margin-bottom: 8px; color: var(--accent-primary);">今日為休息日</h3>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">好好休息，讓肌肉恢復生長！</p>
-                    <button class="btn-secondary" style="padding: 12px 24px; border-radius: 12px; font-weight: bold;" onclick="openTemplateSelector()">
-                        <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 還是想練？選擇範本
-                    </button>
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div class="card" style="text-align: center; padding: 40px 20px;">
-                    <div style="font-size: 40px; margin-bottom: 16px;">💪</div>
-                    <h3 style="margin-bottom: 8px;">尚未加入動作</h3>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">從範本庫選用，或自己新增動作吧！</p>
-                    <button class="btn-primary" style="padding: 12px 24px; border-radius: 12px; font-weight: bold;" onclick="openTemplateSelector()">
-                        <i class="fa-solid fa-folder-open" style="margin-right: 8px;"></i> 選擇範本
-                    </button>
-                </div>
-            `;
-        }
-        const completeAllWrapper = document.getElementById('workout-header-wrapper');
-        if (completeAllWrapper) completeAllWrapper.style.display = 'none';
-        
+        container.innerHTML = buildEmptyStateHTML(selectedLogDate);
+        const wrapper = document.getElementById('workout-header-wrapper');
+        if (wrapper) wrapper.style.display = 'none';
         return;
     }
-    
+
+    // ── Build workout list ───────────────────────────────────────────────────
     const nonCardio = loggedWorkouts.filter(ex => ex.type !== 'cardio');
-    const cardios = loggedWorkouts.filter(ex => ex.type === 'cardio');
-    
-    html += '<div id="workout-sortable-list">';
-    nonCardio.forEach((ex, idx) => {
-        let isCompleted = isWorkoutCompleted(ex);
-        
-        let statusHtml = `<div style="font-size: 12px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
-            ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : '目標: '}${ex.weight > 0 ? ex.weight + 'kg, ' : ''}${ex.sets}組, ${ex.reps}${!isNaN(ex.reps) && String(ex.reps).trim() !== '' ? '次' : ''}
-        </div>`;
-        
-        let icon = ex.type === 'time' ? 'fa-stopwatch' : 'fa-dumbbell';
-        
-        html += `
-            <div class="card log-item" data-name="${ex.name}" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; margin-bottom: 12px;">
-                <div class="drag-handle" style="padding-right: 12px; color: var(--text-muted); opacity: 0.5; cursor: grab; font-size: 18px;">
-                    <i class="fa-solid fa-grip-lines"></i>
-                </div>
-                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer; min-width: 0;" onclick="openWorkoutModal('${ex.name}')">
-                    <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main); flex-shrink: 0;">
-                        <i class="fa-solid ${icon}"></i>
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ex.name}${getExerciseCategory(ex.name) ? ' <span style="font-size: 13px; font-weight: normal; color: var(--text-muted);">(' + getExerciseCategory(ex.name) + ')</span>' : ''}</div>
-                        ${statusHtml}
-                    </div>
-                </div>
-                <div style="font-size: 28px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)'}; padding: 8px 0 8px 16px; cursor: pointer;" onclick="toggleWorkoutCheck('${ex.name}')">
-                    <i class="fa-${isCompleted ? 'solid' : 'regular'} fa-circle-check"></i>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    
-    if (cardios.length > 0) {
-        let allCardioCompleted = true;
-        
-        cardios.forEach(ex => {
-            if (ex.completed === false) allCardioCompleted = false;
-        });
-        
-        let cardioSubHtml = '';
-        cardios.forEach(ex => {
-            let isCompleted = isWorkoutCompleted(ex);
-            let statusHtml = `<div style="font-size: 10px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--text-muted)'}; margin-top: 4px;">
-                ${isCompleted ? '<i class="fa-solid fa-check"></i> ' : ''}${ex.sets}組 ${ex.reps}${!isNaN(ex.reps) && String(ex.reps).trim() !== '' ? '次' : ''}
-            </div>`;
-            
-            cardioSubHtml += `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--card-border);">
-                    <div style="display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer;" onclick="event.stopPropagation(); openWorkoutModal('${ex.name}')">
-                        <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-main);">
-                            <i class="fa-solid fa-person-running"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 500; font-size: 14px;">${ex.name}${getExerciseCategory(ex.name) ? ' <span style="font-weight: normal; color: var(--text-muted);">(' + getExerciseCategory(ex.name) + ')</span>' : ''}</div>
-                            ${statusHtml}
-                        </div>
-                    </div>
-                    <div style="font-size: 24px; color: ${isCompleted ? 'var(--accent-secondary)' : 'var(--card-border)'}; cursor: pointer; padding: 4px;" onclick="event.stopPropagation(); toggleWorkoutCheck('${ex.name}')">
-                        <i class="fa-${isCompleted ? 'solid' : 'regular'} fa-circle-check"></i>
-                    </div>
-                </div>
-            `;
-        });
-        
-        html += `
-            <div class="card log-item" style="padding: 16px; margin-bottom: 12px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; cursor: pointer;" onclick="toggleAllCardio()">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(255, 107, 129, 0.1); color: #ff6b81; display: flex; align-items: center; justify-content: center; font-size: 16px;">
-                            <i class="fa-solid fa-heart-pulse"></i>
-                        </div>
-                        <h4 style="margin: 0; font-size: 16px; font-weight: 600;">有氧運動</h4>
-                    </div>
-                    <div style="font-size: 24px; color: ${allCardioCompleted ? 'var(--accent-secondary)' : 'var(--card-border)'};">
-                        <i class="fa-${allCardioCompleted ? 'solid' : 'regular'} fa-circle-check"></i>
-                    </div>
-                </div>
-                ${cardioSubHtml}
-            </div>
-        `;
-    }
-    
+    const cardios   = loggedWorkouts.filter(ex => ex.type === 'cardio');
+
+    let html = `<div id="workout-sortable-list">${nonCardio.map(buildExerciseItemHTML).join('')}</div>`;
+    if (cardios.length > 0) html += buildCardioSectionHTML(cardios);
+
     container.innerHTML = html;
-    
+
+    // ── Header (完成狀態列) ───────────────────────────────────────────────────
     const completeAllWrapper = document.getElementById('workout-header-wrapper');
     const routineNameSpan = document.getElementById('current-routine-name');
     if (completeAllWrapper) completeAllWrapper.style.display = 'flex';
-    if (routineNameSpan) {
-        routineNameSpan.innerText = dailyData[selectedLogDate].routineName || '';
-    }
+    if (routineNameSpan) routineNameSpan.innerText = dailyData[selectedLogDate].routineName || '';
 
     const completeAllText = document.getElementById('complete-all-text');
     const completeAllIcon = document.getElementById('complete-all-icon');
     if (completeAllText && completeAllIcon) {
         const btn = completeAllText.parentElement;
         btn.style.display = 'flex';
-        
-        let allCompleted = loggedWorkouts.length > 0 && loggedWorkouts.every(w => w.completed !== false);
-        
+
+        const allCompleted = loggedWorkouts.length > 0 && loggedWorkouts.every(w => w.completed !== false);
+
         if (allCompleted) {
-            completeAllText.innerText = "今日已完成";
-            completeAllIcon.className = "fa-solid fa-circle-check";
-            btn.style.background = "var(--accent-primary)";
-            btn.style.color = "var(--bg-main)";
+            completeAllText.innerText = '今日已完成';
+            completeAllIcon.className = 'fa-solid fa-circle-check';
+            btn.style.background = 'var(--accent-primary)';
+            btn.style.color = 'var(--bg-main)';
         } else {
-            completeAllText.innerText = "今日未完成";
-            completeAllIcon.className = "fa-regular fa-circle-check";
-            btn.style.background = "rgba(255, 107, 129, 0.1)";
-            btn.style.color = "#ff6b81";
+            completeAllText.innerText = '今日未完成';
+            completeAllIcon.className = 'fa-regular fa-circle-check';
+            btn.style.background = 'rgba(255, 107, 129, 0.1)';
+            btn.style.color = '#ff6b81';
         }
-        
-        // Append burned time — only show if workout is marked as completed
-        const bt = (dailyData[selectedLogDate] && dailyData[selectedLogDate].burnedTime) ? dailyData[selectedLogDate].burnedTime : 0;
-        if (allCompleted && bt > 0) {
-            completeAllText.innerText += ` (${bt}m)`;
-        } else {
-            completeAllText.innerText += ` (無)`;
-        }
+
+        const bt = dailyData[selectedLogDate]?.burnedTime || 0;
+        completeAllText.innerText += allCompleted && bt > 0 ? ` (${bt}m)` : ' (無)';
     }
 
+    // ── Drag-to-sort ──────────────────────────────────────────────────────────
     if (window.workoutSortable) window.workoutSortable.destroy();
     const sortContainer = document.getElementById('workout-sortable-list');
     if (sortContainer) {
@@ -845,29 +841,23 @@ function renderWorkout() {
             delay: 100,
             delayOnTouchOnly: true,
             handle: '.drag-handle',
-            onEnd: function(evt) {
-                if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts) return;
-                
-                const currentWorkouts = dailyData[selectedLogDate].workouts;
-                const nonCardios = currentWorkouts.filter(w => w.type !== 'cardio');
-                const cardios = currentWorkouts.filter(w => w.type === 'cardio');
-                
-                const itemEls = Array.from(sortContainer.querySelectorAll('.log-item'));
-                const newNonCardios = [];
-                
-                itemEls.forEach(el => {
-                    const name = el.dataset.name;
-                    const matched = nonCardios.find(w => w.name === name);
-                    if (matched) newNonCardios.push(matched);
-                });
-                
-                dailyData[selectedLogDate].workouts = newNonCardios.concat(cardios);
+            onEnd(evt) {
+                if (!dailyData[selectedLogDate]?.workouts) return;
+                const allW     = dailyData[selectedLogDate].workouts;
+                const nonCards = allW.filter(w => w.type !== 'cardio');
+                const cards    = allW.filter(w => w.type === 'cardio');
+                const itemEls  = Array.from(sortContainer.querySelectorAll('.log-item'));
+                const reordered = itemEls
+                    .map(el => nonCards.find(w => w.name === el.dataset.name))
+                    .filter(Boolean);
+                dailyData[selectedLogDate].workouts = reordered.concat(cards);
                 setAndSync('fitness_daily', JSON.stringify(dailyData));
                 renderWorkout();
             }
         });
     }
 }
+
 
 function toggleWorkoutCheck(name) {
     if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts) return;
