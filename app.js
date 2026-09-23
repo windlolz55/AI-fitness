@@ -2440,8 +2440,8 @@ function getDayStatus(dateStr) {
     const dayCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
     if (dayCals === 0) return 'none';
     const ratio = dayCals / TARGET_CALS;
-    if (ratio >= 0.85 && ratio <= 1.15) return 'ok';      // ±15% 達標
-    if (ratio > 1.15) return 'over';                        // 超標
+    if (ratio >= 0.95 && ratio <= 1.05) return 'ok';      // ±5% 達標
+    if (ratio > 1.05) return 'over';                        // 超標
     return 'low';                                           // 不足
 }
 
@@ -3373,7 +3373,7 @@ function renderOverview() {
             const carbPct = Math.min(day.carb / TARGET_CARB, 1.2);
             const fatPct = Math.min(day.fat / TARGET_FAT, 1.2);
             const calRatio = day.cals / TARGET_CALS;
-            const calColor = calRatio >= 0.85 && calRatio <= 1.15 ? '#1dd1a1' : calRatio > 1.15 ? '#ff7675' : '#fdcb6e';
+            const calColor = calRatio >= 0.95 && calRatio <= 1.05 ? '#1dd1a1' : calRatio > 1.05 ? '#ff7675' : '#fdcb6e';
             const bar = (pct, color) => `<div style="flex:1;height:5px;background:rgba(128,128,128,0.15);border-radius:4px;overflow:hidden;">
                 <div style="height:100%;width:${Math.min(Math.round(pct*100), 100)}%;background:${color};border-radius:4px;transition:width .3s;"></div>
             </div>`;
