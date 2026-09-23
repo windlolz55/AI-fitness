@@ -2475,7 +2475,7 @@ function renderDateStrip() {
             let dotColor = 'transparent';
             if (isWorkout) {
                 const wStatus = getWorkoutDayStatus(dateStr);
-                dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#00d2ff' : 'transparent';
+                dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#ff7675' : 'transparent';
             } else {
                 const status = getDayStatus(dateStr);
                 dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : 'transparent';
@@ -3386,18 +3386,18 @@ function renderOverview() {
                 </div>
                 <div style="display:flex;flex-direction:column;gap:3px;">
                     <div style="display:flex;align-items:center;gap:6px;">
-                        <span style="font-size:10px;color:var(--text-muted);width:14px;">蛋</span>
-                        ${bar(proPct, '#5f27cd')}
-                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.pro}g</span>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">碳</span>
-                        ${bar(carbPct, '#ffb86c')}
+                        ${bar(carbPct, 'var(--carb-color)')}
                         <span style="font-size:10px;min-width:28px;text-align:right;">${day.carb}g</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:10px;color:var(--text-muted);width:14px;">蛋</span>
+                        ${bar(proPct, 'var(--pro-color)')}
+                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.pro}g</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">脂</span>
-                        ${bar(fatPct, '#ff9ff3')}
+                        ${bar(fatPct, 'var(--fat-color)')}
                         <span style="font-size:10px;min-width:28px;text-align:right;">${day.fat}g</span>
                     </div>
                 </div>
@@ -3474,7 +3474,7 @@ function renderCalendar() {
             let dotColor = null;
             if (isWorkoutView) {
                 const wStatus = getWorkoutDayStatus(dStr);
-                dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#00d2ff' : null;
+                dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#ff7675' : null;
             } else {
                 const status = getDayStatus(dStr);
                 dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : null;
@@ -3503,7 +3503,7 @@ function renderCalendar() {
             if (isWorkoutView) {
                 legendEl.innerHTML = `
                     <span style="color: #1dd1a1;">● 全部完成</span>
-                    <span style="color: #00d2ff;">● 有課表</span>
+                    <span style="color: #ff7675;">● 未完成</span>
                 `;
             } else {
                 legendEl.innerHTML = `
