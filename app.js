@@ -3375,7 +3375,7 @@ function renderOverview() {
             const calRatio = day.cals / TARGET_CALS;
             const calColor = calRatio >= 0.85 && calRatio <= 1.15 ? '#1dd1a1' : calRatio > 1.15 ? '#ff7675' : '#fdcb6e';
             const bar = (pct, color) => `<div style="flex:1;height:5px;background:rgba(128,128,128,0.15);border-radius:4px;overflow:hidden;">
-                <div style="height:100%;width:${Math.round(pct*100)}%;background:${color};border-radius:4px;transition:width .3s;"></div>
+                <div style="height:100%;width:${Math.min(Math.round(pct*100), 100)}%;background:${color};border-radius:4px;transition:width .3s;"></div>
             </div>`;
             rows += `<div style="padding:8px 0;border-bottom:1px solid var(--card-border);">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
@@ -3388,17 +3388,23 @@ function renderOverview() {
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">碳</span>
                         ${bar(carbPct, 'var(--carb-color)')}
-                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.carb}g</span>
+                        <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
+                            <strong style="color:var(--text-main);">${day.carb}g</strong><span style="font-size:9px;color:var(--text-muted);"> / ${TARGET_CARB}g</span>
+                        </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">蛋</span>
                         ${bar(proPct, 'var(--pro-color)')}
-                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.pro}g</span>
+                        <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
+                            <strong style="color:var(--text-main);">${day.pro}g</strong><span style="font-size:9px;color:var(--text-muted);"> / ${TARGET_PRO}g</span>
+                        </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">脂</span>
                         ${bar(fatPct, 'var(--fat-color)')}
-                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.fat}g</span>
+                        <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
+                            <strong style="color:var(--text-main);">${day.fat}g</strong><span style="font-size:9px;color:var(--text-muted);"> / ${TARGET_FAT}g</span>
+                        </span>
                     </div>
                 </div>
             </div>`;
