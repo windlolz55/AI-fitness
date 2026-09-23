@@ -2478,7 +2478,7 @@ function renderDateStrip() {
                 dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#ff7675' : 'transparent';
             } else {
                 const status = getDayStatus(dateStr);
-                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : 'transparent';
+                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fa8231' : 'transparent';
             }
             
             const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
@@ -3373,7 +3373,7 @@ function renderOverview() {
             const carbPct = Math.min(day.carb / TARGET_CARB, 1.2);
             const fatPct = Math.min(day.fat / TARGET_FAT, 1.2);
             const calRatio = day.cals / TARGET_CALS;
-            const calColor = calRatio >= 0.95 && calRatio <= 1.05 ? '#1dd1a1' : calRatio > 1.05 ? '#ff7675' : '#fdcb6e';
+            const calColor = calRatio >= 0.95 && calRatio <= 1.05 ? '#1dd1a1' : calRatio > 1.05 ? '#ff7675' : '#fa8231';
             const bar = (pct, color) => `<div style="flex:1;height:5px;background:rgba(128,128,128,0.15);border-radius:4px;overflow:hidden;">
                 <div style="height:100%;width:${Math.min(Math.round(pct*100), 100)}%;background:${color};border-radius:4px;transition:width .3s;"></div>
             </div>`;
@@ -3414,7 +3414,7 @@ function renderOverview() {
                 <h3 style="font-size:16px;margin:0;">週達標摘要</h3>
                 <div style="display:flex;gap:8px;font-size:10px;align-items:center;">
                     <span style="color:#1dd1a1;">● 達標</span>
-                    <span style="color:#fdcb6e;">● 不足</span>
+                    <span style="color:#fa8231;">● 不足</span>
                     <span style="color:#ff7675;">● 超標</span>
                 </div>
             </div>
@@ -3483,7 +3483,7 @@ function renderCalendar() {
                 dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#ff7675' : null;
             } else {
                 const status = getDayStatus(dStr);
-                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : null;
+                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fa8231' : null;
             }
             
             let dotHtml = dotColor
@@ -3514,7 +3514,7 @@ function renderCalendar() {
             } else {
                 legendEl.innerHTML = `
                     <span style="color: #1dd1a1;">● 達標</span>
-                    <span style="color: #fdcb6e;">● 不足</span>
+                    <span style="color: #fa8231;">● 不足</span>
                     <span style="color: #ff7675;">● 超標</span>
                 `;
             }
