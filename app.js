@@ -790,6 +790,7 @@ function renderWorkout() {
         container.innerHTML = buildEmptyStateHTML(selectedLogDate);
         const wrapper = document.getElementById('workout-header-wrapper');
         if (wrapper) wrapper.style.display = 'none';
+        renderDateStrip();
         return;
     }
 
@@ -856,6 +857,7 @@ function renderWorkout() {
             }
         });
     }
+    renderDateStrip();
 }
 
 
@@ -2443,34 +2445,51 @@ function getDayStatus(dateStr) {
     return 'low';                                           // 不足
 }
 
+function getWorkoutDayStatus(dateStr) {
+    // Returns: 'none' | 'pending' | 'ok'
+    if (!dailyData[dateStr] || !dailyData[dateStr].workouts || dailyData[dateStr].workouts.length === 0) {
+        return 'none';
+    }
+    const wList = dailyData[dateStr].workouts;
+    const allCompleted = wList.every(w => isWorkoutCompleted(w));
+    return allCompleted ? 'ok' : 'pending';
+}
+
 function renderDateStrip() {
     const strips = document.querySelectorAll('.date-strip');
     const baseDate = new Date(selectedLogDate || getTodayDateStr());
     const currentDayOfWeek = baseDate.getDay();
     const days = ['日', '一', '二', '三', '四', '五', '六'];
     
-    let html = '';
-    for(let i=0; i<7; i++) {
-        const d = new Date(baseDate);
-        d.setDate(baseDate.getDate() - currentDayOfWeek + i);
-        
-        const dateStr = formatDate(d);
-        const dayName = (dateStr === getTodayDateStr()) ? '今' : days[i];
-        const dateNum = d.getDate();
-        const status = getDayStatus(dateStr);
-        const dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : 'transparent';
-        
-        const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
-        html += `
-            <div class="date-item ${activeClass}" onclick="selectLogDate('${dateStr}')" style="height: 56px; padding-bottom: 4px;">
-                <span style="font-size: 11px;">${dayName}</span>
-                <span style="font-size: 16px; font-weight: 600; margin-top: 2px;">${dateNum}</span>
-                <span style="width: 6px; height: 6px; border-radius: 50%; background: ${dotColor}; margin-top: 3px; display: block;"></span>
-            </div>
-        `;
-    }
-    
     strips.forEach(strip => {
+        const isWorkout = strip.closest('#view-workout') !== null;
+        let html = '';
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(baseDate);
+            d.setDate(baseDate.getDate() - currentDayOfWeek + i);
+            
+            const dateStr = formatDate(d);
+            const dayName = (dateStr === getTodayDateStr()) ? '今' : days[i];
+            const dateNum = d.getDate();
+            
+            let dotColor = 'transparent';
+            if (isWorkout) {
+                const wStatus = getWorkoutDayStatus(dateStr);
+                dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#00d2ff' : 'transparent';
+            } else {
+                const status = getDayStatus(dateStr);
+                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : 'transparent';
+            }
+            
+            const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
+            html += `
+                <div class="date-item ${activeClass}" onclick="selectLogDate('${dateStr}')" style="height: 56px; padding-bottom: 4px;">
+                    <span style="font-size: 11px;">${dayName}</span>
+                    <span style="font-size: 16px; font-weight: 600; margin-top: 2px;">${dateNum}</span>
+                    <span style="width: 6px; height: 6px; border-radius: 50%; background: ${dotColor}; margin-top: 3px; display: block;"></span>
+                </div>
+            `;
+        }
         strip.innerHTML = html;
     });
 }
@@ -2661,6 +2680,7 @@ function renderLogs() {
     });
 
     container.innerHTML = html;
+    renderDateStrip();
 }
 
 document.getElementById('btn-clear').addEventListener('click', () => {
@@ -3451,17 +3471,15 @@ function renderCalendar() {
             let isSelected = (dStr === selectedLogDate);
             let isToday = (dStr === getTodayDateStr());
             
-            let hasLogs = false;
+            let dotColor = null;
             if (isWorkoutView) {
-                if (dailyData[dStr] && dailyData[dStr].workouts && dailyData[dStr].workouts.length > 0) {
-                    hasLogs = true;
-                }
+                const wStatus = getWorkoutDayStatus(dStr);
+                dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#00d2ff' : null;
             } else {
-                hasLogs = logs.some(log => (log.date || getTodayDateStr()) === dStr);
+                const status = getDayStatus(dStr);
+                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : null;
             }
             
-            const status = getDayStatus(dStr);
-            const dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : null;
             let dotHtml = dotColor
                 ? `<div style="width: 5px; height: 5px; background: ${dotColor}; border-radius: 50%; margin: 3px auto 0;"></div>`
                 : '<div style="width: 5px; height: 5px; margin: 3px auto 0;"></div>';
@@ -3479,6 +3497,22 @@ function renderCalendar() {
             html += `<div style="cursor: pointer;" onclick="selectLogDate('${dStr}'); closeCalendarModal();"><div style="${circleStyle}"><span style="${textStyle}">${day}</span></div>${dotHtml}</div>`;
         }
         grid.innerHTML = html;
+
+        const legendEl = document.getElementById('calendar-legend');
+        if (legendEl) {
+            if (isWorkoutView) {
+                legendEl.innerHTML = `
+                    <span style="color: #1dd1a1;">● 全部完成</span>
+                    <span style="color: #00d2ff;">● 有課表</span>
+                `;
+            } else {
+                legendEl.innerHTML = `
+                    <span style="color: #1dd1a1;">● 達標</span>
+                    <span style="color: #fdcb6e;">● 不足</span>
+                    <span style="color: #ff7675;">● 超標</span>
+                `;
+            }
+        }
     } catch(e) {
         alert("Render calendar error: " + e.message);
     }
