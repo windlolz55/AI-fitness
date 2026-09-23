@@ -2684,9 +2684,9 @@ function renderLogs() {
 }
 
 document.getElementById('btn-clear').addEventListener('click', () => {
-    if(confirm('確定要清空今天的飲食紀錄嗎？')) {
-        logs = [];
-        localStorage.removeItem('fitness_logs');
+    if(confirm('確定要清空當天的飲食紀錄嗎？')) {
+        logs = logs.filter(log => (log.date || getTodayDateStr()) !== selectedLogDate);
+        setAndSync('fitness_logs', JSON.stringify(logs));
         if (typeof triggerAutoSync === 'function') triggerAutoSync();
         renderLogs();
         updateDashboard();
