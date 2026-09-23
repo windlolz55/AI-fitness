@@ -2429,6 +2429,20 @@ function closeInfoModal() {
 }
 
 // Logs Rendering
+function getDayStatus(dateStr) {
+    // Returns: 'none' | 'low' | 'ok' | 'over'
+    const isFuture = dateStr > getTodayDateStr();
+    if (isFuture) return 'none';
+    const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === dateStr);
+    if (dayLogs.length === 0) return 'none';
+    const dayCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
+    if (dayCals === 0) return 'none';
+    const ratio = dayCals / TARGET_CALS;
+    if (ratio >= 0.85 && ratio <= 1.15) return 'ok';      // ±15% 達標
+    if (ratio > 1.15) return 'over';                        // 超標
+    return 'low';                                           // 不足
+}
+
 function renderDateStrip() {
     const strips = document.querySelectorAll('.date-strip');
     const baseDate = new Date(selectedLogDate || getTodayDateStr());
@@ -2443,12 +2457,15 @@ function renderDateStrip() {
         const dateStr = formatDate(d);
         const dayName = (dateStr === getTodayDateStr()) ? '今' : days[i];
         const dateNum = d.getDate();
+        const status = getDayStatus(dateStr);
+        const dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : 'transparent';
         
         const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
         html += `
-            <div class="date-item ${activeClass}" onclick="selectLogDate('${dateStr}')" style="height: 48px;">
+            <div class="date-item ${activeClass}" onclick="selectLogDate('${dateStr}')" style="height: 56px; padding-bottom: 4px;">
                 <span style="font-size: 11px;">${dayName}</span>
                 <span style="font-size: 16px; font-weight: 600; margin-top: 2px;">${dateNum}</span>
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: ${dotColor}; margin-top: 3px; display: block;"></span>
             </div>
         `;
     }
@@ -3085,6 +3102,32 @@ function renderOverview() {
     document.getElementById('overview-current-weight').innerText = `${lastValidWeight} kg`;
     const avgCal = daysWithCal > 0 ? Math.round(sumCal / daysWithCal) : 0;
     document.getElementById('overview-avg-cal').innerText = `${avgCal} kcal`;
+
+    // Build weekly nutrition summary data
+    const weeklyNutrition = [];
+    const dayLabelsShort = ['一', '二', '三', '四', '五', '六', '日'];
+    for (let i = 0; i < 7; i++) {
+        let d = new Date(startOfWeek);
+        d.setDate(startOfWeek.getDate() + i);
+        let dStr = d.toLocaleDateString('en-CA');
+        const isFuture = new Date(dStr) > new Date(getTodayDateStr());
+        const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === dStr);
+        let dayCals = 0, dayPro = 0, dayCarb = 0, dayFat = 0;
+        dayLogs.forEach(log => {
+            dayCals += log.cal || 0;
+            dayPro  += (log.macros && log.macros.p) ? log.macros.p : 0;
+            dayCarb += (log.macros && log.macros.c) ? log.macros.c : 0;
+            dayFat  += (log.macros && log.macros.f) ? log.macros.f : 0;
+        });
+        weeklyNutrition.push({
+            label: dayLabelsShort[i],
+            date: `${d.getMonth()+1}/${d.getDate()}`,
+            isFuture,
+            hasData: dayCals > 0,
+            cals: Math.round(dayCals), pro: Math.round(dayPro),
+            carb: Math.round(dayCarb), fat: Math.round(dayFat)
+        });
+    }
     
     const avgBurned = daysWithBurned > 0 ? Math.round(sumBurned / daysWithBurned) : 0;
     const avgBurnedTime = daysWithBurned > 0 ? Math.round(sumBurnedTime / daysWithBurned) : 0;
@@ -3283,6 +3326,74 @@ function renderOverview() {
                 }
             }]
         });
+    }
+
+    // ── 週達標摘要卡片 ──
+    const summaryEl = document.getElementById('overview-weekly-summary');
+    if (summaryEl) {
+        let rows = '';
+        weeklyNutrition.forEach(day => {
+            if (day.isFuture) {
+                rows += `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;opacity:0.3;">
+                    <span style="width:28px;font-size:12px;font-weight:600;color:var(--text-muted);">${day.label}</span>
+                    <span style="font-size:11px;color:var(--text-muted);flex:1;">${day.date}</span>
+                </div>`;
+                return;
+            }
+            if (!day.hasData) {
+                rows += `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+                    <span style="width:28px;font-size:12px;font-weight:600;color:var(--text-muted);">${day.label}</span>
+                    <span style="font-size:11px;color:var(--text-muted);flex:1;">${day.date}</span>
+                    <span style="font-size:11px;color:var(--text-muted);">無紀錄</span>
+                </div>`;
+                return;
+            }
+            const calPct = Math.min(day.cals / TARGET_CALS, 1.2);
+            const proPct = Math.min(day.pro / TARGET_PRO, 1.2);
+            const carbPct = Math.min(day.carb / TARGET_CARB, 1.2);
+            const fatPct = Math.min(day.fat / TARGET_FAT, 1.2);
+            const calRatio = day.cals / TARGET_CALS;
+            const calColor = calRatio >= 0.85 && calRatio <= 1.15 ? '#1dd1a1' : calRatio > 1.15 ? '#ff7675' : '#fdcb6e';
+            const bar = (pct, color) => `<div style="flex:1;height:5px;background:rgba(128,128,128,0.15);border-radius:4px;overflow:hidden;">
+                <div style="height:100%;width:${Math.round(pct*100)}%;background:${color};border-radius:4px;transition:width .3s;"></div>
+            </div>`;
+            rows += `<div style="padding:8px 0;border-bottom:1px solid var(--card-border);">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+                    <span style="width:28px;font-size:12px;font-weight:700;">${day.label}</span>
+                    <span style="font-size:11px;color:var(--text-muted);">${day.date}</span>
+                    <span style="margin-left:auto;font-size:12px;font-weight:600;color:${calColor};">${day.cals} kcal</span>
+                    <span style="font-size:10px;color:var(--text-muted);">/ ${TARGET_CALS}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:3px;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:10px;color:var(--text-muted);width:14px;">蛋</span>
+                        ${bar(proPct, '#5f27cd')}
+                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.pro}g</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:10px;color:var(--text-muted);width:14px;">碳</span>
+                        ${bar(carbPct, '#ffb86c')}
+                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.carb}g</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:10px;color:var(--text-muted);width:14px;">脂</span>
+                        ${bar(fatPct, '#ff9ff3')}
+                        <span style="font-size:10px;min-width:28px;text-align:right;">${day.fat}g</span>
+                    </div>
+                </div>
+            </div>`;
+        });
+        summaryEl.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h3 style="font-size:16px;margin:0;">週達標摘要</h3>
+                <div style="display:flex;gap:8px;font-size:10px;align-items:center;">
+                    <span style="color:#1dd1a1;">● 達標</span>
+                    <span style="color:#fdcb6e;">● 不足</span>
+                    <span style="color:#ff7675;">● 超標</span>
+                </div>
+            </div>
+            ${rows}
+        `;
     }
 }
 
