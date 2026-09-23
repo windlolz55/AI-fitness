@@ -3114,10 +3114,10 @@ function renderOverview() {
         const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === dStr);
         let dayCals = 0, dayPro = 0, dayCarb = 0, dayFat = 0;
         dayLogs.forEach(log => {
-            dayCals += log.cal || 0;
-            dayPro  += (log.macros && log.macros.p) ? log.macros.p : 0;
-            dayCarb += (log.macros && log.macros.c) ? log.macros.c : 0;
-            dayFat  += (log.macros && log.macros.f) ? log.macros.f : 0;
+            dayCals += log.cal  || 0;
+            dayPro  += log.pro  || 0;
+            dayCarb += log.carb || 0;
+            dayFat  += log.fat  || 0;
         });
         weeklyNutrition.push({
             label: dayLabelsShort[i],
@@ -3460,7 +3460,11 @@ function renderCalendar() {
                 hasLogs = logs.some(log => (log.date || getTodayDateStr()) === dStr);
             }
             
-            let dotHtml = hasLogs ? '<div style="width: 4px; height: 4px; background: var(--accent-secondary); border-radius: 50%; margin: 4px auto 0;"></div>' : '<div style="width: 4px; height: 4px; margin: 4px auto 0;"></div>';
+            const status = getDayStatus(dStr);
+            const dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#fdcb6e' : null;
+            let dotHtml = dotColor
+                ? `<div style="width: 5px; height: 5px; background: ${dotColor}; border-radius: 50%; margin: 3px auto 0;"></div>`
+                : '<div style="width: 5px; height: 5px; margin: 3px auto 0;"></div>';
             
             let circleStyle = 'width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-radius: 50%;';
             let textStyle = 'color: var(--text-main); font-size: 14px;';
