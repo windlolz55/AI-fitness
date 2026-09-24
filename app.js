@@ -124,7 +124,7 @@ function handleLogout() {
         }
 
         const forceClearAndReload = () => {
-            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated', 'gemini_api_key'];
+            const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'foodOverrides', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'last_updated', 'gemini_api_key'];
             syncableKeys.forEach(k => localStorage.removeItem(k));
             setTimeout(() => { window.location.reload(true); }, 100);
         };
@@ -152,6 +152,7 @@ function saveToFirestore() {
         fitness_templates: JSON.stringify(typeof window.FITNESS_TEMPLATES !== 'undefined' ? window.FITNESS_TEMPLATES : []) || '[]',
         fitness_routine_plan: JSON.stringify(typeof fitnessRoutinePlan !== 'undefined' ? fitnessRoutinePlan : {}) || '{}',
         customFoods: JSON.stringify(typeof customFoods !== 'undefined' ? customFoods : []) || '[]',
+        foodOverrides: JSON.stringify(typeof foodOverrides !== 'undefined' ? foodOverrides : {}) || '{}',
         favoriteFoodIds: JSON.stringify(typeof favoriteFoodIds !== 'undefined' ? favoriteFoodIds : []) || '[]',
         hiddenFoodIds: JSON.stringify(typeof hiddenFoodIds !== 'undefined' ? hiddenFoodIds : []) || '[]',
         customFoodOrder: JSON.stringify(typeof customFoodOrder !== 'undefined' ? customFoodOrder : {}) || '{}',
@@ -177,7 +178,7 @@ window.setAndSync = function(key, value) {
     } catch(e) {
         console.warn('localStorage setItem failed, bypassing for cloud sync:', e);
     }
-    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
+    const syncableKeys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'foodOverrides', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
     if (syncableKeys.includes(key) && auth.currentUser) {
         return saveToFirestore();
     }
@@ -258,9 +259,18 @@ function setupFirestoreListener(uid) {
                 customFoodOrder = JSON.parse(data.customFoodOrder);
                 changed = true;
             }
+
+            const currentFoodOverridesStr = JSON.stringify(typeof foodOverrides !== 'undefined' ? foodOverrides : {});
+            if (data.foodOverrides && data.foodOverrides !== currentFoodOverridesStr) {
+                try {
+                    foodOverrides = JSON.parse(data.foodOverrides);
+                    if (typeof applyFoodOverrides === 'function') applyFoodOverrides();
+                    changed = true;
+                } catch(e) { console.error('Error parsing foodOverrides:', e); }
+            }
             
             // Best-effort save to localStorage (bypass quota crashes)
-            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
+            const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'foodOverrides', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
             keys.forEach(k => {
                 try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
             });
@@ -322,8 +332,10 @@ window.manualSync = async function() {
                 fitnessRoutinePlan = (data.fitness_routine_plan ? JSON.parse(data.fitness_routine_plan) : null) || { mode: 'none' };
                 customFoods = (data.customFoods ? JSON.parse(data.customFoods) : null) || [];
                 favoriteFoodIds = (data.favoriteFoodIds ? JSON.parse(data.favoriteFoodIds) : null) || [];
+                foodOverrides = (data.foodOverrides ? JSON.parse(data.foodOverrides) : null) || {};
+                if (typeof applyFoodOverrides === 'function') applyFoodOverrides();
                 
-                const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'favoriteFoodIds', 'fitness_theme', 'gemini_api_key'];
+                const keys = ['fitness_profile', 'fitness_logs', 'fitness_daily', 'fitness_routines', 'fitness_templates', 'fitness_routine_plan', 'customFoods', 'foodOverrides', 'favoriteFoodIds', 'fitness_theme', 'hiddenFoodIds', 'customFoodOrder', 'gemini_api_key'];
                 keys.forEach(k => {
                     try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
                 });
@@ -415,6 +427,38 @@ foodDatabase.categories.push({ id: 'custom', name: '自訂', icon: 'fluent-emoji
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
 foodDatabase.foods = [...customFoods, ...foodDatabase.foods];
+
+// Backup original builtin foods for restoring default
+const originalBuiltinFoods = foodDatabase.foods.map(f => ({
+    id: f.id,
+    cals: f.cals,
+    macros: { ...(f.macros || {}) },
+    weightPerServing: f.weightPerServing
+}));
+
+// Load Food Overrides
+let foodOverrides = JSON.parse(localStorage.getItem('foodOverrides')) || {};
+
+function applyFoodOverrides() {
+    if (!foodOverrides || typeof foodOverrides !== 'object') return;
+    foodDatabase.foods.forEach(food => {
+        if (foodOverrides[food.id]) {
+            const ov = foodOverrides[food.id];
+            if (typeof ov.cals === 'number') food.cals = ov.cals;
+            if (ov.macros) {
+                food.macros = {
+                    p: typeof ov.macros.p === 'number' ? ov.macros.p : food.macros.p,
+                    c: typeof ov.macros.c === 'number' ? ov.macros.c : food.macros.c,
+                    f: typeof ov.macros.f === 'number' ? ov.macros.f : food.macros.f
+                };
+            }
+            if (typeof ov.weightPerServing === 'number') {
+                food.weightPerServing = ov.weightPerServing;
+            }
+        }
+    });
+}
+applyFoodOverrides();
 
 // Load Favorite Foods
 let favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
@@ -1817,6 +1861,9 @@ function renderDBContent(searchQuery = '') {
             unitName = `<div style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-top: 2px;">1份 <span style="color:#aaa;">(約 ${estWeight}g)</span></div>`;
         }
 
+        const hasOverride = foodOverrides && foodOverrides[food.id];
+        const overrideBadge = hasOverride ? ' <span style="font-size:10px; background:rgba(59,130,246,0.15); color:var(--accent-primary); border:1px solid rgba(59,130,246,0.25); padding:1px 4px; border-radius:4px; margin-left:4px; font-weight:600;">已修改</span>' : '';
+
         if (isFoodDBEditMode) {
             return `
             <div class="food-db-item edit-mode" data-id="${food.id}" style="padding-left: 8px;">
@@ -1825,7 +1872,7 @@ function renderDBContent(searchQuery = '') {
                     <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                     <div>
                         <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
-                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}${overrideBadge}</p>
                     </div>
                 </div>
                 <button style="background:transparent; border:none; padding:8px 16px; font-size:18px; color: #ff4757;" onclick="deleteFoodDbItem(event, '${food.id}')">
@@ -1840,7 +1887,7 @@ function renderDBContent(searchQuery = '') {
                     <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                     <div>
                         <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
-                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}${overrideBadge}</p>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1924,12 +1971,22 @@ function closeFoodDB() {
 
 function selectFood(foodId) {
     selectedFood = foodDatabase.foods.find(f => f.id === foodId);
+    if (!selectedFood) return;
+    
+    // 關閉編輯模式並確保顯示一般模式
+    closeFoodNutritionEdit(false);
+
     document.getElementById('setup-food-name').innerText = selectedFood.name;
     
+    // 檢查是否有自訂數值
+    const isOverridden = foodOverrides && foodOverrides[selectedFood.id];
+    const modifiedBadge = document.getElementById('setup-food-modified-badge');
+    if (modifiedBadge) {
+        modifiedBadge.style.display = isOverridden ? 'inline-block' : 'none';
+    }
+    
     let weightPerServing = getEstimatedWeight(selectedFood);
-    
     let isGrams = selectedFood.name.includes('100g');
-    
     let defaultUnit = isGrams ? 'g' : 'serving';
     let defaultAmount = isGrams ? 100 : 1;
     
@@ -1950,6 +2007,184 @@ function selectFood(foodId) {
     updateFoodSetup();
     document.getElementById('food-setup-modal').classList.add('open');
 }
+
+window.toggleFoodNutritionEdit = function() {
+    if (!selectedFood) return;
+    const editView = document.getElementById('food-setup-view-edit');
+    const normalView = document.getElementById('food-setup-view-normal');
+    const btnToggle = document.getElementById('btn-toggle-edit-nutrition');
+    const btnToggleText = document.getElementById('btn-toggle-edit-nutrition-text');
+    
+    const isEditing = editView && editView.style.display !== 'none';
+    if (isEditing) {
+        closeFoodNutritionEdit();
+    } else {
+        if (normalView) normalView.style.display = 'none';
+        if (editView) editView.style.display = 'block';
+        if (btnToggleText) btnToggleText.innerText = '返回';
+        if (btnToggle) {
+            btnToggle.style.background = 'rgba(255, 107, 107, 0.1)';
+            btnToggle.style.color = '#ff6b6b';
+            btnToggle.style.borderColor = 'rgba(255, 107, 107, 0.3)';
+        }
+
+        // 填入當前基準數值
+        const editCals = document.getElementById('setup-edit-cals');
+        const editCarb = document.getElementById('setup-edit-carb');
+        const editPro = document.getElementById('setup-edit-pro');
+        const editFat = document.getElementById('setup-edit-fat');
+        const editWeight = document.getElementById('setup-edit-weight');
+
+        if (editCals) editCals.value = selectedFood.cals ?? '';
+        if (editCarb) editCarb.value = selectedFood.macros ? (selectedFood.macros.c ?? '') : '';
+        if (editPro) editPro.value = selectedFood.macros ? (selectedFood.macros.p ?? '') : '';
+        if (editFat) editFat.value = selectedFood.macros ? (selectedFood.macros.f ?? '') : '';
+
+        const is100g = selectedFood.name.includes('100g');
+        const weightContainer = document.getElementById('setup-edit-weight-container');
+        const baseHint = document.getElementById('setup-edit-base-hint');
+        
+        if (is100g) {
+            if (baseHint) baseHint.innerHTML = '<i class="fa-solid fa-circle-info"></i> 基準規格：每 100g（請依包裝每百克標示填寫）';
+            if (weightContainer) weightContainer.style.display = 'none';
+        } else {
+            const currentWeight = selectedFood.weightPerServing || getEstimatedWeight(selectedFood);
+            if (baseHint) baseHint.innerHTML = '<i class="fa-solid fa-circle-info"></i> 基準規格：每份（請依包裝每份標示填寫）';
+            if (weightContainer) {
+                weightContainer.style.display = 'block';
+                if (editWeight) editWeight.value = currentWeight || 100;
+            }
+        }
+
+        // 判斷是否顯示「恢復預設」按鈕（如果是內建食物且有 override）
+        const btnReset = document.getElementById('btn-reset-food-nutrition');
+        if (btnReset) {
+            const isBuiltin = originalBuiltinFoods && originalBuiltinFoods.some(f => f.id === selectedFood.id);
+            const hasOverride = foodOverrides && foodOverrides[selectedFood.id];
+            btnReset.style.display = (isBuiltin && hasOverride) ? 'inline-block' : 'none';
+        }
+    }
+};
+
+window.closeFoodNutritionEdit = function(updateViews = true) {
+    const editView = document.getElementById('food-setup-view-edit');
+    const normalView = document.getElementById('food-setup-view-normal');
+    const btnToggle = document.getElementById('btn-toggle-edit-nutrition');
+    const btnToggleText = document.getElementById('btn-toggle-edit-nutrition-text');
+    if (editView) editView.style.display = 'none';
+    if (normalView) normalView.style.display = 'block';
+    if (btnToggleText) btnToggleText.innerText = '修改';
+    if (btnToggle) {
+        btnToggle.style.background = 'rgba(59, 130, 246, 0.1)';
+        btnToggle.style.color = 'var(--accent-primary)';
+        btnToggle.style.borderColor = 'rgba(59, 130, 246, 0.25)';
+    }
+    if (updateViews && selectedFood) {
+        updateFoodSetup();
+    }
+};
+
+window.saveFoodNutritionEdit = function() {
+    if (!selectedFood) return;
+    
+    const calsInput = parseFloat(document.getElementById('setup-edit-cals').value);
+    const carbInput = parseFloat(document.getElementById('setup-edit-carb').value);
+    const proInput = parseFloat(document.getElementById('setup-edit-pro').value);
+    const fatInput = parseFloat(document.getElementById('setup-edit-fat').value);
+    
+    if (isNaN(calsInput) || calsInput < 0) {
+        alert('請輸入正確的熱量數值 (kcal)');
+        return;
+    }
+    const safeCarb = isNaN(carbInput) || carbInput < 0 ? 0 : Math.round(carbInput * 10) / 10;
+    const safePro = isNaN(proInput) || proInput < 0 ? 0 : Math.round(proInput * 10) / 10;
+    const safeFat = isNaN(fatInput) || fatInput < 0 ? 0 : Math.round(fatInput * 10) / 10;
+    const safeCals = Math.round(calsInput * 10) / 10;
+    
+    let weightPerServing = selectedFood.weightPerServing;
+    const weightContainer = document.getElementById('setup-edit-weight-container');
+    if (weightContainer && weightContainer.style.display !== 'none') {
+        const wInput = parseFloat(document.getElementById('setup-edit-weight').value);
+        if (!isNaN(wInput) && wInput > 0) {
+            weightPerServing = Math.round(wInput);
+        }
+    }
+    
+    // 更新 selectedFood
+    selectedFood.cals = safeCals;
+    selectedFood.macros = { p: safePro, c: safeCarb, f: safeFat };
+    if (weightPerServing) selectedFood.weightPerServing = weightPerServing;
+    
+    // 更新食物資料庫主列表中的物件
+    const dbItem = foodDatabase.foods.find(f => f.id === selectedFood.id);
+    if (dbItem) {
+        dbItem.cals = safeCals;
+        dbItem.macros = { p: safePro, c: safeCarb, f: safeFat };
+        if (weightPerServing) dbItem.weightPerServing = weightPerServing;
+    }
+    
+    // 如果屬於 customFoods，也一併更新
+    if (selectedFood.categoryId === 'custom' || selectedFood.id.startsWith('cf_')) {
+        const cItem = customFoods.find(f => f.id === selectedFood.id);
+        if (cItem) {
+            cItem.cals = safeCals;
+            cItem.macros = { p: safePro, c: safeCarb, f: safeFat };
+            if (weightPerServing) cItem.weightPerServing = weightPerServing;
+            setAndSync('customFoods', JSON.stringify(customFoods));
+        }
+    }
+    
+    // 記錄到 foodOverrides
+    if (!foodOverrides) foodOverrides = {};
+    foodOverrides[selectedFood.id] = {
+        cals: safeCals,
+        macros: { p: safePro, c: safeCarb, f: safeFat },
+        ...(weightPerServing ? { weightPerServing } : {})
+    };
+    setAndSync('foodOverrides', JSON.stringify(foodOverrides));
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
+    
+    // 更新食物清單 UI
+    renderDBContent(document.getElementById('food-search-input').value);
+    
+    // 顯示「已修改」徽章
+    const modifiedBadge = document.getElementById('setup-food-modified-badge');
+    if (modifiedBadge) modifiedBadge.style.display = 'inline-block';
+    
+    closeFoodNutritionEdit();
+};
+
+window.resetFoodNutritionDefault = function() {
+    if (!selectedFood) return;
+    if (!confirm(`確定要將「${selectedFood.name}」還原為原始預設營養素嗎？`)) return;
+    
+    const orig = originalBuiltinFoods && originalBuiltinFoods.find(f => f.id === selectedFood.id);
+    if (orig) {
+        delete foodOverrides[selectedFood.id];
+        setAndSync('foodOverrides', JSON.stringify(foodOverrides));
+        if (typeof triggerAutoSync === 'function') triggerAutoSync();
+        
+        selectedFood.cals = orig.cals;
+        selectedFood.macros = { ...orig.macros };
+        selectedFood.weightPerServing = orig.weightPerServing;
+        
+        const dbItem = foodDatabase.foods.find(f => f.id === selectedFood.id);
+        if (dbItem) {
+            dbItem.cals = orig.cals;
+            dbItem.macros = { ...orig.macros };
+            dbItem.weightPerServing = orig.weightPerServing;
+        }
+        
+        renderDBContent(document.getElementById('food-search-input').value);
+        
+        const modifiedBadge = document.getElementById('setup-food-modified-badge');
+        if (modifiedBadge) modifiedBadge.style.display = 'none';
+        
+        closeFoodNutritionEdit();
+    } else {
+        alert('此食物無原始預設值可還原。');
+    }
+};
 
 window.handleUnitChange = function() {
     if (!selectedFood) return;
@@ -1978,6 +2213,7 @@ function toggleFavorite(e, id) {
 
 function closeFoodSetup() {
     document.getElementById('food-setup-modal').classList.remove('open');
+    closeFoodNutritionEdit(false);
     selectedFood = null;
 }
 

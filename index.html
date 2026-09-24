@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.99">
+    <link rel="stylesheet" href="style.css?v=3.100">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.99</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.100</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -433,7 +433,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.99 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.100 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -517,27 +517,78 @@
 
         <!-- Food Setup (Grams) Modal -->
         <div id="food-setup-modal">
-            <div style="width: 40px; height: 5px; background: var(--card-border); border-radius: 3px; margin: -12px auto 20px auto;"></div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 id="setup-food-name">白飯</h3>
-                <button class="btn-icon" onclick="closeFoodSetup()"><i class="fa-solid fa-chevron-down"></i></button>
+            <div style="width: 40px; height: 5px; background: var(--card-border); border-radius: 3px; margin: -12px auto 16px auto;"></div>
+            
+            <!-- 標題與操作列 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                    <h3 id="setup-food-name" style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 18px;">白飯</h3>
+                    <span id="setup-food-modified-badge" style="display: none; font-size: 11px; background: rgba(59, 130, 246, 0.15); color: var(--accent-primary); border: 1px solid rgba(59, 130, 246, 0.3); padding: 2px 6px; border-radius: 6px; font-weight: 600; white-space: nowrap;">自訂數值</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                    <button type="button" id="btn-toggle-edit-nutrition" onclick="toggleFoodNutritionEdit()" style="font-size: 13px; color: var(--accent-primary); background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); padding: 5px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 500;">
+                        <i class="fa-solid fa-pen-to-square"></i> <span id="btn-toggle-edit-nutrition-text">修改</span>
+                    </button>
+                    <button class="btn-icon" onclick="closeFoodSetup()"><i class="fa-solid fa-chevron-down"></i></button>
+                </div>
             </div>
-            <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 24px;">
-                <input type="number" id="setup-grams" class="input-field" value="100" style="margin-bottom: 0;">
-                <select id="setup-unit-label" class="input-field" style="margin-bottom: 0; width: 80px; padding: 12px; font-weight: bold; background: var(--bg-main);" onchange="handleUnitChange()">
-                    <option value="serving" class="themed-option">份</option>
-                    <option value="g" class="themed-option">g</option>
-                </select>
+
+            <!-- 一般模式：選擇份量/克數並確認加入 -->
+            <div id="food-setup-view-normal">
+                <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 20px;">
+                    <input type="number" id="setup-grams" class="input-field" value="100" style="margin-bottom: 0;">
+                    <select id="setup-unit-label" class="input-field" style="margin-bottom: 0; width: 80px; padding: 12px; font-weight: bold; background: var(--bg-main);" onchange="handleUnitChange()">
+                        <option value="serving" class="themed-option">份</option>
+                        <option value="g" class="themed-option">g</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px; background: var(--bg-main); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--card-border);">
+                    <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px; margin-bottom: 2px;">熱量</div><strong id="setup-cal" style="color: #ff6b6b; font-size: 16px;">0</strong> <span style="font-size: 11px; color: var(--text-muted);">kcal</span></div>
+                    <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px; margin-bottom: 2px;">碳水</div><strong id="setup-carb" style="font-size: 16px;">0</strong> <span style="font-size: 11px; color: var(--text-muted);">g</span></div>
+                    <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px; margin-bottom: 2px;">蛋白質</div><strong id="setup-pro" style="color: #2ed573; font-size: 16px;">0</strong> <span style="font-size: 11px; color: var(--text-muted);">g</span></div>
+                    <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px; margin-bottom: 2px;">脂肪</div><strong id="setup-fat" style="color: #ffa502; font-size: 16px;">0</strong> <span style="font-size: 11px; color: var(--text-muted);">g</span></div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="btn-secondary" style="flex: 1; padding: 14px;" onclick="closeFoodSetup()">取消</button>
+                    <button type="button" id="btn-add-food" class="btn-primary" style="flex: 1; padding: 14px;">確認加入</button>
+                </div>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 14px;">
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">熱量</div><strong id="setup-cal">0</strong> kcal</div>
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">碳水</div><strong id="setup-carb">0</strong> g</div>
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">蛋白質</div><strong id="setup-pro">0</strong> g</div>
-                <div style="text-align: center;"><div style="color:var(--text-muted); font-size:12px;">脂肪</div><strong id="setup-fat">0</strong> g</div>
-            </div>
-            <div style="display: flex; gap: 12px;">
-                <button class="btn-secondary" style="flex: 1; padding: 16px;" onclick="closeFoodSetup()">取消</button>
-                <button id="btn-add-food" class="btn-primary" style="flex: 1; padding: 16px;">確認加入</button>
+
+            <!-- 編輯模式：修改基準熱量與營養素 -->
+            <div id="food-setup-view-edit" style="display: none;">
+                <div style="background: rgba(59, 130, 246, 0.08); border-left: 3px solid var(--accent-primary); padding: 8px 12px; border-radius: 6px; margin-bottom: 16px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
+                    <span id="setup-edit-base-hint"><i class="fa-solid fa-circle-info"></i> 依商品營養標示修改基準數值</span>
+                    <button type="button" id="btn-reset-food-nutrition" onclick="resetFoodNutritionDefault()" style="display: none; background: none; border: none; color: #ff6b6b; font-size: 12px; cursor: pointer; text-decoration: underline; padding: 0;">恢復預設</button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">熱量 (kcal)</label>
+                        <input type="number" id="setup-edit-cals" class="input-field" step="0.1" style="margin-bottom: 0; padding: 10px 12px; font-size: 15px; font-weight: 600; color: #ff6b6b;" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">碳水化合物 (g)</label>
+                        <input type="number" id="setup-edit-carb" class="input-field" step="0.1" style="margin-bottom: 0; padding: 10px 12px; font-size: 15px; font-weight: 600;" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">蛋白質 (g)</label>
+                        <input type="number" id="setup-edit-pro" class="input-field" step="0.1" style="margin-bottom: 0; padding: 10px 12px; font-size: 15px; font-weight: 600; color: #2ed573;" placeholder="0">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">脂肪 (g)</label>
+                        <input type="number" id="setup-edit-fat" class="input-field" step="0.1" style="margin-bottom: 0; padding: 10px 12px; font-size: 15px; font-weight: 600; color: #ffa502;" placeholder="0">
+                    </div>
+                </div>
+
+                <div id="setup-edit-weight-container" style="margin-bottom: 18px;">
+                    <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; font-weight: 500;">單份重量規格 (g/ml)</label>
+                    <input type="number" id="setup-edit-weight" class="input-field" step="1" style="margin-bottom: 0; padding: 10px 12px; font-size: 15px;" placeholder="單份重量克數">
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" class="btn-secondary" style="flex: 1; padding: 14px;" onclick="closeFoodNutritionEdit()">取消</button>
+                    <button type="button" class="btn-primary" style="flex: 1; padding: 14px;" onclick="saveFoodNutritionEdit()">儲存修改</button>
+                </div>
             </div>
         </div>
 
@@ -952,12 +1003,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.99"></script>
-    <script src="food_db.js?v=3.99"></script>
-    <script src="templates.js?v=3.99"></script>
-    <script src="routine.js?v=3.99"></script>
-    <script src="app.js?v=3.99"></script>
-    <script src="scanner_live.js?v=3.99"></script>
+    <script src="exercise_db.js?v=3.100"></script>
+    <script src="food_db.js?v=3.100"></script>
+    <script src="templates.js?v=3.100"></script>
+    <script src="routine.js?v=3.100"></script>
+    <script src="app.js?v=3.100"></script>
+    <script src="scanner_live.js?v=3.100"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
