@@ -1998,7 +1998,10 @@ function selectFood(foodId) {
     document.getElementById('food-setup-modal').classList.add('open');
 }
 
-window.toggleFoodNutritionEdit = function() {
+window.toggleFoodNutritionEdit = function(e) {
+    if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+    }
     if (!selectedFood) return;
     const editView = document.getElementById('food-setup-view-edit');
     const normalView = document.getElementById('food-setup-view-normal');
@@ -2006,7 +2009,7 @@ window.toggleFoodNutritionEdit = function() {
     
     const isEditing = editView && editView.style.display !== 'none';
     if (isEditing) {
-        closeFoodNutritionEdit();
+        closeFoodNutritionEdit(true, e);
     } else {
         if (normalView) normalView.style.display = 'none';
         if (editView) editView.style.display = 'block';
@@ -2041,7 +2044,10 @@ window.toggleFoodNutritionEdit = function() {
     }
 };
 
-window.closeFoodNutritionEdit = function(updateViews = true) {
+window.closeFoodNutritionEdit = function(updateViews = true, e = null) {
+    if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+    }
     const editView = document.getElementById('food-setup-view-edit');
     const normalView = document.getElementById('food-setup-view-normal');
     const btnToggle = document.getElementById('btn-toggle-edit-nutrition');
@@ -2152,14 +2158,24 @@ function closeFoodSetup() {
     selectedFood = null;
 }
 
+// 阻止 food-setup-modal 內部的點擊冒泡到 document
+const setupModalEl = document.getElementById('food-setup-modal');
+if (setupModalEl) {
+    setupModalEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}
+
 // Close setup modal when clicking outside of it
 document.addEventListener('click', (e) => {
     const setupModal = document.getElementById('food-setup-modal');
-    if (setupModal.classList.contains('open')) {
-        // Only close if clicking outside the modal, and not clicking a food item that opens it
-        if (!setupModal.contains(e.target) && !e.target.closest('.food-db-item')) {
-            closeFoodSetup();
-        }
+    if (setupModal && setupModal.classList.contains('open')) {
+        // 若點擊的節點已從 DOM 樹被移除（如點擊後替換的圖示），或點擊在 setupModal 內部，不關閉
+        if (!document.contains(e.target) || setupModal.contains(e.target)) return;
+        // 若點擊的是打開 setupModal 的食物項目，也不關閉
+        if (e.target.closest('.food-db-item')) return;
+        
+        closeFoodSetup();
     }
 });
 
