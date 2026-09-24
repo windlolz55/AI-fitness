@@ -2011,9 +2011,7 @@ window.toggleFoodNutritionEdit = function() {
         if (normalView) normalView.style.display = 'none';
         if (editView) editView.style.display = 'block';
         if (btnToggle) {
-            btnToggle.style.background = 'rgba(255, 107, 107, 0.12)';
-            btnToggle.style.color = '#ff6b6b';
-            btnToggle.style.borderColor = 'rgba(255, 107, 107, 0.3)';
+            btnToggle.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
         }
 
         // 填入當前基準數值
@@ -2050,9 +2048,7 @@ window.closeFoodNutritionEdit = function(updateViews = true) {
     if (editView) editView.style.display = 'none';
     if (normalView) normalView.style.display = 'block';
     if (btnToggle) {
-        btnToggle.style.background = 'rgba(59, 130, 246, 0.1)';
-        btnToggle.style.color = 'var(--accent-primary)';
-        btnToggle.style.borderColor = 'rgba(59, 130, 246, 0.25)';
+        btnToggle.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
     }
     if (updateViews && selectedFood) {
         updateFoodSetup();
