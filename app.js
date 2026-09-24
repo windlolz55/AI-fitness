@@ -2014,7 +2014,7 @@ window.toggleFoodNutritionEdit = function(e) {
         if (normalView) normalView.style.display = 'none';
         if (editView) editView.style.display = 'block';
         if (btnToggle) {
-            btnToggle.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
+            btnToggle.style.display = 'none';
         }
 
         // 填入當前基準數值
@@ -2054,6 +2054,7 @@ window.closeFoodNutritionEdit = function(updateViews = true, e = null) {
     if (editView) editView.style.display = 'none';
     if (normalView) normalView.style.display = 'block';
     if (btnToggle) {
+        btnToggle.style.display = 'inline-flex';
         btnToggle.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
     }
     if (updateViews && selectedFood) {
