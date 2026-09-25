@@ -2139,6 +2139,41 @@ window.handleUnitChange = function() {
     updateFoodSetup();
 };
 
+window.adjustFoodAmount = function(delta) {
+    const input = document.getElementById('setup-grams');
+    if (!input) return;
+    const unitSelect = document.getElementById('setup-unit-label');
+    const unit = unitSelect ? unitSelect.value : 'serving';
+    let currentVal = parseFloat(input.value);
+    if (isNaN(currentVal)) currentVal = unit === 'serving' ? 1 : 100;
+    
+    let newVal = currentVal;
+    if (unit === 'serving') {
+        if (delta > 0) {
+            if (currentVal < 1) {
+                newVal = 1;
+            } else {
+                newVal = Math.round((currentVal + 1) * 10) / 10;
+            }
+        } else {
+            if (currentVal > 1) {
+                newVal = Math.round((currentVal - 1) * 10) / 10;
+            } else if (currentVal > 0.5) {
+                newVal = 0.5;
+            } else {
+                newVal = 0.5;
+            }
+        }
+    } else {
+        // unit === 'g'
+        const step = 10;
+        newVal = Math.max(step, Math.round((currentVal + (delta * step)) * 10) / 10);
+    }
+    
+    input.value = newVal;
+    updateFoodSetup();
+};
+
 function toggleFavorite(e, id) {
     e.stopPropagation();
     
