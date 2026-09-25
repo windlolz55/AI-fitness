@@ -2221,13 +2221,39 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         }
     }
 
+    let baseName = selectedFood.name;
+    let specMatch = selectedFood.name.match(/^(.*?)\s*\((.*?)\)$/);
+    let finalDesc = '';
+
+    if (specMatch) {
+        baseName = specMatch[1];
+        const rawSpec = specMatch[2]; // 例如 "1顆" 或 "1平碗/160g" 或 "100g"
+        
+        if (unit === 'g') {
+            finalDesc = `${inputVal}g`;
+        } else {
+            // 嘗試提取單位量詞，例如 "1顆" -> "顆"
+            const countMatch = rawSpec.match(/^1([^\d\/gml\s]+)(\/.*)?$/);
+            if (countMatch) {
+                const unitWord = countMatch[1];
+                finalDesc = `${inputVal}${unitWord}`;
+            } else if (rawSpec.toLowerCase().includes('100g')) {
+                finalDesc = `${Math.round(inputVal * 100)}g`;
+            } else {
+                finalDesc = `${inputVal}份`;
+            }
+        }
+    } else {
+        finalDesc = `${inputVal}${displayUnit}`;
+    }
+
     const newLog = {
         id: Date.now() + Math.random(),
         img: '', 
         time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
         date: window.currentAddingDate || getTodayDateStr(),
         meal: currentAddingMeal,
-        name: `${selectedFood.name} (${inputVal}${displayUnit})`,
+        name: `${baseName} (${finalDesc})`,
         cal: Math.round(selectedFood.cals * multi),
         pro: Math.round(selectedFood.macros.p * multi),
         carb: Math.round(selectedFood.macros.c * multi),
@@ -2807,8 +2833,10 @@ function renderLogs() {
                         let iconStyle = '';
                         let desc = '1項';
                         if(item.name.includes('(')) {
-                            let match = item.name.match(/\(([^)]+)\)/);
-                            if(match) desc = match[1];
+                            const allMatches = [...item.name.matchAll(/\(([^)]+)\)/g)];
+                            if(allMatches.length > 0) {
+                                desc = allMatches[allMatches.length - 1][1];
+                            }
                         }
                         const baseName = item.name.split(' (')[0];
                         const dbFood = foodDatabase.foods.find(f => f.name.includes(baseName));
