@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.106">
+    <link rel="stylesheet" href="style.css?v=3.107">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.106</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.107</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -433,7 +433,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.106 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.107 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -497,6 +497,19 @@
                     <div style="font-size: 14px; font-weight: 600;" id="cart-meal-label">早餐</div>
                 </div>
                 <button class="btn-primary" style="width: 120px; padding: 10px;" onclick="commitCart()">完成</button>
+            </div>
+
+            <!-- Bottom Batch Action Bar (In Food DB Edit Mode) -->
+            <div id="db-batch-delete-bar" style="display: none; padding: 12px 16px; border-top: 1px solid var(--card-border); background: var(--card-bg); justify-content: space-between; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" id="btn-select-all-food" class="btn-secondary" style="border: 1px solid var(--card-border); background: var(--bg-main); font-size: 13px; padding: 8px 14px; border-radius: 20px; font-weight: 600; cursor: pointer;" onclick="toggleSelectAllFoodDb()">
+                        全選
+                    </button>
+                    <span id="selected-food-count-label" style="font-size: 13px; color: var(--text-muted);">已選 0 項</span>
+                </div>
+                <button type="button" id="btn-batch-delete-food" class="btn-danger" style="background: #ff4757; color: white; border: none; border-radius: 20px; padding: 10px 18px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; opacity: 0.5; pointer-events: none; cursor: pointer; transition: all 0.2s;" onclick="deleteSelectedFoodDbItems()">
+                    <i class="fa-solid fa-trash"></i> <span id="batch-delete-text">刪除選取</span>
+                </button>
             </div>
             </div>
         </div>
@@ -1003,12 +1016,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.106"></script>
-    <script src="food_db.js?v=3.106"></script>
-    <script src="templates.js?v=3.106"></script>
-    <script src="routine.js?v=3.106"></script>
-    <script src="app.js?v=3.106"></script>
-    <script src="scanner_live.js?v=3.106"></script>
+    <script src="exercise_db.js?v=3.107"></script>
+    <script src="food_db.js?v=3.107"></script>
+    <script src="templates.js?v=3.107"></script>
+    <script src="routine.js?v=3.107"></script>
+    <script src="app.js?v=3.107"></script>
+    <script src="scanner_live.js?v=3.107"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

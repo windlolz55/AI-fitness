@@ -1,6 +1,7 @@
 let hiddenFoodIds = JSON.parse(localStorage.getItem('hiddenFoodIds')) || [];
 let customFoodOrder = JSON.parse(localStorage.getItem('customFoodOrder')) || {};
 let isFoodDBEditMode = false;
+let selectedFoodDbIds = new Set();
 let dbSortable = null;
 
 function getEstimatedWeight(food) {
@@ -420,9 +421,11 @@ if (!dailyData[getTodayDateStr()]) {
 
 // // Food database is loaded from food_db.js (foodDatabase)
 
-// Initialize 'custom' category dynamically
-foodDatabase.categories.unshift({ id: 'favorites', name: '我的最愛', icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' });
-foodDatabase.categories.push({ id: 'custom', name: '自訂', icon: 'fluent-emoji-flat:memo', color: '#a29bfe' });
+// Initialize 'favorites' and 'custom' categories dynamically (custom right below favorites)
+foodDatabase.categories.unshift(
+    { id: 'favorites', name: '我的最愛', icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' },
+    { id: 'custom', name: '自訂', icon: 'fluent-emoji-flat:memo', color: '#a29bfe' }
+);
 
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
@@ -1764,6 +1767,7 @@ function openFoodDB(meal, targetDateStr) {
     window.currentAddingDate = targetDateStr;
     currentAddingMeal = meal;
     currentCart = [];
+    selectedFoodDbIds.clear();
     updateCartUI();
     
     const d = new Date(targetDateStr);
@@ -1862,17 +1866,21 @@ function renderDBContent(searchQuery = '') {
         }
 
         if (isFoodDBEditMode) {
+            const isSelected = selectedFoodDbIds.has(food.id);
             return `
-            <div class="food-db-item edit-mode" data-id="${food.id}" style="padding-left: 8px;">
-                <div style="display:flex; align-items:center;">
-                    <div style="margin-right: 12px; color: var(--text-muted); cursor: grab; font-size: 20px; padding: 10px;" class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
-                    <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
-                    <div>
-                        <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
+            <div class="food-db-item edit-mode" data-id="${food.id}" style="padding-left: 8px; cursor: pointer; transition: background 0.15s ease; ${isSelected ? 'background: rgba(255, 71, 87, 0.12);' : ''}" onclick="toggleFoodSelection(event, '${food.id}')">
+                <div style="display:flex; align-items:center; flex: 1; min-width: 0;">
+                    <div style="margin-right: 6px; color: var(--text-muted); cursor: grab; font-size: 18px; padding: 8px 4px;" class="drag-handle" onclick="event.stopPropagation()"><i class="fa-solid fa-grip-vertical"></i></div>
+                    <div style="margin-right: 10px; display: flex; align-items: center;" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="food-db-checkbox" value="${food.id}" ${isSelected ? 'checked' : ''} style="width: 20px; height: 20px; accent-color: #ff4757; cursor: pointer;" onchange="toggleFoodSelection(event, '${food.id}')">
+                    </div>
+                    <div style="margin-right: 12px; width: 44px; height: 44px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">${renderIcon}</div>
+                    <div style="min-width: 0; flex: 1;">
+                        <h4 style="line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}${unitName}</h4>
                         <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
                     </div>
                 </div>
-                <button style="background:transparent; border:none; padding:8px 16px; font-size:18px; color: #ff4757;" onclick="deleteFoodDbItem(event, '${food.id}')">
+                <button style="background:transparent; border:none; padding:8px 12px; font-size:18px; color: #ff4757; flex-shrink: 0; cursor: pointer;" onclick="deleteFoodDbItem(event, '${food.id}')" title="刪除此項目">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
@@ -1914,6 +1922,7 @@ function renderDBContent(searchQuery = '') {
                 setAndSync('customFoodOrder', JSON.stringify(customFoodOrder));
             }
         });
+        updateBatchDeleteUI();
     }
 }
 
@@ -1922,25 +1931,134 @@ window.toggleFoodDBEditMode = function() {
     const btn = document.getElementById('btn-edit-food-db');
     const actionButtons = document.getElementById('db-action-buttons');
     const bottomCartBar = document.getElementById('db-bottom-cart-bar');
+    const batchBar = document.getElementById('db-batch-delete-bar');
     
+    selectedFoodDbIds.clear();
+
     if (isFoodDBEditMode) {
         btn.innerHTML = '完成';
         btn.style.color = 'var(--accent-primary)';
         btn.style.fontWeight = 'bold';
         if (actionButtons) actionButtons.style.display = 'none';
         if (bottomCartBar) bottomCartBar.style.display = 'none';
+        if (batchBar) batchBar.style.display = 'flex';
+        updateBatchDeleteUI();
     } else {
         btn.innerHTML = '<i class="fa-solid fa-pen"></i>';
         btn.style.color = 'var(--text-muted)';
         btn.style.fontWeight = 'normal';
         if (actionButtons) actionButtons.style.display = 'flex';
         if (bottomCartBar) bottomCartBar.style.display = 'flex';
+        if (batchBar) batchBar.style.display = 'none';
     }
     renderDBContent(document.getElementById('food-search-input').value);
 };
 
+window.toggleFoodSelection = function(e, id) {
+    if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+    }
+    if (selectedFoodDbIds.has(id)) {
+        selectedFoodDbIds.delete(id);
+    } else {
+        selectedFoodDbIds.add(id);
+    }
+    updateBatchDeleteUI();
+    const itemEl = document.querySelector(`.food-db-item.edit-mode[data-id="${id}"]`);
+    if (itemEl) {
+        const cb = itemEl.querySelector('.food-db-checkbox');
+        const isSelected = selectedFoodDbIds.has(id);
+        if (cb) cb.checked = isSelected;
+        itemEl.style.background = isSelected ? 'rgba(255, 71, 87, 0.12)' : '';
+    }
+};
+
+window.toggleSelectAllFoodDb = function() {
+    const checkboxes = document.querySelectorAll('#db-food-list .food-db-checkbox');
+    const visibleIds = Array.from(checkboxes).map(cb => cb.value);
+    if (visibleIds.length === 0) return;
+    
+    const allSelected = visibleIds.every(id => selectedFoodDbIds.has(id));
+    if (allSelected) {
+        visibleIds.forEach(id => selectedFoodDbIds.delete(id));
+    } else {
+        visibleIds.forEach(id => selectedFoodDbIds.add(id));
+    }
+    updateBatchDeleteUI();
+    renderDBContent(document.getElementById('food-search-input').value);
+};
+
+window.updateBatchDeleteUI = function() {
+    const countLabel = document.getElementById('selected-food-count-label');
+    const deleteBtn = document.getElementById('btn-batch-delete-food');
+    const deleteText = document.getElementById('batch-delete-text');
+    const selectAllBtn = document.getElementById('btn-select-all-food');
+    const count = selectedFoodDbIds.size;
+    
+    if (countLabel) {
+        countLabel.innerText = `已選 ${count} 項`;
+    }
+    
+    if (deleteBtn) {
+        if (count > 0) {
+            deleteBtn.style.opacity = '1';
+            deleteBtn.style.pointerEvents = 'auto';
+            if (deleteText) deleteText.innerText = `刪除選取 (${count})`;
+        } else {
+            deleteBtn.style.opacity = '0.5';
+            deleteBtn.style.pointerEvents = 'none';
+            if (deleteText) deleteText.innerText = '刪除選取';
+        }
+    }
+    
+    if (selectAllBtn) {
+        const checkboxes = document.querySelectorAll('#db-food-list .food-db-checkbox');
+        const visibleIds = Array.from(checkboxes).map(cb => cb.value);
+        const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedFoodDbIds.has(id));
+        selectAllBtn.innerText = allSelected ? '取消全選' : '全選';
+    }
+};
+
+window.deleteSelectedFoodDbItems = function() {
+    if (selectedFoodDbIds.size === 0) return;
+    const count = selectedFoodDbIds.size;
+    if (!confirm(`確定要刪除/隱藏選取的 ${count} 個食物嗎？`)) return;
+
+    let customChanged = false;
+    let hiddenChanged = false;
+
+    selectedFoodDbIds.forEach(id => {
+        const customIdx = customFoods.findIndex(f => f.id === id);
+        if (customIdx >= 0) {
+            customFoods.splice(customIdx, 1);
+            const dbIdx = foodDatabase.foods.findIndex(f => f.id === id);
+            if (dbIdx >= 0) foodDatabase.foods.splice(dbIdx, 1);
+            customChanged = true;
+        } else {
+            if (!hiddenFoodIds.includes(id)) {
+                hiddenFoodIds.push(id);
+                hiddenChanged = true;
+            }
+        }
+    });
+
+    if (customChanged) {
+        setAndSync('customFoods', JSON.stringify(customFoods));
+    }
+    if (hiddenChanged) {
+        setAndSync('hiddenFoodIds', JSON.stringify(hiddenFoodIds));
+    }
+    if (customChanged || hiddenChanged) {
+        if (typeof triggerAutoSync === 'function') triggerAutoSync();
+    }
+
+    selectedFoodDbIds.clear();
+    updateBatchDeleteUI();
+    renderDBContent(document.getElementById('food-search-input').value);
+};
+
 window.deleteFoodDbItem = function(e, id) {
-    e.stopPropagation();
+    if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
     if(confirm('確定要刪除/隱藏此食物嗎？')) {
         const customIdx = customFoods.findIndex(f => f.id === id);
         if (customIdx >= 0) {
@@ -1954,15 +2072,18 @@ window.deleteFoodDbItem = function(e, id) {
                 setAndSync('hiddenFoodIds', JSON.stringify(hiddenFoodIds));
             }
         }
+        if (typeof triggerAutoSync === 'function') triggerAutoSync();
+        selectedFoodDbIds.delete(id);
+        updateBatchDeleteUI();
         renderDBContent(document.getElementById('food-search-input').value);
     }
 };
-
 
 function closeFoodDB() {
     if (isFoodDBEditMode) {
         toggleFoodDBEditMode();
     }
+    selectedFoodDbIds.clear();
     document.getElementById('food-db-modal').classList.add('hidden');
 }
 
