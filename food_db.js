@@ -41,6 +41,7 @@ const foodDatabase = {
         { id: 'm7',  categoryId: 'meat', name: '牛排 (菲力/100g)',       cals: 135, macros: { p: 21, c: 0, f: 5  }, icon: 'fluent-emoji-flat:cut-of-meat' },
         { id: 'm8',  categoryId: 'meat', name: '牛五花肉片 (100g)',      cals: 430, macros: { p: 15, c: 0, f: 40 }, icon: 'fluent-emoji-flat:bacon' },
         { id: 'm22', categoryId: 'meat', name: '羊肉片 (100g)',          cals: 200, macros: { p: 18, c: 0, f: 14 }, icon: 'fluent-emoji-flat:cut-of-meat' },
+        { id: 'm23', categoryId: 'meat', name: '家常瘦肉 (1拳頭/30g蛋白質)', weightPerServing: 140, cals: 165, macros: { p: 30, c: 0, f: 5 }, icon: 'fluent-emoji-flat:cut-of-meat' },
 
         // ================= 海鮮 =================
         { id: 'm13', categoryId: 'seafood', name: '鮭魚片 (100g)',        cals: 220, macros: { p: 20, c: 0, f: 15 }, icon: 'fluent-emoji-flat:fish' },
@@ -60,6 +61,7 @@ const foodDatabase = {
         { id: 'v25', categoryId: 'egg', name: '蔥花蛋 (1份)',            weightPerServing: 80,  cals: 150, macros: { p: 10,  c: 2,   f: 11 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v24', categoryId: 'egg', name: '茶葉蛋/滷蛋 (1顆)',       weightPerServing: 55,  cals: 75,  macros: { p: 7,   c: 1,   f: 5  }, icon: 'fluent-emoji-flat:egg' },
         { id: 'v4',  categoryId: 'egg', name: '無糖豆漿 (400ml)',        weightPerServing: 400, cals: 140, macros: { p: 14,  c: 6,   f: 7  }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'v29', categoryId: 'egg', name: '無糖濃豆漿 (1杯/350ml)',      weightPerServing: 350, cals: 185, macros: { p: 19,  c: 9,   f: 8  }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'v5',  categoryId: 'egg', name: '傳統豆腐 (半塊/150g)',    weightPerServing: 150, cals: 130, macros: { p: 13,  c: 3,   f: 8  }, icon: 'fluent-emoji-flat:white-large-square' },
         { id: 'v6',  categoryId: 'egg', name: '嫩豆腐 (1盒/300g)',       weightPerServing: 300, cals: 150, macros: { p: 15,  c: 6,   f: 8  }, icon: 'fluent-emoji-flat:white-large-square' },
         { id: 'v7',  categoryId: 'egg', name: '百頁豆腐 (半條/100g)',    weightPerServing: 100, cals: 215, macros: { p: 13,  c: 5,   f: 17 }, icon: 'fluent-emoji-flat:white-large-square' },
