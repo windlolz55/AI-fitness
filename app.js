@@ -9,15 +9,22 @@ function getEstimatedWeight(food) {
     let m = food.name.match(/(\d+)\s*(g|ml)/i);
     if (m) return parseFloat(m[1]);
     if (food.name.includes('100g')) return 100;
+
+    if (food.name.includes('大碗') || food.name.includes('大份')) return 280;
+    if (food.name.includes('小碗') || food.name.includes('小份')) return 160;
+    if (food.name.includes('大杯')) return 650;
+    if (food.name.includes('中杯')) return 400;
+    if (food.name.includes('小杯')) return 250;
+
     const categoryEstimates = {
-        'street': 250,
+        'street': 220,
         'bento': 450,
-        'breakfast': 200,
+        'breakfast': 120,
         'store': 150,
         'raw': 100,
         'fruit': 150,
         'supp': 30,
-        'cheat': 500
+        'cheat': 180
     };
     return categoryEstimates[food.categoryId] || 100;
 }
