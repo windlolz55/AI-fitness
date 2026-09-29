@@ -3757,8 +3757,20 @@ function renderOverview() {
             const proPct = Math.min(day.pro / TARGET_PRO, 1.2);
             const carbPct = Math.min(day.carb / TARGET_CARB, 1.2);
             const fatPct = Math.min(day.fat / TARGET_FAT, 1.2);
-            const calRatio = day.cals / TARGET_CALS;
-            const calColor = calRatio >= 0.95 && calRatio <= 1.05 ? '#1dd1a1' : calRatio > 1.05 ? '#ff7675' : '#f6e58d';
+
+            const getStatusColor = (val, target) => {
+                if (!target || target <= 0) return '#E5E7EB';
+                const ratio = val / target;
+                if (ratio >= 0.95 && ratio <= 1.05) return '#1dd1a1';
+                if (ratio > 1.05) return '#ff7675';
+                return '#E5E7EB';
+            };
+
+            const calColor = getStatusColor(day.cals, TARGET_CALS);
+            const carbColor = getStatusColor(day.carb, TARGET_CARB);
+            const proColor = getStatusColor(day.pro, TARGET_PRO);
+            const fatColor = getStatusColor(day.fat, TARGET_FAT);
+
             const bar = (pct, color) => `<div style="flex:1;height:5px;background:rgba(128,128,128,0.15);border-radius:4px;overflow:hidden;">
                 <div style="height:100%;width:${Math.min(Math.round(pct*100), 100)}%;background:${color};border-radius:4px;transition:width .3s;"></div>
             </div>`;
@@ -3767,28 +3779,28 @@ function renderOverview() {
                     <span style="width:28px;font-size:12px;font-weight:700;">${day.label}</span>
                     <span style="font-size:11px;color:var(--text-muted);">${day.date}</span>
                     <span style="margin-left:auto;font-size:12px;font-weight:600;color:${calColor};">${day.cals} kcal</span>
-                    <span style="font-size:10px;color:var(--text-muted);">/ ${TARGET_CALS}</span>
+                    <span style="font-size:10px;color:#6B7280;">/ ${TARGET_CALS}</span>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:3px;">
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">碳</span>
-                        ${bar(carbPct, 'var(--carb-color)')}
+                        ${bar(carbPct, carbColor)}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
-                            <strong style="color:var(--text-main);">${day.carb}g</strong><span style="font-size:9px;color:var(--text-muted);"> / ${TARGET_CARB}g</span>
+                            <strong style="color:${carbColor};">${day.carb}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_CARB}g</span>
                         </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">蛋</span>
-                        ${bar(proPct, 'var(--pro-color)')}
+                        ${bar(proPct, proColor)}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
-                            <strong style="color:var(--text-main);">${day.pro}g</strong><span style="font-size:9px;color:var(--text-muted);"> / ${TARGET_PRO}g</span>
+                            <strong style="color:${proColor};">${day.pro}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_PRO}g</span>
                         </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">脂</span>
-                        ${bar(fatPct, 'var(--fat-color)')}
+                        ${bar(fatPct, fatColor)}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
-                            <strong style="color:var(--text-main);">${day.fat}g</strong><span style="font-size:9px;color:var(--text-muted);"> / ${TARGET_FAT}g</span>
+                            <strong style="color:${fatColor};">${day.fat}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_FAT}g</span>
                         </span>
                     </div>
                 </div>
@@ -3799,7 +3811,7 @@ function renderOverview() {
                 <h3 style="font-size:16px;margin:0;">週達標摘要</h3>
                 <div style="display:flex;gap:8px;font-size:10px;align-items:center;">
                     <span style="color:#1dd1a1;">● 達標</span>
-                    <span style="color:#f6e58d;">● 不足</span>
+                    <span style="color:#E5E7EB;">● 不足</span>
                     <span style="color:#ff7675;">● 超標</span>
                 </div>
             </div>
