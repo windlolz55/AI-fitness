@@ -3784,21 +3784,21 @@ function renderOverview() {
                 <div style="display:flex;flex-direction:column;gap:3px;">
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">碳</span>
-                        ${bar(carbPct, carbColor)}
+                        ${bar(carbPct, 'var(--carb-color)')}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
                             <strong style="color:${carbColor};">${day.carb}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_CARB}g</span>
                         </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">蛋</span>
-                        ${bar(proPct, proColor)}
+                        ${bar(proPct, 'var(--pro-color)')}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
                             <strong style="color:${proColor};">${day.pro}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_PRO}g</span>
                         </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">脂</span>
-                        ${bar(fatPct, fatColor)}
+                        ${bar(fatPct, 'var(--fat-color)')}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
                             <strong style="color:${fatColor};">${day.fat}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_FAT}g</span>
                         </span>
