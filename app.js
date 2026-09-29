@@ -430,8 +430,8 @@ if (!dailyData[getTodayDateStr()]) {
 
 // Initialize 'favorites' and 'custom' categories dynamically (custom right below favorites)
 foodDatabase.categories.unshift(
-    { id: 'favorites', name: '我的最愛', icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' },
-    { id: 'custom', name: '自訂', icon: 'fluent-emoji-flat:memo', color: '#a29bfe' }
+    { id: 'favorites', name: '❤️ 我的最愛', icon: 'fluent-emoji-flat:red-heart', color: '#ff6b6b' },
+    { id: 'custom', name: '📝 自訂', icon: 'fluent-emoji-flat:memo', color: '#a29bfe' }
 );
 
 // Load Custom Foods
@@ -1829,8 +1829,13 @@ function renderDBContent(searchQuery = '') {
         document.getElementById('db-category-title').innerText = '搜尋結果';
         filteredFoods = visibleFoods.filter(f => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
     } else {
-        const title = foodDatabase.categories.find(c => c.id === activeCategory).name;
-        document.getElementById('db-category-title').innerText = title + '類';
+        const catObj = foodDatabase.categories.find(c => c.id === activeCategory);
+        const title = catObj ? catObj.name : '';
+        if (activeCategory === 'favorites' || activeCategory === 'custom') {
+            document.getElementById('db-category-title').innerText = title;
+        } else {
+            document.getElementById('db-category-title').innerText = title.endsWith('類') ? title : (title + '類');
+        }
         
         if (activeCategory === 'favorites') {
             filteredFoods = visibleFoods.filter(f => favoriteFoodIds.includes(f.id));
