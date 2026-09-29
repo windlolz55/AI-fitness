@@ -662,36 +662,36 @@ window.toggleAllCardio = function() {
 
 function getExerciseCategory(exerciseName) {
     if (!exerciseName) return '';
+    const cleanName = exerciseName.replace(/\s*\(.*?\)/g, '').trim();
     
-    if (exerciseName.includes('臥推') || exerciseName.includes('伏地挺身') || exerciseName.includes('夾胸') || exerciseName.includes('飛鳥') && !exerciseName.includes('反向')) return '胸';
-    if (exerciseName.includes('引體向上') || exerciseName.includes('划船') || exerciseName.includes('下拉') || exerciseName.includes('反向飛鳥')) return '背';
-    if (exerciseName.includes('深蹲') || exerciseName.includes('硬拉') || exerciseName.includes('硬舉') || exerciseName.includes('臀推') || exerciseName.includes('橋式') || exerciseName.includes('分腿蹲') || exerciseName.includes('弓箭步') || exerciseName.includes('保加利亞')) return '腿';
-    if (exerciseName.includes('平板支撐') || exerciseName.includes('死蟲') || exerciseName.includes('核心')) return '核心';
-    if (exerciseName.includes('腹') || exerciseName.includes('捲體') || exerciseName.includes('仰臥起坐') || exerciseName.includes('轉體') || exerciseName.includes('抬腿')) return '腹';
-    if (exerciseName.includes('推舉') && !exerciseName.includes('腿')) return '肩';
-    if (exerciseName.includes('側平舉') || exerciseName.includes('前平舉')) return '肩';
-    if (exerciseName.includes('彎舉')) return '二頭';
-    if (exerciseName.includes('三頭') || exerciseName.includes('法式') || exerciseName.includes('臂屈伸')) return '三頭';
-    
-    if (typeof EXERCISE_DB === 'undefined') return '';
-    for (let cat of EXERCISE_DB) {
-        if (cat.exercises.find(e => e.name === exerciseName)) {
-            let catName = cat.category;
-            if (catName.includes('胸')) return '胸';
-            if (catName.includes('背')) return '背';
-            if (catName.includes('臀腿')) return '腿';
-            if (catName.includes('三頭')) return '三頭';
-            if (catName.includes('二頭')) return '二頭';
-            if (catName.includes('肩袖')) return '肩袖';
-            if (catName.includes('肩')) return '肩';
-            if (catName.includes('前臂')) return '前臂';
-            if (catName.includes('小腿')) return '小腿';
-            if (catName.includes('腹')) return '腹';
-            if (catName.includes('有氧')) return '有氧';
-            if (catName.includes('核心')) return '核心';
-            return '';
+    // 1. 優先直接依據動作庫 (EXERCISE_DB) 查找對應分類
+    if (typeof EXERCISE_DB !== 'undefined' && Array.isArray(EXERCISE_DB)) {
+        for (let cat of EXERCISE_DB) {
+            const found = cat.exercises.find(e => {
+                const eClean = e.name.replace(/\s*\(.*?\)/g, '').trim();
+                return e.name === exerciseName || e.name === cleanName || eClean === cleanName;
+            });
+            if (found) {
+                return cat.category.replace(/\s*\(.*?\)/g, '').replace('動作', '').trim();
+            }
         }
     }
+    
+    // 2. 若為不在動作庫中的自訂動作，根據動作庫分類名稱對齊
+    if (cleanName.includes('臥推') || cleanName.includes('夾胸') || cleanName.includes('飛鳥') && !cleanName.includes('反向')) return '胸部';
+    if (cleanName.includes('引體向上') || cleanName.includes('划船') || cleanName.includes('下拉') || cleanName.includes('反向飛鳥')) return '背部';
+    if (cleanName.includes('深蹲') || cleanName.includes('硬拉') || cleanName.includes('硬舉') || cleanName.includes('臀推') || cleanName.includes('橋式') || cleanName.includes('分腿蹲') || cleanName.includes('弓箭步') || cleanName.includes('保加利亞') || cleanName.includes('腿')) return '臀腿';
+    if (cleanName.includes('二頭') || cleanName.includes('彎舉')) return '肱二頭肌';
+    if (cleanName.includes('三頭') || cleanName.includes('法式') || cleanName.includes('臂屈伸')) return '肱三頭肌';
+    if (cleanName.includes('肩袖')) return '肩袖';
+    if (cleanName.includes('推舉') || cleanName.includes('平舉') || cleanName.includes('肩')) return '肩部';
+    if (cleanName.includes('前臂') || cleanName.includes('背後腕彎舉')) return '前臂';
+    if (cleanName.includes('小腿') || cleanName.includes('提踵')) return '小腿';
+    if (cleanName.includes('捲腹') || cleanName.includes('腹') || cleanName.includes('仰臥起坐') || cleanName.includes('轉體') || cleanName.includes('抬腿')) return '腰腹';
+    if (cleanName.includes('伏地挺身') || cleanName.includes('平板支撐') || cleanName.includes('死蟲') || cleanName.includes('核心') || cleanName.includes('波比')) return '徒手與核心';
+    if (cleanName.includes('跑步機') || cleanName.includes('橢圓機') || cleanName.includes('飛輪') || cleanName.includes('划船機') || cleanName.includes('散步') || cleanName.includes('走路')) return '器材有氧';
+    if (cleanName.includes('開合跳') || cleanName.includes('提膝') || cleanName.includes('擊掌') || cleanName.includes('有氧')) return '居家有氧';
+
     return '';
 }
 window.getExerciseCategory = getExerciseCategory;
