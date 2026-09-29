@@ -1,4 +1,4 @@
-﻿// ========================
+// ========================
 // Template System Logic
 // ========================
 window.FITNESS_TEMPLATES = [];
@@ -265,13 +265,16 @@ function appendExerciseToEditor(ex, exIdx) {
     
     let isWeight = ex.type !== 'cardio' && ex.type !== 'bodyweight' && ex.type !== 'time';
     
+    const cat = typeof getExerciseCategory === 'function' ? getExerciseCategory(ex.name) : '';
+    const catHtml = (cat && !ex.name.includes(`(${cat})`)) ? ` <span style="font-size: 13px; font-weight: normal; color: var(--text-muted);">(${cat})</span>` : '';
+
     div.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div class="drag-handle" style="color: var(--text-muted); opacity: 0.5; cursor: grab;">
                     <i class="fa-solid fa-grip-lines"></i>
                 </div>
-                <div style="font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ex.name}">${ex.name}</div>
+                <div style="font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${ex.name}">${ex.name}${catHtml}</div>
             </div>
             <div style="color: #ff6b81; cursor: pointer; padding: 4px; flex-shrink: 0;" onclick="if(confirm('確定要從清單移除這個動作嗎？')) this.parentElement.parentElement.remove()">
                 <i class="fa-solid fa-times"></i>

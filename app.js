@@ -663,7 +663,7 @@ window.toggleAllCardio = function() {
 function getExerciseCategory(exerciseName) {
     if (!exerciseName) return '';
     
-    if (exerciseName.includes('伏地挺身') || exerciseName.includes('夾胸') || exerciseName.includes('飛鳥') && !exerciseName.includes('反向')) return '胸';
+    if (exerciseName.includes('臥推') || exerciseName.includes('伏地挺身') || exerciseName.includes('夾胸') || exerciseName.includes('飛鳥') && !exerciseName.includes('反向')) return '胸';
     if (exerciseName.includes('引體向上') || exerciseName.includes('划船') || exerciseName.includes('下拉') || exerciseName.includes('反向飛鳥')) return '背';
     if (exerciseName.includes('深蹲') || exerciseName.includes('硬拉') || exerciseName.includes('硬舉') || exerciseName.includes('臀推') || exerciseName.includes('橋式') || exerciseName.includes('分腿蹲') || exerciseName.includes('弓箭步') || exerciseName.includes('保加利亞')) return '腿';
     if (exerciseName.includes('平板支撐') || exerciseName.includes('死蟲') || exerciseName.includes('核心')) return '核心';
@@ -694,6 +694,7 @@ function getExerciseCategory(exerciseName) {
     }
     return '';
 }
+window.getExerciseCategory = getExerciseCategory;
 
 // ─── renderWorkout HTML Helpers ──────────────────────────────────────────────
 
