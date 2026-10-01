@@ -117,7 +117,7 @@ const foodDatabase = {
         { id: 'e45', categoryId: 'breakfast', name: '菜包 (1顆)',            weightPerServing: 110, cals: 220, macros: { p: 6,  c: 35, f: 5  }, icon: 'fluent-emoji-flat:dumpling' },
         { id: 'd2',  categoryId: 'breakfast', name: '拿鐵咖啡 (無糖/中杯)', weightPerServing: 360, cals: 150, macros: { p: 8,  c: 12, f: 8  }, icon: 'fluent-emoji-flat:hot-beverage' },
         { id: 'd3',  categoryId: 'breakfast', name: '美式咖啡 (無糖)',       weightPerServing: 360, cals: 15,  macros: { p: 0,  c: 3,  f: 0  }, icon: 'fluent-emoji-flat:hot-beverage' },
-        { id: 'd99', categoryId: 'breakfast', name: '一杯牛奶 (約240ml)', weightPerServing: 240, cals: 150, macros: { p: 8,  c: 12, f: 8  }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'd99',  categoryId: 'breakfast', name: '一杯牛奶 (350ml)', weightPerServing: 350, cals: 219, macros: { p: 12,  c: 18, f: 12 }, icon: 'fluent-emoji-flat:glass-of-milk' },
 
         // ================= 街邊小吃 =================
         { id: 's17', categoryId: 'street', name: '水餃 (10顆)',          weightPerServing: 240, cals: 500, macros: { p: 20, c: 45, f: 25 }, icon: 'fluent-emoji-flat:dumpling' },
