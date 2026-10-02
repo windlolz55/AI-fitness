@@ -53,6 +53,7 @@ const foodDatabase = {
         { id: 'm19', categoryId: 'seafood', name: '蛤蜊/鮮蚵 (100g)',     cals: 70,  macros: { p: 10, c: 4, f: 2  }, icon: 'fluent-emoji-flat:oyster' },
         { id: 'm20', categoryId: 'seafood', name: '透抽/魷魚 (100g)',     cals: 80,  macros: { p: 16, c: 2, f: 1  }, icon: 'fluent-emoji-flat:squid' },
         { id: 'm21', categoryId: 'seafood', name: '干貝 (100g)',          cals: 90,  macros: { p: 18, c: 3, f: 1  }, icon: 'fluent-emoji-flat:spiral-shell' },
+        { id: 'm99', categoryId: 'seafood', name: '同榮鯖魚罐頭-辣味 (1份/100g)', cals: 296, macros: { p: 39, c: 5, f: 12 }, icon: 'fluent-emoji-flat:fish' },
 
         // ================= 蛋豆類 =================
         { id: 'v1',  categoryId: 'egg', name: '水煮蛋 (1顆)',            weightPerServing: 55,  cals: 75,  macros: { p: 6.5, c: 0.5, f: 5  }, icon: 'fluent-emoji-flat:egg' },
