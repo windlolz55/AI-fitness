@@ -843,7 +843,16 @@ function renderWorkout() {
     // ── Update Daily Workout Note ─────────────────────────────────────────────
     const noteEl = document.getElementById('workout-daily-note');
     if (noteEl && document.activeElement !== noteEl) {
+        if (!dailyDataEntry.workoutNote && loggedWorkouts.length > 0) {
+            dailyDataEntry.workoutNote = loggedWorkouts.map(w => `${w.name}：`).join('\n');
+            if (!dailyData[selectedLogDate]) {
+                dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0, workouts: loggedWorkouts };
+            }
+            dailyData[selectedLogDate].workoutNote = dailyDataEntry.workoutNote;
+            setAndSync('fitness_daily', JSON.stringify(dailyData));
+        }
         noteEl.value = dailyDataEntry.workoutNote || '';
+        if (typeof adjustNoteHeight === 'function') adjustNoteHeight(noteEl);
     }
 
     // ── Empty state ──────────────────────────────────────────────────────────
@@ -949,20 +958,34 @@ function handleWorkoutNoteInput(val) {
 }
 window.handleWorkoutNoteInput = handleWorkoutNoteInput;
 
-function appendWorkoutNoteTag(tag) {
-    const noteEl = document.getElementById('workout-daily-note');
-    if (!noteEl) return;
-    let currentVal = noteEl.value.trim();
-    if (currentVal.length > 0) {
-        if (!currentVal.includes(tag)) {
-            noteEl.value = currentVal + ' ' + tag;
-        }
-    } else {
-        noteEl.value = tag;
-    }
-    handleWorkoutNoteInput(noteEl.value);
+function adjustNoteHeight(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.max(72, el.scrollHeight) + 'px';
 }
-window.appendWorkoutNoteTag = appendWorkoutNoteTag;
+window.adjustNoteHeight = adjustNoteHeight;
+
+function resetWorkoutNoteToExercises() {
+    const dailyDataEntry = dailyData[selectedLogDate] || {};
+    const loggedWorkouts = dailyDataEntry.workouts || [];
+    if (loggedWorkouts.length === 0) {
+        alert('今日課表尚無動作可帶入');
+        return;
+    }
+    const noteEl = document.getElementById('workout-daily-note');
+    if (noteEl && noteEl.value.trim().length > 0) {
+        if (!confirm('是否將註記內容替換為今日動作清單？\n（目前已寫的備忘將被覆蓋）')) {
+            return;
+        }
+    }
+    const defaultText = loggedWorkouts.map(w => `${w.name}：`).join('\n');
+    if (noteEl) {
+        noteEl.value = defaultText;
+        adjustNoteHeight(noteEl);
+    }
+    handleWorkoutNoteInput(defaultText);
+}
+window.resetWorkoutNoteToExercises = resetWorkoutNoteToExercises;
 
 function toggleWorkoutCheck(name) {
     if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts) return;

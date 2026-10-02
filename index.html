@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.121">
+    <link rel="stylesheet" href="style.css?v=3.122">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.121</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.122</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -275,21 +275,20 @@
                         <i class="fa-solid fa-pen-to-square" style="color: var(--accent-primary); font-size: 15px;"></i>
                         <span style="font-weight: 600; font-size: 14px; color: var(--text-main);">今日運動註記</span>
                     </div>
-                    <span id="workout-note-status" style="font-size: 11px; color: var(--text-muted); opacity: 0; transition: opacity 0.3s;">已儲存</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button style="border: none; background: rgba(128, 128, 128, 0.08); font-size: 11px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;" onclick="resetWorkoutNoteToExercises()" title="重新填入今日課表動作">
+                            <i class="fa-solid fa-arrows-rotate"></i> 帶入動作
+                        </button>
+                        <span id="workout-note-status" style="font-size: 11px; color: var(--text-muted); opacity: 0; transition: opacity 0.3s;">已儲存</span>
+                    </div>
                 </div>
                 <textarea id="workout-daily-note" 
                     placeholder="記錄今日身體狀態、疲勞度、力量表現或心得..." 
-                    style="width: 100%; box-sizing: border-box; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 12px; font-size: 13px; color: var(--text-main); font-family: inherit; resize: vertical; min-height: 64px; outline: none; transition: border-color 0.2s;"
+                    style="width: 100%; box-sizing: border-box; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 12px; font-size: 13px; color: var(--text-main); font-family: inherit; resize: vertical; min-height: 72px; line-height: 1.5; outline: none; transition: border-color 0.2s;"
                     onfocus="this.style.borderColor='var(--accent-primary)'"
                     onblur="this.style.borderColor='var(--card-border)'"
-                    oninput="handleWorkoutNoteInput(this.value)"
+                    oninput="handleWorkoutNoteInput(this.value); if(typeof adjustNoteHeight==='function') adjustNoteHeight(this);"
                 ></textarea>
-                <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
-                    <span class="workout-tag-chip" onclick="appendWorkoutNoteTag('狀況極佳 🔥')">狀況極佳 🔥</span>
-                    <span class="workout-tag-chip" onclick="appendWorkoutNoteTag('稍感疲勞 💤')">稍感疲勞 💤</span>
-                    <span class="workout-tag-chip" onclick="appendWorkoutNoteTag('突破重量 💪')">突破重量 💪</span>
-                    <span class="workout-tag-chip" onclick="appendWorkoutNoteTag('關節緊繃 ⚠️')">關節緊繃 ⚠️</span>
-                </div>
             </div>
             
             <div style="display: flex; gap: 12px; margin-top: 16px;">
@@ -457,7 +456,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.121 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.122 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -1040,12 +1039,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.121"></script>
-    <script src="food_db.js?v=3.121"></script>
-    <script src="templates.js?v=3.121"></script>
-    <script src="routine.js?v=3.121"></script>
-    <script src="app.js?v=3.121"></script>
-    <script src="scanner_live.js?v=3.121"></script>
+    <script src="exercise_db.js?v=3.122"></script>
+    <script src="food_db.js?v=3.122"></script>
+    <script src="templates.js?v=3.122"></script>
+    <script src="routine.js?v=3.122"></script>
+    <script src="app.js?v=3.122"></script>
+    <script src="scanner_live.js?v=3.122"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
