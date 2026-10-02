@@ -2823,9 +2823,11 @@ function getDayStatus(dateStr) {
     const dayCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
     if (dayCals === 0) return 'none';
     const ratio = dayCals / TARGET_CALS;
-    if (ratio >= 0.95 && ratio <= 1.05) return 'ok';      // ±5% 達標
-    if (ratio > 1.05) return 'over';                        // 超標
-    return 'low';                                           // 不足
+    if (ratio >= 0.95 && ratio <= 1.05) return 'ok';
+    if (ratio > 1.15) return 'severe_over';
+    if (ratio > 1.05) return 'over';
+    if (ratio < 0.85) return 'severe_low';
+    return 'low';
 }
 
 function getWorkoutDayStatus(dateStr) {
@@ -3762,8 +3764,10 @@ function renderOverview() {
                 if (!target || target <= 0) return '#E5E7EB';
                 const ratio = val / target;
                 if (ratio >= 0.95 && ratio <= 1.05) return '#1dd1a1';
+                if (ratio > 1.15) return '#d63031';
                 if (ratio > 1.05) return '#ff7675';
-                return '#E5E7EB';
+                if (ratio < 0.85) return '#f39c12';
+                return '#f6e58d';
             };
 
             const calColor = getStatusColor(day.cals, TARGET_CALS);
@@ -3809,11 +3813,13 @@ function renderOverview() {
         summaryEl.innerHTML = `
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                 <h3 style="font-size:16px;margin:0;">週達標摘要</h3>
-                <div style="display:flex;gap:8px;font-size:10px;align-items:center;">
-                    <span style="color:#1dd1a1;">● 達標</span>
-                    <span style="color:#E5E7EB;">● 不足</span>
-                    <span style="color:#ff7675;">● 超標</span>
-                </div>
+                <div style="display:flex;gap:8px;font-size:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+                      <span style="color:#1dd1a1;">■ 達標</span>
+                      <span style="color:#f6e58d;">■ 不足</span>
+                      <span style="color:#f39c12;">■ 嚴重不足</span>
+                      <span style="color:#ff7675;">■ 超標</span>
+                      <span style="color:#d63031;">■ 嚴重超標</span>
+                  </div>
             </div>
             ${rows}
         `;
@@ -3880,7 +3886,7 @@ function renderCalendar() {
                 dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#ff7675' : null;
             } else {
                 const status = getDayStatus(dStr);
-                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#f6e58d' : null;
+                dotColor = status === 'ok' ? '#1dd1a1' : status === 'severe_over' ? '#d63031' : status === 'over' ? '#ff7675' : status === 'severe_low' ? '#f39c12' : status === 'low' ? '#f6e58d' : null;
             }
             
             let dotHtml = dotColor
@@ -3910,9 +3916,11 @@ function renderCalendar() {
                 `;
             } else {
                 legendEl.innerHTML = `
-                    <span style="color: #1dd1a1;">● 達標</span>
-                    <span style="color: #f6e58d;">● 不足</span>
-                    <span style="color: #ff7675;">● 超標</span>
+                    <span style="color: #1dd1a1;">■ 達標</span>
+                      <span style="color: #f6e58d;">■ 不足</span>
+                      <span style="color: #f39c12;">■ 嚴重不足</span>
+                      <span style="color: #ff7675;">■ 超標</span>
+                      <span style="color: #d63031;">■ 嚴重超標</span>
                 `;
             }
         }
