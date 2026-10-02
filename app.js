@@ -2657,7 +2657,7 @@ function showInfo(type) {
 
     if (type === 'status') {
         title.innerHTML = '<i class="fa-solid fa-chart-pie" style="color: var(--accent-primary); margin-right: 8px;"></i>達標判定邏輯';
-        content.innerHTML = `<p style="margin-bottom: 8px;"><strong>飲食紀錄達標判定標準：</strong></p><p style="font-size: 14px; line-height: 1.6; margin-bottom: 12px;">系統會將您「單日的總攝取熱量」與「每日建議攝取目標」進行比對，判斷該日的達標狀況：</p><ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 12px;"><li><span style="color: #d63031;">■ 嚴重超標</span>：攝取量 ＞ 110%</li><li><span style="color: #ff7675;">■ 超標</span>：攝取量在 105% ~ 110% 之間</li><li><span style="color: #1dd1a1;">■ 達標</span>：攝取量在 95% ~ 105% 之間 (±5%)</li><li><span style="color: #f6e58d;">■ 不足</span>：攝取量在 90% ~ 95% 之間</li><li><span style="color: #f39c12;">■ 嚴重不足</span>：攝取量 ＜ 90%</li></ul>`;
+        content.innerHTML = `<p style="margin-bottom: 8px;"><strong>飲食紀錄達標判定標準：</strong></p><p style="font-size: 14px; line-height: 1.6; margin-bottom: 12px;">系統會將您「單日的總攝取熱量」與「每日建議攝取目標」進行比對，判斷該日的達標狀況：</p><ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 12px;"><li><span style="color: #f39c12;">■ 嚴重不足</span>：攝取量 ＜ 90%</li><li><span style="color: #f6e58d;">■ 不足</span>：攝取量在 90% ~ 95% 之間</li><li><span style="color: #1dd1a1;">■ 達標</span>：攝取量在 95% ~ 105% 之間 (±5%)</li><li><span style="color: #ff7675;">■ 超標</span>：攝取量在 105% ~ 110% 之間</li><li><span style="color: #d63031;">■ 嚴重超標</span>：攝取量 ＞ 110%</li></ul>`;
     }
 
     if (type === 'water') {
@@ -3819,9 +3819,9 @@ function renderOverview() {
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                 <h3 style="font-size:16px;margin:0;">週達標摘要 <i class="fa-solid fa-circle-info" onclick="showInfo('status')" style="cursor:pointer; color:var(--text-muted); font-size:14px; margin-left: 4px;"></i></h3>
                 <div style="display:flex;gap:8px;font-size:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-                      <span style="color:#1dd1a1;">■ 達標</span>
-                      <span style="color:#f6e58d;">■ 不足</span>
                       <span style="color:#f39c12;">■ 嚴重不足</span>
+                      <span style="color:#f6e58d;">■ 不足</span>
+                      <span style="color:#1dd1a1;">■ 達標</span>
                       <span style="color:#ff7675;">■ 超標</span>
                       <span style="color:#d63031;">■ 嚴重超標</span>
                   </div>
@@ -3921,9 +3921,9 @@ function renderCalendar() {
                 `;
             } else {
                 legendEl.innerHTML = `
-                    <span style="color: #1dd1a1;">■ 達標</span>
+                    <span style="color: #f39c12;">■ 嚴重不足</span>
                       <span style="color: #f6e58d;">■ 不足</span>
-                      <span style="color: #f39c12;">■ 嚴重不足</span>
+                      <span style="color: #1dd1a1;">■ 達標</span>
                       <span style="color: #ff7675;">■ 超標</span>
                       <span style="color: #d63031;">■ 嚴重超標</span>
                 `;
