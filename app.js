@@ -2657,7 +2657,7 @@ function showInfo(type) {
 
     if (type === 'status') {
         title.innerHTML = '<i class="fa-solid fa-chart-pie" style="color: var(--accent-primary); margin-right: 8px;"></i>達標判定邏輯';
-        content.innerHTML = `<p style="margin-bottom: 8px;"><strong>飲食紀錄達標判定標準：</strong></p><p style="font-size: 14px; line-height: 1.6; margin-bottom: 12px;">系統會將您「單日的總攝取熱量」與「每日建議攝取目標」進行比對，判斷該日的達標狀況：</p><ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 12px;"><li><span style="color: #f39c12;">■ 嚴重不足</span>：攝取量 ＜ 90%</li><li><span style="color: #f6e58d;">■ 不足</span>：攝取量在 90% ~ 95% 之間</li><li><span style="color: #1dd1a1;">■ 達標</span>：攝取量在 95% ~ 105% 之間 (±5%)</li><li><span style="color: #ff7675;">■ 超標</span>：攝取量在 105% ~ 110% 之間</li><li><span style="color: #d63031;">■ 嚴重超標</span>：攝取量 ＞ 110%</li></ul>`;
+        content.innerHTML = `<p style="margin-bottom: 8px;"><strong>飲食紀錄達標判定標準：</strong></p><p style="font-size: 14px; line-height: 1.6; margin-bottom: 12px;">系統會將您「單日的總攝取熱量」與「每日建議攝取目標」進行比對，判斷該日的達標狀況：</p><ul style="padding-left: 20px; line-height: 1.6; font-size: 14px; margin-bottom: 12px;"><li><span style="color: #f39c12;">■ 嚴重不足</span>：攝取量 ＜ 85%</li><li><span style="color: #f6e58d;">■ 不足</span>：攝取量在 85% ~ 95% 之間</li><li><span style="color: #1dd1a1;">■ 達標</span>：攝取量在 95% ~ 105% 之間 (±5%)</li><li><span style="color: #ff7675;">■ 超標</span>：攝取量在 105% ~ 115% 之間</li><li><span style="color: #d63031;">■ 嚴重超標</span>：攝取量 ＞ 115%</li></ul>`;
     }
 
     if (type === 'water') {
@@ -2829,9 +2829,9 @@ function getDayStatus(dateStr) {
     if (dayCals === 0) return 'none';
     const ratio = dayCals / TARGET_CALS;
     if (ratio >= 0.95 && ratio <= 1.05) return 'ok';
-    if (ratio > 1.10) return 'severe_over';
+    if (ratio > 1.15) return 'severe_over';
     if (ratio > 1.05) return 'over';
-    if (ratio < 0.90) return 'severe_low';
+    if (ratio < 0.85) return 'severe_low';
     return 'low';
 }
 
@@ -3769,9 +3769,9 @@ function renderOverview() {
                 if (!target || target <= 0) return '#E5E7EB';
                 const ratio = val / target;
                 if (ratio >= 0.95 && ratio <= 1.05) return '#1dd1a1';
-                if (ratio > 1.10) return '#d63031';
+                if (ratio > 1.15) return '#d63031';
                 if (ratio > 1.05) return '#ff7675';
-                if (ratio < 0.90) return '#f39c12';
+                if (ratio < 0.85) return '#f39c12';
                 return '#f6e58d';
             };
 
