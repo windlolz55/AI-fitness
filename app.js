@@ -931,30 +931,77 @@ function renderWorkout() {
 }
 
 
-let workoutNoteSaveTimer = null;
-function handleWorkoutNoteInput(val) {
-    if (!dailyData[selectedLogDate]) {
-        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0, workouts: [] };
+let workoutNoteCloudTimer = null;
+
+function syncWorkoutNoteToCloud() {
+    if (workoutNoteCloudTimer) {
+        clearTimeout(workoutNoteCloudTimer);
+        workoutNoteCloudTimer = null;
     }
-    dailyData[selectedLogDate].workoutNote = val;
-    
     const statusEl = document.getElementById('workout-note-status');
-    if (statusEl) {
-        statusEl.innerText = '儲存中...';
-        statusEl.style.color = 'var(--text-muted)';
-        statusEl.style.opacity = '1';
-    }
-    
-    if (workoutNoteSaveTimer) clearTimeout(workoutNoteSaveTimer);
-    workoutNoteSaveTimer = setTimeout(() => {
-        setAndSync('fitness_daily', JSON.stringify(dailyData));
+    if (auth && auth.currentUser) {
+        if (statusEl) {
+            statusEl.innerHTML = '<i class="fa-solid fa-cloud-arrow-up" style="font-size: 10px; color: var(--text-muted);"></i> 同步中...';
+            statusEl.style.color = 'var(--text-muted)';
+            statusEl.style.opacity = '1';
+        }
+        saveToFirestore().then(() => {
+            if (statusEl) {
+                statusEl.innerHTML = '<i class="fa-solid fa-check" style="color: var(--accent-primary);"></i> 已儲存';
+                setTimeout(() => {
+                    if (statusEl) statusEl.style.opacity = '0';
+                }, 1200);
+            }
+        }).catch(err => {
+            console.error("Cloud sync failed:", err);
+            if (statusEl) {
+                statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ff6b6b;"></i> 同步失敗';
+            }
+        });
+    } else {
         if (statusEl) {
             statusEl.innerHTML = '<i class="fa-solid fa-check" style="color: var(--accent-primary);"></i> 已儲存';
             setTimeout(() => {
                 if (statusEl) statusEl.style.opacity = '0';
             }, 1200);
         }
-    }, 400);
+    }
+}
+window.syncWorkoutNoteToCloud = syncWorkoutNoteToCloud;
+
+function handleWorkoutNoteBlur() {
+    if (workoutNoteCloudTimer) {
+        syncWorkoutNoteToCloud();
+    }
+}
+window.handleWorkoutNoteBlur = handleWorkoutNoteBlur;
+
+function handleWorkoutNoteInput(val) {
+    if (!dailyData[selectedLogDate]) {
+        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0, workouts: [] };
+    }
+    dailyData[selectedLogDate].workoutNote = val;
+    
+    // 1. 本地即時防丟：直接寫入 localStorage（零網路流量、極速存檔，保障不掉字）
+    try {
+        localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+        localStorage.setItem('pending_sync_time', Date.now().toString());
+    } catch(e) {
+        console.warn('localStorage setItem failed:', e);
+    }
+    
+    const statusEl = document.getElementById('workout-note-status');
+    if (statusEl) {
+        statusEl.innerHTML = '<i class="fa-solid fa-pen" style="font-size: 9px; color: var(--text-muted); opacity: 0.7;"></i> 編輯中';
+        statusEl.style.color = 'var(--text-muted)';
+        statusEl.style.opacity = '0.7';
+    }
+    
+    // 2. 雲端同步防抖（拉長至 1500ms，輸入停頓或失焦時才觸發整包 Firestore 上傳）
+    if (workoutNoteCloudTimer) clearTimeout(workoutNoteCloudTimer);
+    workoutNoteCloudTimer = setTimeout(() => {
+        syncWorkoutNoteToCloud();
+    }, 1500);
 }
 window.handleWorkoutNoteInput = handleWorkoutNoteInput;
 
@@ -984,6 +1031,7 @@ function resetWorkoutNoteToExercises() {
         adjustNoteHeight(noteEl);
     }
     handleWorkoutNoteInput(defaultText);
+    syncWorkoutNoteToCloud();
 }
 window.resetWorkoutNoteToExercises = resetWorkoutNoteToExercises;
 
