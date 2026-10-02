@@ -537,3 +537,20 @@ input[type=number] {
     width: 85%;
     height: 70%;
 }
+
+.workout-tag-chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: rgba(128, 128, 128, 0.08);
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    border: 1px solid var(--card-border);
+}
+.workout-tag-chip:hover, .workout-tag-chip:active {
+    background: rgba(29, 209, 161, 0.15);
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}

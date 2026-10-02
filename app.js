@@ -840,6 +840,12 @@ function renderWorkout() {
     const dailyDataEntry = dailyData[selectedLogDate] || {};
     const loggedWorkouts = dailyDataEntry.workouts || [];
 
+    // ── Update Daily Workout Note ─────────────────────────────────────────────
+    const noteEl = document.getElementById('workout-daily-note');
+    if (noteEl && document.activeElement !== noteEl) {
+        noteEl.value = dailyDataEntry.workoutNote || '';
+    }
+
     // ── Empty state ──────────────────────────────────────────────────────────
     if (loggedWorkouts.length === 0) {
         container.innerHTML = buildEmptyStateHTML(selectedLogDate);
@@ -915,6 +921,48 @@ function renderWorkout() {
     renderDateStrip();
 }
 
+
+let workoutNoteSaveTimer = null;
+function handleWorkoutNoteInput(val) {
+    if (!dailyData[selectedLogDate]) {
+        dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0, workouts: [] };
+    }
+    dailyData[selectedLogDate].workoutNote = val;
+    
+    const statusEl = document.getElementById('workout-note-status');
+    if (statusEl) {
+        statusEl.innerText = '儲存中...';
+        statusEl.style.color = 'var(--text-muted)';
+        statusEl.style.opacity = '1';
+    }
+    
+    if (workoutNoteSaveTimer) clearTimeout(workoutNoteSaveTimer);
+    workoutNoteSaveTimer = setTimeout(() => {
+        setAndSync('fitness_daily', JSON.stringify(dailyData));
+        if (statusEl) {
+            statusEl.innerHTML = '<i class="fa-solid fa-check" style="color: var(--accent-primary);"></i> 已儲存';
+            setTimeout(() => {
+                if (statusEl) statusEl.style.opacity = '0';
+            }, 1200);
+        }
+    }, 400);
+}
+window.handleWorkoutNoteInput = handleWorkoutNoteInput;
+
+function appendWorkoutNoteTag(tag) {
+    const noteEl = document.getElementById('workout-daily-note');
+    if (!noteEl) return;
+    let currentVal = noteEl.value.trim();
+    if (currentVal.length > 0) {
+        if (!currentVal.includes(tag)) {
+            noteEl.value = currentVal + ' ' + tag;
+        }
+    } else {
+        noteEl.value = tag;
+    }
+    handleWorkoutNoteInput(noteEl.value);
+}
+window.appendWorkoutNoteTag = appendWorkoutNoteTag;
 
 function toggleWorkoutCheck(name) {
     if (!dailyData[selectedLogDate] || !dailyData[selectedLogDate].workouts) return;
