@@ -19,6 +19,8 @@ const foodDatabase = {
         // ================= 澱粉主食 =================
         { id: 's1',  categoryId: 'starch', name: '白飯 (1平碗/160g)',     cals: 280, macros: { p: 5,   c: 60, f: 1   }, icon: 'fluent-emoji-flat:cooked-rice' },
         { id: 's2',  categoryId: 'starch', name: '糙米飯 (1碗/160g)',     cals: 260, macros: { p: 6,   c: 54, f: 2   }, icon: 'fluent-emoji-flat:cooked-rice' },
+        { id: 's30', categoryId: 'starch', name: '糙米飯 (8分滿/258g)',   weightPerServing: 258, cals: 419, macros: { p: 9.7,  c: 87,  f: 3.2 }, icon: 'fluent-emoji-flat:cooked-rice' },
+        { id: 's31', categoryId: 'starch', name: '糙米飯 (平口滿碗/411g)', weightPerServing: 411, cals: 668, macros: { p: 15.4, c: 139, f: 5.1 }, icon: 'fluent-emoji-flat:cooked-rice' },
         { id: 's3',  categoryId: 'starch', name: '五穀米 (1碗/160g)',     cals: 250, macros: { p: 7,   c: 52, f: 2   }, icon: 'fluent-emoji-flat:cooked-rice' },
         { id: 's4',  categoryId: 'starch', name: '紫米飯 (1碗/160g)',     cals: 265, macros: { p: 6,   c: 56, f: 1.5 }, icon: 'fluent-emoji-flat:cooked-rice' },
         { id: 's5',  categoryId: 'starch', name: '地瓜 (1條/150g)',       cals: 195, macros: { p: 2,   c: 45, f: 0   }, icon: 'fluent-emoji-flat:roasted-sweet-potato' },
