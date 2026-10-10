@@ -59,10 +59,12 @@ const foodDatabase = {
 
         // ================= 蛋豆類 =================
         { id: 'v1',  categoryId: 'egg', name: '水煮蛋 (1顆)',            weightPerServing: 55,  cals: 75,  macros: { p: 6.5, c: 0.5, f: 5  }, icon: 'fluent-emoji-flat:egg' },
-        { id: 'v2',  categoryId: 'egg', name: '荷包蛋/煎蛋 (1顆)',       weightPerServing: 60,  cals: 110, macros: { p: 6.5, c: 0.5, f: 9  }, icon: 'fluent-emoji-flat:cooking' },
+        { id: 'v24', categoryId: 'egg', name: '茶葉蛋 (1顆)',            weightPerServing: 55,  cals: 75,  macros: { p: 7,   c: 1,   f: 5  }, icon: 'fluent-emoji-flat:egg' },
+        { id: 'v2',  categoryId: 'egg', name: '荷包蛋 (1顆)',            weightPerServing: 60,  cals: 110, macros: { p: 6.5, c: 0.5, f: 9  }, icon: 'fluent-emoji-flat:cooking' },
+        { id: 'v34', categoryId: 'egg', name: '滷蛋 (1顆)',              weightPerServing: 55,  cals: 80,  macros: { p: 7,   c: 1.5, f: 5  }, icon: 'fluent-emoji-flat:egg' },
+        { id: 'v35', categoryId: 'egg', name: '煎蛋 (1顆)',              weightPerServing: 60,  cals: 110, macros: { p: 6.5, c: 0.5, f: 9  }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v3',  categoryId: 'egg', name: '炒蛋/滑蛋 (1份)',         weightPerServing: 80,  cals: 150, macros: { p: 7,   c: 2,   f: 12 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v25', categoryId: 'egg', name: '蔥花蛋 (1份)',            weightPerServing: 80,  cals: 150, macros: { p: 10,  c: 2,   f: 11 }, icon: 'fluent-emoji-flat:cooking' },
-        { id: 'v24', categoryId: 'egg', name: '茶葉蛋/滷蛋 (1顆)',       weightPerServing: 55,  cals: 75,  macros: { p: 7,   c: 1,   f: 5  }, icon: 'fluent-emoji-flat:egg' },
         { id: 'v4',  categoryId: 'egg', name: '無糖豆漿 (400ml)',        weightPerServing: 400, cals: 140, macros: { p: 14,  c: 6,   f: 7  }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'v29', categoryId: 'egg', name: '無糖濃豆漿 (1杯/350ml)',      weightPerServing: 350, cals: 185, macros: { p: 19,  c: 9,   f: 8  }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'v5',  categoryId: 'egg', name: '板豆腐/傳統豆腐 (100g)',        weightPerServing: 100, cals: 88,  macros: { p: 8.5, c: 2,   f: 5  }, icon: 'fluent-emoji-flat:white-large-square' },
