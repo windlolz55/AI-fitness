@@ -58,11 +58,8 @@ const foodDatabase = {
         { id: 'm99', categoryId: 'seafood', name: '同榮鯖魚罐頭-辣味 (1份/100g)', cals: 296, macros: { p: 39, c: 5, f: 12 }, icon: 'fluent-emoji-flat:fish' },
 
         // ================= 蛋豆類 =================
-        { id: 'v1',  categoryId: 'egg', name: '水煮蛋 (1顆)',            weightPerServing: 55,  cals: 75,  macros: { p: 6.5, c: 0.5, f: 5  }, icon: 'fluent-emoji-flat:egg' },
-        { id: 'v24', categoryId: 'egg', name: '茶葉蛋 (1顆)',            weightPerServing: 55,  cals: 75,  macros: { p: 7,   c: 1,   f: 5  }, icon: 'fluent-emoji-flat:egg' },
-        { id: 'v2',  categoryId: 'egg', name: '荷包蛋 (1顆)',            weightPerServing: 60,  cals: 110, macros: { p: 6.5, c: 0.5, f: 9  }, icon: 'fluent-emoji-flat:cooking' },
-        { id: 'v34', categoryId: 'egg', name: '滷蛋 (1顆)',              weightPerServing: 55,  cals: 80,  macros: { p: 7,   c: 1.5, f: 5  }, icon: 'fluent-emoji-flat:egg' },
-        { id: 'v35', categoryId: 'egg', name: '煎蛋 (1顆)',              weightPerServing: 60,  cals: 110, macros: { p: 6.5, c: 0.5, f: 9  }, icon: 'fluent-emoji-flat:cooking' },
+        { id: 'v1',  categoryId: 'egg', name: '水煮蛋/茶葉蛋/滷蛋 (1顆)', weightPerServing: 55,  cals: 75,  macros: { p: 7,   c: 1,   f: 5  }, icon: 'fluent-emoji-flat:egg' },
+        { id: 'v2',  categoryId: 'egg', name: '荷包蛋/煎蛋 (1顆)',       weightPerServing: 60,  cals: 110, macros: { p: 6.5, c: 0.5, f: 9  }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v3',  categoryId: 'egg', name: '炒蛋/滑蛋 (1份)',         weightPerServing: 80,  cals: 150, macros: { p: 7,   c: 2,   f: 12 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v25', categoryId: 'egg', name: '蔥花蛋 (1份)',            weightPerServing: 80,  cals: 150, macros: { p: 10,  c: 2,   f: 11 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v4',  categoryId: 'egg', name: '無糖豆漿 (400ml)',        weightPerServing: 400, cals: 140, macros: { p: 14,  c: 6,   f: 7  }, icon: 'fluent-emoji-flat:glass-of-milk' },
