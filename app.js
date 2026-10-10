@@ -434,6 +434,11 @@ foodDatabase.categories.unshift(
     { id: 'custom', name: '📝 自訂', icon: 'fluent-emoji-flat:memo', color: '#a29bfe' }
 );
 
+function getAssignableCategories() {
+    return foodDatabase.categories.filter(c => c.id !== 'favorites');
+}
+window.getAssignableCategories = getAssignableCategories;
+
 // Load Custom Foods
 let customFoods = JSON.parse(localStorage.getItem('customFoods')) || [];
 foodDatabase.foods = [...customFoods, ...foodDatabase.foods];
@@ -464,6 +469,9 @@ function applyFoodOverrides() {
             }
             if (typeof ov.weightPerServing === 'number') {
                 food.weightPerServing = ov.weightPerServing;
+            }
+            if (ov.categoryId) {
+                food.categoryId = ov.categoryId;
             }
         }
     });
@@ -2124,6 +2132,7 @@ window.updateBatchDeleteUI = function() {
     const countLabel = document.getElementById('selected-food-count-label');
     const deleteBtn = document.getElementById('btn-batch-delete-food');
     const deleteText = document.getElementById('batch-delete-text');
+    const moveBtn = document.getElementById('btn-batch-move-food');
     const selectAllBtn = document.getElementById('btn-select-all-food');
     const count = selectedFoodDbIds.size;
     
@@ -2131,15 +2140,25 @@ window.updateBatchDeleteUI = function() {
         countLabel.innerText = `已選 ${count} 項`;
     }
     
+    if (moveBtn) {
+        if (count > 0) {
+            moveBtn.style.opacity = '1';
+            moveBtn.style.pointerEvents = 'auto';
+        } else {
+            moveBtn.style.opacity = '0.5';
+            moveBtn.style.pointerEvents = 'none';
+        }
+    }
+
     if (deleteBtn) {
         if (count > 0) {
             deleteBtn.style.opacity = '1';
             deleteBtn.style.pointerEvents = 'auto';
-            if (deleteText) deleteText.innerText = `刪除選取 (${count})`;
+            if (deleteText) deleteText.innerText = `刪除 (${count})`;
         } else {
             deleteBtn.style.opacity = '0.5';
             deleteBtn.style.pointerEvents = 'none';
-            if (deleteText) deleteText.innerText = '刪除選取';
+            if (deleteText) deleteText.innerText = '刪除';
         }
     }
     
@@ -2149,6 +2168,82 @@ window.updateBatchDeleteUI = function() {
         const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedFoodDbIds.has(id));
         selectAllBtn.innerText = allSelected ? '取消全選' : '全選';
     }
+};
+
+window.openBatchMoveCategoryModal = function() {
+    if (selectedFoodDbIds.size === 0) return;
+    const modal = document.getElementById('batch-move-modal');
+    const grid = document.getElementById('batch-move-category-grid');
+    const desc = document.getElementById('batch-move-desc');
+    if (!modal || !grid) return;
+
+    if (desc) {
+        desc.innerText = `將選取的 ${selectedFoodDbIds.size} 個食物永久移動至：`;
+    }
+
+    const categories = getAssignableCategories();
+    grid.innerHTML = categories.map(cat => `
+        <button type="button" class="btn-secondary" style="border: 1px solid var(--card-border); background: var(--bg-main); padding: 12px 10px; border-radius: 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-align: center; color: var(--text-main); transition: background 0.15s;" onclick="confirmBatchMoveCategory('${cat.id}')">
+            ${cat.name}
+        </button>
+    `).join('');
+
+    modal.style.display = 'flex';
+};
+
+window.closeBatchMoveModal = function() {
+    const modal = document.getElementById('batch-move-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.confirmBatchMoveCategory = function(targetCatId) {
+    if (selectedFoodDbIds.size === 0) return;
+    const targetCat = foodDatabase.categories.find(c => c.id === targetCatId);
+    if (!targetCat) return;
+
+    let customChanged = false;
+    if (!foodOverrides) foodOverrides = {};
+
+    selectedFoodDbIds.forEach(id => {
+        // 1. 更新在 foodDatabase.foods 中的 categoryId 與 icon
+        const food = foodDatabase.foods.find(f => f.id === id);
+        if (food) {
+            food.categoryId = targetCatId;
+            if (!food.icon || food.icon === 'fluent-emoji-flat:memo' || food.icon === '❤️') {
+                food.icon = targetCat.icon || food.icon;
+            }
+        }
+
+        // 2. 如果屬於 customFoods，也一併更新
+        const cItem = customFoods.find(f => f.id === id);
+        if (cItem) {
+            cItem.categoryId = targetCatId;
+            if (!cItem.icon || cItem.icon === 'fluent-emoji-flat:memo' || cItem.icon === '❤️') {
+                cItem.icon = targetCat.icon || cItem.icon;
+            }
+            customChanged = true;
+        }
+
+        // 3. 持久化存入 foodOverrides
+        if (!foodOverrides[id]) foodOverrides[id] = {};
+        foodOverrides[id].categoryId = targetCatId;
+    });
+
+    if (customChanged) {
+        setAndSync('customFoods', JSON.stringify(customFoods));
+    }
+    setAndSync('foodOverrides', JSON.stringify(foodOverrides));
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
+
+    const count = selectedFoodDbIds.size;
+    selectedFoodDbIds.clear();
+    updateBatchDeleteUI();
+    closeBatchMoveModal();
+
+    // 切換至目標分類，讓使用者立刻看到搬移過去的食物
+    switchCategory(targetCatId);
+    renderDBContent();
+    alert(`已將 ${count} 個食物永久移動至「${targetCat.name}」！`);
 };
 
 window.deleteSelectedFoodDbItems = function() {
@@ -2282,6 +2377,14 @@ window.toggleFoodNutritionEdit = function(e) {
         if (editPro) editPro.value = selectedFood.macros ? (selectedFood.macros.p ?? '') : '';
         if (editFat) editFat.value = selectedFood.macros ? (selectedFood.macros.f ?? '') : '';
 
+        // 填入當前所屬分類
+        const editCatSelect = document.getElementById('setup-edit-category');
+        if (editCatSelect) {
+            editCatSelect.innerHTML = getAssignableCategories().map(c => 
+                `<option value="${c.id}" ${c.id === (selectedFood.categoryId || 'custom') ? 'selected' : ''}>${c.name}</option>`
+            ).join('');
+        }
+
         const is100g = selectedFood.name.includes('100g');
         const weightContainer = document.getElementById('setup-edit-weight-container');
         
@@ -2340,27 +2443,44 @@ window.saveFoodNutritionEdit = function() {
             weightPerServing = Math.round(wInput);
         }
     }
+
+    const editCatSelect = document.getElementById('setup-edit-category');
+    const newCategory = editCatSelect ? editCatSelect.value : selectedFood.categoryId;
+    const catChanged = newCategory && newCategory !== selectedFood.categoryId;
+    const targetCat = catChanged ? foodDatabase.categories.find(c => c.id === newCategory) : null;
     
-    // 更新 selectedFood 直接取代原數值
+    // 更新 selectedFood 直接取代原數值與分類
     selectedFood.cals = safeCals;
     selectedFood.macros = { p: safePro, c: safeCarb, f: safeFat };
+    if (newCategory) selectedFood.categoryId = newCategory;
     if (weightPerServing) selectedFood.weightPerServing = weightPerServing;
+    if (targetCat && (!selectedFood.icon || selectedFood.icon === 'fluent-emoji-flat:memo' || selectedFood.icon === '❤️')) {
+        selectedFood.icon = targetCat.icon || selectedFood.icon;
+    }
     
     // 更新食物資料庫主列表中的物件
     const dbItem = foodDatabase.foods.find(f => f.id === selectedFood.id);
     if (dbItem) {
         dbItem.cals = safeCals;
         dbItem.macros = { p: safePro, c: safeCarb, f: safeFat };
+        if (newCategory) dbItem.categoryId = newCategory;
         if (weightPerServing) dbItem.weightPerServing = weightPerServing;
+        if (targetCat && (!dbItem.icon || dbItem.icon === 'fluent-emoji-flat:memo' || dbItem.icon === '❤️')) {
+            dbItem.icon = targetCat.icon || dbItem.icon;
+        }
     }
     
     // 如果屬於 customFoods，也一併更新
-    if (selectedFood.categoryId === 'custom' || selectedFood.id.startsWith('cf_')) {
+    if (selectedFood.id.startsWith('cf_') || customFoods.some(f => f.id === selectedFood.id)) {
         const cItem = customFoods.find(f => f.id === selectedFood.id);
         if (cItem) {
             cItem.cals = safeCals;
             cItem.macros = { p: safePro, c: safeCarb, f: safeFat };
+            if (newCategory) cItem.categoryId = newCategory;
             if (weightPerServing) cItem.weightPerServing = weightPerServing;
+            if (targetCat && (!cItem.icon || cItem.icon === 'fluent-emoji-flat:memo' || cItem.icon === '❤️')) {
+                cItem.icon = targetCat.icon || cItem.icon;
+            }
             setAndSync('customFoods', JSON.stringify(customFoods));
         }
     }
@@ -2370,7 +2490,8 @@ window.saveFoodNutritionEdit = function() {
     foodOverrides[selectedFood.id] = {
         cals: safeCals,
         macros: { p: safePro, c: safeCarb, f: safeFat },
-        ...(weightPerServing ? { weightPerServing } : {})
+        ...(weightPerServing ? { weightPerServing } : {}),
+        ...(newCategory ? { categoryId: newCategory } : {})
     };
     setAndSync('foodOverrides', JSON.stringify(foodOverrides));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
@@ -2379,6 +2500,12 @@ window.saveFoodNutritionEdit = function() {
     renderDBContent(document.getElementById('food-search-input').value);
     
     closeFoodNutritionEdit();
+
+    if (catChanged && targetCat) {
+        switchCategory(newCategory);
+        renderDBContent();
+        alert(`已成功將此食物永久移動至「${targetCat.name}」！`);
+    }
 };
 
 window.handleUnitChange = function() {
@@ -3411,7 +3538,16 @@ window.toggleFavorite = toggleFavorite;
 
 // Custom Food Logic
 function openCustomFood() {
-    document.getElementById('custom-food-modal').style.display = 'flex';
+    const modal = document.getElementById('custom-food-modal');
+    if (modal) modal.style.display = 'flex';
+
+    const catSelect = document.getElementById('cf-category');
+    if (catSelect) {
+        const defaultCat = (activeCategory && activeCategory !== 'favorites') ? activeCategory : 'custom';
+        catSelect.innerHTML = getAssignableCategories().map(c => 
+            `<option value="${c.id}" ${c.id === defaultCat ? 'selected' : ''}>${c.name}</option>`
+        ).join('');
+    }
 }
 
 function closeCustomFood() {
@@ -3424,6 +3560,7 @@ function saveCustomFood() {
     const p = parseFloat(document.getElementById('cf-pro').value) || 0;
     const c = parseFloat(document.getElementById('cf-carb').value) || 0;
     const f = parseFloat(document.getElementById('cf-fat').value) || 0;
+    const chosenCategory = document.getElementById('cf-category')?.value || 'custom';
 
     if (!name) {
         alert("請填寫食物名稱！");
@@ -3434,13 +3571,15 @@ function saveCustomFood() {
         return;
     }
 
+    const catObj = foodDatabase.categories.find(cat => cat.id === chosenCategory);
+
     const newFood = {
         id: 'cf_' + Date.now(),
-        categoryId: 'custom',
+        categoryId: chosenCategory,
         name: name,
         cals: cals,
         macros: { p, c, f },
-        icon: '❤️'
+        icon: catObj ? catObj.icon : 'fluent-emoji-flat:memo'
     };
 
     // Save to local custom foods
@@ -3460,8 +3599,8 @@ function saveCustomFood() {
     
     closeCustomFood();
     
-    // Switch to Custom category to see it
-    switchCategory('custom');
+    // Switch to chosen category to see it immediately
+    switchCategory(chosenCategory);
 }
 
 window.openCustomFood = openCustomFood;
