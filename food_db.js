@@ -63,6 +63,7 @@ const foodDatabase = {
         { id: 'v3',  categoryId: 'egg', name: '炒蛋/滑蛋 (1份)',         weightPerServing: 80,  cals: 150, macros: { p: 7,   c: 2,   f: 12 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v25', categoryId: 'egg', name: '蔥花蛋 (1份)',            weightPerServing: 80,  cals: 150, macros: { p: 10,  c: 2,   f: 11 }, icon: 'fluent-emoji-flat:cooking' },
         { id: 'v4',  categoryId: 'egg', name: '無糖豆漿 (400ml)',        weightPerServing: 400, cals: 140, macros: { p: 14,  c: 6,   f: 7  }, icon: 'fluent-emoji-flat:glass-of-milk' },
+        { id: 'v34', categoryId: 'egg', name: '無糖豆漿 (1杯/350ml)',        weightPerServing: 350, cals: 123, macros: { p: 12.5, c: 5,   f: 6  }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'v29', categoryId: 'egg', name: '無糖濃豆漿 (1杯/350ml)',      weightPerServing: 350, cals: 185, macros: { p: 19,  c: 9,   f: 8  }, icon: 'fluent-emoji-flat:glass-of-milk' },
         { id: 'v5',  categoryId: 'egg', name: '板豆腐/傳統豆腐 (100g)',        weightPerServing: 100, cals: 88,  macros: { p: 8.5, c: 2,   f: 5  }, icon: 'fluent-emoji-flat:white-large-square' },
         { id: 'v31', categoryId: 'egg', name: '大漢板豆腐 (1盒/400g)',        weightPerServing: 400, cals: 318, macros: { p: 32,  c: 16.8, f: 13.6 }, icon: 'fluent-emoji-flat:white-large-square' },
