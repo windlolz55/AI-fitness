@@ -2183,17 +2183,21 @@ window.openBatchMoveCategoryModal = function() {
 
     const categories = getAssignableCategories();
     grid.innerHTML = categories.map(cat => `
-        <button type="button" class="btn-secondary" style="border: 1px solid var(--card-border); background: var(--bg-main); padding: 12px 10px; border-radius: 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-align: center; color: var(--text-main); transition: background 0.15s;" onclick="confirmBatchMoveCategory('${cat.id}')">
+        <button type="button" style="border: 1px solid var(--card-border); background: var(--bg-main); padding: 12px 10px; border-radius: 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-align: center; color: var(--text-main); transition: background 0.15s; width: 100%; box-sizing: border-box;" onclick="confirmBatchMoveCategory('${cat.id}')">
             ${cat.name}
         </button>
     `).join('');
 
+    modal.classList.remove('hidden');
     modal.style.display = 'flex';
 };
 
 window.closeBatchMoveModal = function() {
     const modal = document.getElementById('batch-move-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
 };
 
 window.confirmBatchMoveCategory = function(targetCatId) {
