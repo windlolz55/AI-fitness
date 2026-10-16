@@ -881,11 +881,17 @@ function renderWorkout() {
 
     container.innerHTML = html;
 
-    // ── Header (完成狀態列) ───────────────────────────────────────────────────
+    // ── Header (完成狀態列與時間) ───────────────────────────────────────────────────
     const completeAllWrapper = document.getElementById('workout-header-wrapper');
     const routineNameSpan = document.getElementById('current-routine-name');
     if (completeAllWrapper) completeAllWrapper.style.display = 'flex';
-    if (routineNameSpan) routineNameSpan.innerText = dailyData[selectedLogDate].routineName || '';
+    if (routineNameSpan) routineNameSpan.innerText = dailyData[selectedLogDate]?.routineName || '';
+
+    const durationText = document.getElementById('workout-duration-text');
+    const bt = dailyData[selectedLogDate]?.burnedTime || 0;
+    if (durationText) {
+        durationText.innerText = bt > 0 ? `${bt} 分鐘` : '記錄時間';
+    }
 
     const completeAllText = document.getElementById('complete-all-text');
     const completeAllIcon = document.getElementById('complete-all-icon');
@@ -893,22 +899,20 @@ function renderWorkout() {
         const btn = completeAllText.parentElement;
         btn.style.display = 'flex';
 
-        const allCompleted = loggedWorkouts.length > 0 && loggedWorkouts.every(w => w.completed !== false);
+        const allCompleted = loggedWorkouts.length > 0 && loggedWorkouts.every(w => isWorkoutCompleted(w));
+        const isToday = (selectedLogDate === getTodayDateStr());
 
         if (allCompleted) {
-            completeAllText.innerText = '今日已完成';
+            completeAllText.innerText = isToday ? '今日已完成' : '已完成';
             completeAllIcon.className = 'fa-solid fa-circle-check';
             btn.style.background = 'var(--accent-primary)';
             btn.style.color = 'var(--bg-main)';
         } else {
-            completeAllText.innerText = '今日未完成';
+            completeAllText.innerText = isToday ? '今日未完成' : '未完成';
             completeAllIcon.className = 'fa-regular fa-circle-check';
             btn.style.background = 'rgba(255, 107, 129, 0.1)';
             btn.style.color = '#ff6b81';
         }
-
-        const bt = dailyData[selectedLogDate]?.burnedTime || 0;
-        completeAllText.innerText += allCompleted && bt > 0 ? ` (${bt}m)` : ' (無)';
     }
 
     // ── Drag-to-sort ──────────────────────────────────────────────────────────
@@ -2843,15 +2847,45 @@ window.confirmWaterEdit = function() {
     closeWaterModal();
 };
 
-window.promptEditBurned = function() {
-    if (!dailyData[getTodayDateStr()]) {
-        dailyData[getTodayDateStr()] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
+let activeBurnedDate = getTodayDateStr();
+
+window.promptEditBurned = function(targetDate) {
+    activeBurnedDate = targetDate || (typeof selectedLogDate !== 'undefined' && selectedLogDate) || getTodayDateStr();
+    if (!dailyData[activeBurnedDate]) {
+        dailyData[activeBurnedDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
     }
-    const current = dailyData[getTodayDateStr()].burned || 0;
-    const currentTime = dailyData[getTodayDateStr()].burnedTime || 0;
+    const current = dailyData[activeBurnedDate].burned || 0;
+    const currentTime = dailyData[activeBurnedDate].burnedTime || 0;
+    
+    const dateInput = document.getElementById('burned-date-input');
+    if (dateInput) {
+        dateInput.value = activeBurnedDate;
+    }
+    const dateLabel = document.getElementById('burned-modal-date-label');
+    if (dateLabel) {
+        dateLabel.innerText = (activeBurnedDate === getTodayDateStr()) ? '（今天）' : '';
+    }
+
     document.getElementById('burned-input-val').value = current;
     document.getElementById('burned-time-input-val').value = currentTime;
     document.getElementById('burned-setup-modal').style.display = 'flex';
+};
+
+window.changeBurnedModalDate = function(newDate) {
+    if (!newDate) return;
+    activeBurnedDate = newDate;
+    if (!dailyData[activeBurnedDate]) {
+        dailyData[activeBurnedDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
+    }
+    const current = dailyData[activeBurnedDate].burned || 0;
+    const currentTime = dailyData[activeBurnedDate].burnedTime || 0;
+    document.getElementById('burned-input-val').value = current;
+    document.getElementById('burned-time-input-val').value = currentTime;
+    
+    const dateLabel = document.getElementById('burned-modal-date-label');
+    if (dateLabel) {
+        dateLabel.innerText = (activeBurnedDate === getTodayDateStr()) ? '（今天）' : '';
+    }
 };
 
 window.closeBurnedModal = function() {
@@ -2872,11 +2906,27 @@ window.confirmBurnedEdit = function() {
     const val = document.getElementById('burned-input-val').value;
     const timeVal = document.getElementById('burned-time-input-val').value;
     if (val !== null && val.trim() !== '' && !isNaN(val)) {
-        dailyData[getTodayDateStr()].burned = Math.max(0, parseInt(val) || 0);
-        dailyData[getTodayDateStr()].burnedTime = Math.max(0, parseInt(timeVal) || 0);
-        updateDailyData();
+        if (!dailyData[activeBurnedDate]) {
+            dailyData[activeBurnedDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0 };
+        }
+        dailyData[activeBurnedDate].burned = Math.max(0, parseInt(val) || 0);
+        dailyData[activeBurnedDate].burnedTime = Math.max(0, parseInt(timeVal) || 0);
+        
+        setAndSync('fitness_daily', JSON.stringify(dailyData));
+        if (typeof triggerAutoSync === 'function') triggerAutoSync();
+        
+        if (activeBurnedDate === getTodayDateStr()) {
+            updateDailyData();
+        }
+        if (typeof selectedLogDate !== 'undefined' && activeBurnedDate === selectedLogDate) {
+            renderWorkout();
+        }
     }
     closeBurnedModal();
+};
+
+window.promptEditWorkoutTime = function() {
+    promptEditBurned(selectedLogDate);
 };
 
 // Info Modals
@@ -3070,7 +3120,7 @@ function closeInfoModal() {
 
 // Logs Rendering
 function getDayStatus(dateStr) {
-    // Returns: 'none' | 'low' | 'ok' | 'over'
+    // Returns: 'none' | 'low' | 'severe_low' | 'ok' | 'over' | 'severe_over'
     const isFuture = dateStr > getTodayDateStr();
     if (isFuture) return 'none';
     const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === dateStr);
@@ -3078,9 +3128,9 @@ function getDayStatus(dateStr) {
     const dayCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
     if (dayCals === 0) return 'none';
     const ratio = dayCals / TARGET_CALS;
-    if (ratio >= 0.95 && ratio <= 1.05) return 'ok';
+    if (ratio >= 0.90 && ratio <= 1.10) return 'ok';
     if (ratio > 1.15) return 'severe_over';
-    if (ratio > 1.05) return 'over';
+    if (ratio > 1.10) return 'over';
     if (ratio < 0.85) return 'severe_low';
     return 'low';
 }
@@ -3118,7 +3168,15 @@ function renderDateStrip() {
                 dotColor = wStatus === 'ok' ? '#1dd1a1' : wStatus === 'pending' ? '#ff7675' : 'transparent';
             } else {
                 const status = getDayStatus(dateStr);
-                dotColor = status === 'ok' ? '#1dd1a1' : status === 'over' ? '#ff7675' : status === 'low' ? '#f6e58d' : 'transparent';
+                if (status === 'ok') {
+                    dotColor = '#1dd1a1';
+                } else if (status === 'over' || status === 'severe_over') {
+                    dotColor = '#ff7675';
+                } else if (status === 'low' || status === 'severe_low') {
+                    dotColor = '#f6e58d';
+                } else {
+                    dotColor = 'transparent';
+                }
             }
             
             const activeClass = (dateStr === selectedLogDate) ? 'active' : '';
@@ -3184,6 +3242,37 @@ function renderLogs() {
 
 
     const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === selectedLogDate);
+    const dayTotalCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
+    const summaryText = document.getElementById('logs-summary-text');
+    const statusBadge = document.getElementById('logs-status-badge');
+    const isToday = (selectedLogDate === getTodayDateStr());
+    
+    if (summaryText) {
+        summaryText.innerHTML = `總攝取：${dayTotalCals.toLocaleString()} <span style="font-size:12px;font-weight:normal;color:var(--text-muted);">/ ${TARGET_CALS.toLocaleString()} kcal</span>`;
+    }
+    
+    if (statusBadge) {
+        const ratio = TARGET_CALS > 0 ? (dayTotalCals / TARGET_CALS) : 0;
+        if (dayLogs.length === 0) {
+            statusBadge.style.background = 'rgba(128,128,128,0.1)';
+            statusBadge.style.color = 'var(--text-muted)';
+            statusBadge.innerHTML = `<i class="fa-regular fa-circle" style="font-size:12px;"></i> <span>${isToday ? '今日尚未記錄' : '尚未記錄'}</span>`;
+        } else if (ratio >= 0.90 && ratio <= 1.10) {
+            statusBadge.style.background = 'rgba(29, 209, 161, 0.15)';
+            statusBadge.style.color = 'var(--accent-primary)';
+            statusBadge.innerHTML = `<i class="fa-solid fa-circle-check" style="font-size:12px;"></i> <span>${isToday ? '今日已達標' : '已達標'}</span>`;
+        } else if (ratio < 0.90) {
+            const diff = TARGET_CALS - dayTotalCals;
+            statusBadge.style.background = 'rgba(251, 191, 36, 0.15)';
+            statusBadge.style.color = '#f59e0b';
+            statusBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size:12px;"></i> <span>${isToday ? '熱量未達標' : '未達標'} (-${diff}k)</span>`;
+        } else {
+            const diff = dayTotalCals - TARGET_CALS;
+            statusBadge.style.background = 'rgba(255, 107, 129, 0.15)';
+            statusBadge.style.color = '#ff6b81';
+            statusBadge.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="font-size:12px;"></i> <span>${isToday ? '熱量已超標' : '已超標'} (+${diff}k)</span>`;
+        }
+    }
     
     // Removing the early return so that empty meal categories are always rendered.
 
