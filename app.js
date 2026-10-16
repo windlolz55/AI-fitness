@@ -555,6 +555,57 @@ function calcTDEE() {
     return calcBMR() * parseFloat(userProfile.activity || 1);
 }
 
+// 4大健身目標配置與預設值
+const GOAL_CONFIGS = [
+    {
+        id: 'bulk',
+        name: '增肌',
+        icon: '💪',
+        defaultPercent: 8,
+        desc: '提供增肌所需的額外能量',
+        defaultPro: 1.8
+    },
+    {
+        id: 'cut',
+        name: '減脂',
+        icon: '🔥',
+        defaultPercent: -15,
+        desc: '較明確地減少體脂',
+        defaultPro: 2.0
+    },
+    {
+        id: 'maintain',
+        name: '維持',
+        icon: '⚖️',
+        defaultPercent: 0,
+        desc: '維持體重與訓練表現',
+        defaultPro: 1.8
+    },
+    {
+        id: 'recomp',
+        name: '增肌同時減脂',
+        icon: '🔄',
+        defaultPercent: -5,
+        desc: '小幅赤字，兼顧減脂與肌肉成長',
+        defaultPro: 2.2
+    }
+];
+
+function getGoalAdjustments() {
+    const saved = (userProfile && userProfile.goalAdjustments) ? userProfile.goalAdjustments : {};
+    return {
+        bulk: typeof saved.bulk === 'number' ? saved.bulk : 8,
+        cut: typeof saved.cut === 'number' ? saved.cut : -15,
+        maintain: typeof saved.maintain === 'number' ? saved.maintain : 0,
+        recomp: typeof saved.recomp === 'number' ? saved.recomp : -5,
+    };
+}
+
+function getGoalAdjustmentPercent(goalId) {
+    const adj = getGoalAdjustments();
+    return adj[goalId] !== undefined ? adj[goalId] : 0;
+}
+
 function calculateTargets() {
     let bmr = calcBMR();
     if (!bmr) {
@@ -563,34 +614,21 @@ function calculateTargets() {
     }
     let tdee = calcTDEE();
     
-    let pace = userProfile.pace || 'standard';
-    
-    // 🔥 減脂 (Cut / Fat Loss)
-    if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
-        if (pace === 'conservative') {
-            TARGET_CALS = Math.round(tdee * 0.9); // -10%
-        } else {
-            TARGET_CALS = Math.round(tdee * 0.85); // -15%
-        }
+    // 目標正規化 (相容舊版設定)
+    let goalKey = userProfile.goal || 'maintain';
+    if (goalKey.startsWith('bulk') || goalKey === 'gain') goalKey = 'bulk';
+    else if (goalKey.startsWith('cut') || goalKey === 'lose') goalKey = 'cut';
+    else if (goalKey.startsWith('recomp')) goalKey = 'recomp';
+    else goalKey = 'maintain';
+
+    const percent = getGoalAdjustmentPercent(goalKey);
+    TARGET_CALS = Math.round(tdee * (1 + percent / 100));
+
+    if (goalKey === 'cut') {
         TARGET_PRO = Math.round(userProfile.weight * 2.0);
-    } 
-    // 💪 增肌 (Lean Bulk)
-    else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
-        if (pace === 'conservative') {
-            TARGET_CALS = Math.round(tdee * 1.05); // +5%
-        } else {
-            TARGET_CALS = Math.round(tdee * 1.10); // +10%
-        }
-        TARGET_PRO = Math.round(userProfile.weight * 1.8);
-    } 
-    // 🔄 增肌減脂 (Body Recomposition)
-    else if (userProfile.goal === 'recomp') {
-        TARGET_CALS = Math.round(tdee * 0.95); // -5%
+    } else if (goalKey === 'recomp') {
         TARGET_PRO = Math.round(userProfile.weight * 2.2);
-    } 
-    // ⚖️ 維持現狀 (Maintenance)
-    else { 
-        TARGET_CALS = Math.round(tdee);
+    } else {
         TARGET_PRO = Math.round(userProfile.weight * 1.8);
     }
 
@@ -2997,30 +3035,17 @@ function showInfo(type) {
         `;
 
 
-        let goalText = '維持現狀 (無調整)';
-        let targetCalText = `TDEE = <strong>${TARGET_CALS} kcal</strong>`;
-        let pace = userProfile.pace || 'standard';
-        
-        if(userProfile.goal === 'cut' || userProfile.goal === 'lose') {
-            if (pace === 'conservative') {
-                goalText = '穩健減脂 (-10%)';
-                targetCalText = `${Math.round(tdee)} * 0.9 = <strong>${TARGET_CALS} kcal</strong>`;
-            } else {
-                goalText = '穩健減脂 (-15%)';
-                targetCalText = `${Math.round(tdee)} * 0.85 = <strong>${TARGET_CALS} kcal</strong>`;
-            }
-        } else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
-            if (pace === 'conservative') {
-                goalText = '乾淨增肌 (+5%)';
-                targetCalText = `${Math.round(tdee)} * 1.05 = <strong>${TARGET_CALS} kcal</strong>`;
-            } else {
-                goalText = '乾淨增肌 (+10%)';
-                targetCalText = `${Math.round(tdee)} * 1.10 = <strong>${TARGET_CALS} kcal</strong>`;
-            }
-        } else if (userProfile.goal === 'recomp') {
-            goalText = '身體重組 (-5%)';
-            targetCalText = `${Math.round(tdee)} * 0.95 = <strong>${TARGET_CALS} kcal</strong>`;
-        }
+        let g = userProfile.goal || 'maintain';
+        if (g.startsWith('bulk') || g === 'gain') g = 'bulk';
+        else if (g.startsWith('cut') || g === 'lose') g = 'cut';
+        else if (g.startsWith('recomp')) g = 'recomp';
+        else g = 'maintain';
+
+        const cfg = GOAL_CONFIGS.find(item => item.id === g) || GOAL_CONFIGS[2];
+        const percent = getGoalAdjustmentPercent(g);
+        const sign = percent > 0 ? `+${percent}%` : `${percent}%`;
+        const goalText = `${cfg.icon} ${cfg.name} (${sign})`;
+        let targetCalText = `${Math.round(tdee)} * ${(1 + percent / 100).toFixed(2)} (${sign}) = <strong>${TARGET_CALS} kcal</strong>`;
 
         let minCals = (userProfile.gender === 'female') ? 1200 : 1500;
         if (TARGET_CALS === minCals) {
@@ -3055,31 +3080,20 @@ function showInfo(type) {
         let bmr = calcBMR();
         let tdee = calcTDEE();
 
-        let goalText = '維持現狀';
-        let pace = userProfile.pace || 'standard';
-        
-        if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
-            if (pace === 'conservative') {
-                goalText = `保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)`;
-            } else {
-                goalText = `標準減脂 (-15% / 約 -${Math.round(tdee * 0.15)} kcal)`;
-            }
-        } else if (userProfile.goal === 'bulk' || userProfile.goal === 'gain') {
-            if (pace === 'conservative') {
-                goalText = `溫和增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)`;
-            } else {
-                goalText = `標準增肌 (+10% / 約 +${Math.round(tdee * 0.1)} kcal)`;
-            }
-        } else if (userProfile.goal === 'recomp') {
-            goalText = `增肌減脂 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)`;
-        }
-        
-        if (userProfile.goal === 'cut' || userProfile.goal === 'lose') {
-            proMultiplier = 2.0;
-        } else if (userProfile.goal === 'recomp') {
-            proMultiplier = 2.2;
-        }
-        
+        let g = userProfile.goal || 'maintain';
+        if (g.startsWith('bulk') || g === 'gain') g = 'bulk';
+        else if (g.startsWith('cut') || g === 'lose') g = 'cut';
+        else if (g.startsWith('recomp')) g = 'recomp';
+        else g = 'maintain';
+
+        const cfg = GOAL_CONFIGS.find(item => item.id === g) || GOAL_CONFIGS[2];
+        const percent = getGoalAdjustmentPercent(g);
+        const sign = percent > 0 ? `+${percent}%` : `${percent}%`;
+        const calDiff = Math.round(tdee * (percent / 100));
+        const diffStr = calDiff > 0 ? `+${calDiff}` : `${calDiff}`;
+        const goalText = `${cfg.icon} ${cfg.name} (${sign} / 約 ${diffStr} kcal)`;
+
+        proMultiplier = cfg.defaultPro;
         if (userProfile.customProMultiplier) proMultiplier = userProfile.customProMultiplier;
 
         title.innerHTML = `
@@ -3468,67 +3482,70 @@ function setupProfile() {
 
     function updateGoalOptions() {
         const tdee = getPreviewTDEE();
-        const weight = parseInt(w.value) || 70;
         
-        let currentCombinedGoal = goal.value;
-        if (!currentCombinedGoal) {
-            currentCombinedGoal = (userProfile.goal && userProfile.pace) 
-                ? `${userProfile.goal}-${userProfile.pace}`
-                : 'maintain-standard';
+        let currentGoal = goal.value;
+        if (!currentGoal) {
+            currentGoal = userProfile.goal || 'maintain';
         }
-        
-        const goalParts = currentCombinedGoal.split('-');
-        const selectedGoal = goalParts[0] || 'maintain';
-        
-        let defaultProMultiplier = 1.8;
-        if (selectedGoal === 'cut' || selectedGoal === 'lose') {
-            defaultProMultiplier = 2.0;
-        } else if (selectedGoal === 'recomp') {
-            defaultProMultiplier = 2.2;
-        }
+        if (currentGoal.startsWith('bulk') || currentGoal === 'gain') currentGoal = 'bulk';
+        else if (currentGoal.startsWith('cut') || currentGoal === 'lose') currentGoal = 'cut';
+        else if (currentGoal.startsWith('recomp')) currentGoal = 'recomp';
+        else currentGoal = 'maintain';
+
+        const currentCfg = GOAL_CONFIGS.find(c => c.id === currentGoal) || GOAL_CONFIGS[2];
         
         const goalLabel = document.getElementById('goal-label');
         if (goalLabel) {
-            goalLabel.innerHTML = `你的目標與節奏？`;
+            goalLabel.innerHTML = `你的健身目標？`;
         }
         
+        let defaultProMultiplier = currentCfg.defaultPro;
         const proRecommendLabel = document.getElementById('pro-recommend-label');
         if (proRecommendLabel) {
             proRecommendLabel.innerHTML = `(建議: ${defaultProMultiplier})`;
         }
 
-        const optionsHTML = `
-            <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">減脂 (Fat Loss)</div>
-            <div class="goal-option-item" data-val="cut-conservative" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🐢 保守減脂 (-10% / 約 -${Math.round(tdee * 0.1)} kcal)</div>
-            <div class="goal-option-item" data-val="cut-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準減脂 (-15% / 約 -${Math.round(tdee * 0.15)} kcal)</div>
-            <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">增肌 (Muscle Gain)</div>
-            <div class="goal-option-item" data-val="bulk-conservative" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🐢 溫和增肌 (+5% / 約 +${Math.round(tdee * 0.05)} kcal)</div>
-            <div class="goal-option-item" data-val="bulk-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">⚡ 標準增肌 (+10% / 約 +${Math.round(tdee * 0.1)} kcal)</div>
-            <div style="font-size: 11px; color: var(--text-muted); padding: 8px 12px; background: rgba(0,0,0,0.03);">其他 (Others)</div>
-            <div class="goal-option-item" data-val="recomp-standard" style="padding: 12px; border-bottom: 1px solid var(--card-border); cursor: pointer; white-space: normal; line-height: 1.4;">🔄 增肌減脂 (-5% / 約 -${Math.round(tdee * 0.05)} kcal)</div>
-            <div class="goal-option-item" data-val="maintain-standard" style="padding: 12px; cursor: pointer; white-space: normal; line-height: 1.4;">⚖️ 維持現狀 (0% / 完美打平)</div>
-        `;
+        const optionsHTML = GOAL_CONFIGS.map(cfg => {
+            const pct = getGoalAdjustmentPercent(cfg.id);
+            const pctStr = pct > 0 ? `+${pct}%` : `${pct}%`;
+            const calVal = Math.round(tdee * (1 + pct / 100));
+            const isSelected = cfg.id === currentGoal;
+            return `
+                <div class="goal-option-item" data-val="${cfg.id}" style="padding: 12px 14px; border-bottom: 1px solid var(--card-border); cursor: pointer; background: ${isSelected ? 'rgba(29, 209, 161, 0.08)' : 'transparent'}; transition: background 0.15s ease;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                        <span style="font-weight: 600; color: var(--text-main); font-size: 14px;">
+                            ${cfg.icon} ${cfg.name} 
+                            <span style="font-size: 13px; color: var(--accent-primary); font-weight: normal; margin-left: 4px;">${pctStr}</span>
+                        </span>
+                        <span style="font-weight: 700; color: var(--accent-primary); font-size: 14px;">
+                            ${calVal} <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">kcal</span>
+                        </span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); line-height: 1.3;">${cfg.desc}</div>
+                </div>
+            `;
+        }).join('');
         
         const goalOptionsContainer = document.getElementById('goal-options');
         goalOptionsContainer.innerHTML = optionsHTML;
 
-        const optionItems = goalOptionsContainer.querySelectorAll('.goal-option-item');
-        
-        const exists = Array.from(optionItems).find(opt => opt.getAttribute('data-val') === currentCombinedGoal);
-        if (exists) {
-            goal.value = currentCombinedGoal;
-            document.getElementById('goal-display-text').innerText = exists.innerText;
-        } else {
-            goal.value = 'maintain-standard';
-            document.getElementById('goal-display-text').innerText = '⚖️ 維持現狀 (0% / 完美打平)';
-        }
+        goal.value = currentGoal;
+        const currentPct = getGoalAdjustmentPercent(currentGoal);
+        const currentPctStr = currentPct > 0 ? `+${currentPct}%` : `${currentPct}%`;
+        const currentCal = Math.round(tdee * (1 + currentPct / 100));
+        document.getElementById('goal-display-text').innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-right: 4px;">
+                <span><strong>${currentCfg.icon} ${currentCfg.name}</strong> <span style="color: var(--accent-primary); font-size: 13px; margin-left: 4px;">${currentPctStr}</span></span>
+                <span style="color: var(--text-muted); font-size: 13px; font-weight: bold;">${currentCal} kcal</span>
+            </div>
+        `;
 
         // Add click listeners to items
+        const optionItems = goalOptionsContainer.querySelectorAll('.goal-option-item');
         optionItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
                 goal.value = item.getAttribute('data-val');
-                document.getElementById('goal-display-text').innerText = item.innerText;
                 goalOptionsContainer.style.display = 'none';
                 updateGoalOptions();
             });
@@ -3591,17 +3608,22 @@ function setupProfile() {
     updateGoalOptions();
 
     document.getElementById('btn-save-profile').addEventListener('click', () => {
-        const goalParts = goal.value.split('-');
-        
+        let rawGoal = goal.value || 'maintain';
+        if (rawGoal.startsWith('bulk') || rawGoal === 'gain') rawGoal = 'bulk';
+        else if (rawGoal.startsWith('cut') || rawGoal === 'lose') rawGoal = 'cut';
+        else if (rawGoal.startsWith('recomp')) rawGoal = 'recomp';
+        else rawGoal = 'maintain';
+
         userProfile = {
+            ...userProfile,
             nickname: nickname ? nickname.value : '',
             gender: g.value,
             age: parseInt(a.value),
             height: parseInt(h.value),
             weight: parseInt(w.value),
             activity: parseFloat(act.value),
-            goal: goalParts[0] || 'maintain',
-            pace: goalParts[1] || 'standard',
+            goal: rawGoal,
+            pace: 'standard',
             customProMultiplier: customPro && customPro.value ? parseFloat(customPro.value) : null
         };
         setAndSync('fitness_profile', JSON.stringify(userProfile));
@@ -3610,6 +3632,139 @@ function setupProfile() {
         alert('儲存成功！已重新計算目標熱量。');
     });
 }
+
+// ========================
+// Goal Adjustments Modal
+// ========================
+function openGoalAdjustModal() {
+    const modal = document.getElementById('goal-adjust-modal');
+    if (!modal) return;
+    renderGoalAdjustInputs();
+    modal.style.display = 'flex';
+}
+
+function closeGoalAdjustModal() {
+    const modal = document.getElementById('goal-adjust-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function renderGoalAdjustInputs() {
+    const list = document.getElementById('goal-adjust-list');
+    if (!list) return;
+
+    let tdee = (typeof calcTDEE === 'function' ? calcTDEE() : 0);
+    if (!tdee) {
+        const wVal = parseFloat(document.getElementById('weight')?.value) || 70;
+        const hVal = parseFloat(document.getElementById('height')?.value) || 170;
+        const aVal = parseFloat(document.getElementById('age')?.value) || 25;
+        const gVal = document.getElementById('gender')?.value || 'male';
+        const actVal = parseFloat(document.getElementById('activity')?.value) || 1.2;
+        const constant = gVal === 'male' ? 5 : -161;
+        const bmr = (10 * wVal) + (6.25 * hVal) - (5 * aVal) + constant;
+        tdee = bmr * actVal;
+    }
+    tdee = Math.round(tdee) || 2000;
+
+    const currentAdjs = getGoalAdjustments();
+
+    list.innerHTML = GOAL_CONFIGS.map(cfg => {
+        const val = currentAdjs[cfg.id];
+        const cal = Math.round(tdee * (1 + val / 100));
+        const diff = Math.round(tdee * (val / 100));
+        const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+        return `
+            <div style="background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div>
+                        <span style="font-weight: 600; font-size: 14px; color: var(--text-main);">${cfg.icon} ${cfg.name}</span>
+                        <span style="font-size: 11px; color: var(--text-muted); margin-left: 6px;">${cfg.desc}</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 12px; color: var(--text-muted);">微調幅度:</span>
+                        <input type="number" id="goal-adj-${cfg.id}" class="input-field goal-adj-input" 
+                            data-goal="${cfg.id}" value="${val}" step="0.5" 
+                            style="width: 70px; height: 32px; padding: 0 6px; text-align: center; font-size: 13px; font-weight: bold; border-radius: 6px; margin: 0; min-height: 32px;"
+                            oninput="updateGoalAdjustPreview('${cfg.id}', ${tdee})">
+                        <span style="font-size: 13px; font-weight: bold; color: var(--text-muted);">%</span>
+                    </div>
+                    <div id="goal-adj-preview-${cfg.id}" style="font-size: 12px; text-align: right; color: var(--accent-primary); font-weight: 600;">
+                        ${cal} kcal <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(${diffStr})</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateGoalAdjustPreview(goalId, tdee) {
+    const input = document.getElementById(`goal-adj-${goalId}`);
+    const preview = document.getElementById(`goal-adj-preview-${goalId}`);
+    if (!input || !preview) return;
+    const val = parseFloat(input.value) || 0;
+    const cal = Math.round(tdee * (1 + val / 100));
+    const diff = Math.round(tdee * (val / 100));
+    const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+    preview.innerHTML = `${cal} kcal <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(${diffStr})</span>`;
+}
+
+function resetGoalAdjustments() {
+    GOAL_CONFIGS.forEach(cfg => {
+        const input = document.getElementById(`goal-adj-${cfg.id}`);
+        if (input) {
+            input.value = cfg.defaultPercent;
+        }
+    });
+    let tdee = (typeof calcTDEE === 'function' ? calcTDEE() : 0);
+    if (!tdee) {
+        const wVal = parseFloat(document.getElementById('weight')?.value) || 70;
+        const hVal = parseFloat(document.getElementById('height')?.value) || 170;
+        const aVal = parseFloat(document.getElementById('age')?.value) || 25;
+        const gVal = document.getElementById('gender')?.value || 'male';
+        const actVal = parseFloat(document.getElementById('activity')?.value) || 1.2;
+        const constant = gVal === 'male' ? 5 : -161;
+        const bmr = (10 * wVal) + (6.25 * hVal) - (5 * aVal) + constant;
+        tdee = bmr * actVal;
+    }
+    tdee = Math.round(tdee) || 2000;
+    GOAL_CONFIGS.forEach(cfg => {
+        updateGoalAdjustPreview(cfg.id, tdee);
+    });
+}
+
+function saveGoalAdjustments() {
+    const newAdjustments = {};
+    GOAL_CONFIGS.forEach(cfg => {
+        const input = document.getElementById(`goal-adj-${cfg.id}`);
+        const parsed = input ? parseFloat(input.value) : cfg.defaultPercent;
+        newAdjustments[cfg.id] = isNaN(parsed) ? cfg.defaultPercent : parsed;
+    });
+
+    userProfile = {
+        ...userProfile,
+        goalAdjustments: newAdjustments
+    };
+
+    setAndSync('fitness_profile', JSON.stringify(userProfile));
+    
+    // 重新計算目標與儀表板
+    calculateTargets();
+    const goalDisplay = document.getElementById('goal-display');
+    if (goalDisplay && typeof updateGoalOptions === 'function') {
+        updateGoalOptions();
+    }
+    if (typeof updateDashboard === 'function') updateDashboard();
+    
+    closeGoalAdjustModal();
+    alert('目標數值調整成功！已即時更新每日熱量。');
+}
+
+window.openGoalAdjustModal = openGoalAdjustModal;
+window.closeGoalAdjustModal = closeGoalAdjustModal;
+window.resetGoalAdjustments = resetGoalAdjustments;
+window.saveGoalAdjustments = saveGoalAdjustments;
+window.updateGoalAdjustPreview = updateGoalAdjustPreview;
 
 // Scanner (Kept intact)
 
