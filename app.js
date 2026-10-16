@@ -3655,12 +3655,16 @@ function openGoalAdjustModal() {
     const modal = document.getElementById('goal-adjust-modal');
     if (!modal) return;
     renderGoalAdjustInputs();
+    modal.classList.remove('hidden');
     modal.style.display = 'flex';
 }
 
 function closeGoalAdjustModal() {
     const modal = document.getElementById('goal-adjust-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
 }
 
 function renderGoalAdjustInputs() {
