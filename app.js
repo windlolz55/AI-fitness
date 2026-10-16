@@ -4267,8 +4267,8 @@ function renderCalendar() {
         if (legendEl) {
             if (isWorkoutView) {
                 legendEl.innerHTML = `
-                    <span style="color: #1dd1a1;">● 全部完成</span>
                     <span style="color: #ff7675;">● 未完成</span>
+                    <span style="color: #1dd1a1;">● 已完成</span>
                 `;
             } else {
                 legendEl.innerHTML = `
