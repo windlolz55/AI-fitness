@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.134</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.135</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -443,25 +443,33 @@
                 </select>
 
                 <div style="margin-bottom: 24px;">
-                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <label id="goal-label" style="font-size: 12px; color: var(--text-muted); margin: 0;">你的健身目標？</label>
-                            <button type="button" class="btn-icon" onclick="openGoalAdjustModal()" style="border: 1px solid var(--card-border); background: var(--bg-main); color: var(--accent-primary); font-size: 11px; padding: 2px 8px; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 22px;">
-                                <i class="fa-solid fa-sliders"></i> 調整數值
-                            </button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label id="goal-label" style="font-size: 13px; font-weight: 600; color: var(--text-main); margin: 0;">你的健身目標？</label>
+                        <button type="button" onclick="openGoalAdjustModal()" style="border: 1px solid var(--card-border); background: var(--bg-main); color: var(--accent-primary); font-size: 12px; padding: 4px 10px; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 26px; white-space: nowrap; flex-shrink: 0; font-weight: 500;">
+                            <i class="fa-solid fa-sliders"></i> 調整數值
+                        </button>
+                    </div>
+
+                    <div class="custom-select-container" style="position: relative; width: 100%; margin-bottom: 10px;">
+                        <input type="hidden" id="goal" value="">
+                        <div id="goal-display" class="input-field" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; cursor: pointer; padding: 0 14px; gap: 8px;" onclick="document.getElementById('goal-options').style.display = document.getElementById('goal-options').style.display === 'block' ? 'none' : 'block'">
+                            <div id="goal-display-text" style="flex: 1; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                請選擇目標...
+                            </div>
+                            <i class="fa-solid fa-caret-down" style="color: var(--text-muted); flex-shrink: 0;"></i>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted);">
-                            攝入蛋白質 <span id="pro-recommend-label" style="color: var(--accent-primary); font-weight: bold;">(建議 1.8)</span>: <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="系統" style="width: 48px; height: 24px; padding: 0 4px; text-align: center; font-size: 11px; border-radius: 4px; min-height: 24px;"> g/kg
+                        <div id="goal-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-top: 4px; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.15); max-height: 320px; overflow-y: auto;">
+                            <!-- Options populated dynamically -->
                         </div>
                     </div>
-                    <div class="custom-select-container" style="position: relative; width: 100%;">
-                        <input type="hidden" id="goal" value="">
-                        <div id="goal-display" class="input-field" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; cursor: pointer; white-space: normal; line-height: 1.4;" onclick="document.getElementById('goal-options').style.display = document.getElementById('goal-options').style.display === 'block' ? 'none' : 'block'">
-                            <span id="goal-display-text">請選擇目標...</span>
-                            <i class="fa-solid fa-caret-down" style="color: var(--text-muted); margin-left: 8px; flex-shrink: 0;"></i>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-main); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+                        <div style="font-size: 12px; color: var(--text-muted);">
+                            蛋白質攝取 <span id="pro-recommend-label" style="color: var(--accent-primary); font-weight: bold; margin-left: 2px;">(建議: 1.8)</span>
                         </div>
-                        <div id="goal-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-top: 4px; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-height: 280px; overflow-y: auto;">
-                            <!-- Options populated dynamically -->
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="系統" style="width: 54px; height: 26px; padding: 0 6px; text-align: center; font-size: 12px; font-weight: bold; border-radius: 6px; min-height: 26px; margin: 0;">
+                            <span style="font-size: 12px; color: var(--text-muted); font-weight: bold;">g/kg</span>
                         </div>
                     </div>
                 </div>
@@ -474,7 +482,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.134 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.135 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -1122,12 +1130,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.134"></script>
-    <script src="food_db.js?v=3.134"></script>
-    <script src="templates.js?v=3.134"></script>
-    <script src="routine.js?v=3.134"></script>
-    <script src="app.js?v=3.134"></script>
-    <script src="scanner_live.js?v=3.134"></script>
+    <script src="exercise_db.js?v=3.135"></script>
+    <script src="food_db.js?v=3.135"></script>
+    <script src="templates.js?v=3.135"></script>
+    <script src="routine.js?v=3.135"></script>
+    <script src="app.js?v=3.135"></script>
+    <script src="scanner_live.js?v=3.135"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

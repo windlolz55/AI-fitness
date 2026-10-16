@@ -3508,16 +3508,22 @@ function setupProfile() {
         const optionsHTML = GOAL_CONFIGS.map(cfg => {
             const pct = getGoalAdjustmentPercent(cfg.id);
             const pctStr = pct > 0 ? `+${pct}%` : `${pct}%`;
+            const diff = Math.round(tdee * (pct / 100));
+            const diffStr = diff > 0 ? `+${diff}` : (diff === 0 ? `±0` : `${diff}`);
             const calVal = Math.round(tdee * (1 + pct / 100));
             const isSelected = cfg.id === currentGoal;
             return `
                 <div class="goal-option-item" data-val="${cfg.id}" style="padding: 12px 14px; border-bottom: 1px solid var(--card-border); cursor: pointer; background: ${isSelected ? 'rgba(29, 209, 161, 0.08)' : 'transparent'}; transition: background 0.15s ease;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-                        <span style="font-weight: 600; color: var(--text-main); font-size: 14px;">
-                            ${cfg.icon} ${cfg.name} 
-                            <span style="font-size: 13px; color: var(--accent-primary); font-weight: normal; margin-left: 4px;">${pctStr}</span>
-                        </span>
-                        <span style="font-weight: 700; color: var(--accent-primary); font-size: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap;">
+                            <span style="font-weight: 700; color: var(--text-main); font-size: 14px; white-space: nowrap;">
+                                ${cfg.icon} ${cfg.name} 
+                            </span>
+                            <span style="font-size: 11px; color: var(--accent-primary); font-weight: 600; white-space: nowrap; background: rgba(29, 209, 161, 0.12); padding: 2px 6px; border-radius: 6px;">
+                                ${pctStr} (${diffStr} kcal)
+                            </span>
+                        </div>
+                        <span style="font-weight: 700; color: var(--text-main); font-size: 14px; white-space: nowrap;">
                             ${calVal} <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">kcal</span>
                         </span>
                     </div>
@@ -3532,13 +3538,22 @@ function setupProfile() {
         goal.value = currentGoal;
         const currentPct = getGoalAdjustmentPercent(currentGoal);
         const currentPctStr = currentPct > 0 ? `+${currentPct}%` : `${currentPct}%`;
+        const currentDiff = Math.round(tdee * (currentPct / 100));
+        const currentDiffStr = currentDiff > 0 ? `+${currentDiff}` : (currentDiff === 0 ? `±0` : `${currentDiff}`);
         const currentCal = Math.round(tdee * (1 + currentPct / 100));
-        document.getElementById('goal-display-text').innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding-right: 4px;">
-                <span><strong>${currentCfg.icon} ${currentCfg.name}</strong> <span style="color: var(--accent-primary); font-size: 13px; margin-left: 4px;">${currentPctStr}</span></span>
-                <span style="color: var(--text-muted); font-size: 13px; font-weight: bold;">${currentCal} kcal</span>
-            </div>
-        `;
+        
+        const goalDisplayText = document.getElementById('goal-display-text');
+        if (goalDisplayText) {
+            goalDisplayText.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap;">
+                        <span style="font-weight: 700; color: var(--text-main); font-size: 14px; white-space: nowrap;">${currentCfg.icon} ${currentCfg.name}</span>
+                        <span style="color: var(--accent-primary); font-size: 11px; font-weight: 600; white-space: nowrap; background: rgba(29, 209, 161, 0.12); padding: 2px 6px; border-radius: 6px;">${currentPctStr} (${currentDiffStr} kcal)</span>
+                    </div>
+                    <span style="color: var(--text-main); font-size: 14px; font-weight: 700; white-space: nowrap;">${currentCal} <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">kcal</span></span>
+                </div>
+            `;
+        }
 
         // Add click listeners to items
         const optionItems = goalOptionsContainer.querySelectorAll('.goal-option-item');
@@ -3671,7 +3686,7 @@ function renderGoalAdjustInputs() {
         const val = currentAdjs[cfg.id];
         const cal = Math.round(tdee * (1 + val / 100));
         const diff = Math.round(tdee * (val / 100));
-        const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+        const diffStr = diff > 0 ? `+${diff}` : (diff === 0 ? `±0` : `${diff}`);
         return `
             <div style="background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
@@ -3690,7 +3705,7 @@ function renderGoalAdjustInputs() {
                         <span style="font-size: 13px; font-weight: bold; color: var(--text-muted);">%</span>
                     </div>
                     <div id="goal-adj-preview-${cfg.id}" style="font-size: 12px; text-align: right; color: var(--accent-primary); font-weight: 600;">
-                        ${cal} kcal <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(${diffStr})</span>
+                        ${cal} kcal <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(${diffStr} kcal)</span>
                     </div>
                 </div>
             </div>
@@ -3705,8 +3720,8 @@ function updateGoalAdjustPreview(goalId, tdee) {
     const val = parseFloat(input.value) || 0;
     const cal = Math.round(tdee * (1 + val / 100));
     const diff = Math.round(tdee * (val / 100));
-    const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
-    preview.innerHTML = `${cal} kcal <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(${diffStr})</span>`;
+    const diffStr = diff > 0 ? `+${diff}` : (diff === 0 ? `±0` : `${diff}`);
+    preview.innerHTML = `${cal} kcal <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(${diffStr} kcal)</span>`;
 }
 
 function resetGoalAdjustments() {
