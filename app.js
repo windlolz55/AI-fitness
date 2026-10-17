@@ -3287,9 +3287,27 @@ function showInfo(type) {
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${displayCarb} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayCarb * 4} kcal)</span></p>
                 </div>
 
-                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 12px;">
+                <div style="margin-top: 14px; text-align: center;">
+                    <button type="button" onclick="showInfo('protein_guide')" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-shield-halved"></i> 查看蛋白質安全底線與 MPS 週期 →
+                    </button>
+                </div>
+            </div>
+        `;
+    } else if (type === 'protein_guide' || type === 'protein') {
+        const uWeight = userProfile.weight || 70;
+        const pro16 = Math.round(uWeight * 1.6);
+        const pro18 = Math.round(uWeight * 1.8);
+        const pro21 = Math.round(uWeight * 2.1);
+        const pro12 = Math.round(uWeight * 1.2);
+        const pro10 = Math.round(uWeight * 1.0);
+
+        title.innerHTML = '<i class="fa-solid fa-shield-halved" style="color: #38bdf8; margin-right: 8px;"></i>蛋白質底線與合成週期';
+        content.innerHTML = `
+            <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
+                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
                     <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>蛋白質安全底線表 (${uWeight} kg)</p>
-                    <p style="color: var(--text-muted); font-size: 11px; margin-bottom: 8px; line-height: 1.4;">放假、休息日或少吃一餐時，依此對照肌肉保護與生長狀態：</p>
+                    <p style="color: var(--text-muted); font-size: 11px; margin-bottom: 10px; line-height: 1.4;">放假、休息日或少吃一餐時，依此對照肌肉保護與生長狀態：</p>
                     
                     <div style="display: flex; flex-direction: column; gap: 6px;">
                         <div style="background: rgba(29, 209, 161, 0.08); border-left: 3px solid #1dd1a1; padding: 6px 10px; border-radius: 4px;">
@@ -3333,6 +3351,12 @@ function showInfo(type) {
                         <div>📉 <strong>24 ～ 36 小時</strong>：收尾緩降期 (+20%~30%)，仍高於平日基準線。</div>
                         <div>💤 <strong>36 ～ 48 小時</strong>：修復週期完成，回歸平日平靜基線。</div>
                     </div>
+                </div>
+
+                <div style="margin-top: 14px; text-align: center;">
+                    <button type="button" onclick="showInfo('macros')" style="background: transparent; border: 1px solid var(--card-border); color: var(--text-muted); font-size: 12px; padding: 8px 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-arrow-left"></i> 返回三大營養素說明
+                    </button>
                 </div>
             </div>
         `;

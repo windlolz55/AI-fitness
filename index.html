@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.141</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.142</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -128,33 +128,33 @@
                         <div style="position: absolute; right: 0; bottom: -20px; font-size: 13px; color: #8e8e93; cursor: pointer; display: flex; align-items: center;" onclick="showInfo('macros')">
                             <i class="fa-solid fa-circle-info"></i>
                         </div>
-                        <div style="display: flex; justify-content: space-between; gap: 12px; cursor: pointer;" onclick="showInfo('macros')">
+                        <div style="display: flex; justify-content: space-between; gap: 12px;">
                             <!-- Carbs -->
-                        <div style="flex: 1; text-align: center;">
-                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">碳水</div>
-                            <div style="background: rgba(251, 191, 36, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
-                                <div id="bar-carb" style="background: var(--carb-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
+                            <div style="flex: 1; text-align: center; cursor: pointer;" onclick="showInfo('macros')">
+                                <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">碳水</div>
+                                <div style="background: rgba(251, 191, 36, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
+                                    <div id="bar-carb" style="background: var(--carb-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
+                                </div>
+                                <div style="font-size: 12px; font-weight: bold; color: white;"><span id="val-carb">0</span><span style="font-size: 11px; color: #8e8e93; font-weight: 500; margin-left: 2px;">/<span id="tar-carb">200</span>g</span></div>
                             </div>
-                            <div style="font-size: 12px; font-weight: bold; color: white;"><span id="val-carb">0</span><span style="font-size: 11px; color: #8e8e93; font-weight: 500; margin-left: 2px;">/<span id="tar-carb">200</span>g</span></div>
-                        </div>
 
-                        <!-- Protein -->
-                        <div style="flex: 1; text-align: center;">
-                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">蛋白質</div>
-                            <div style="background: rgba(56, 189, 248, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
-                                <div id="bar-pro" style="background: var(--pro-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
+                            <!-- Protein -->
+                            <div style="flex: 1; text-align: center; cursor: pointer;" onclick="showInfo('protein_guide')">
+                                <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">蛋白質</div>
+                                <div style="background: rgba(56, 189, 248, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
+                                    <div id="bar-pro" style="background: var(--pro-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
+                                </div>
+                                <div style="font-size: 12px; font-weight: bold; color: white;"><span id="val-pro">0</span><span style="font-size: 11px; color: #8e8e93; font-weight: 500; margin-left: 2px;">/<span id="tar-pro">120</span>g</span></div>
                             </div>
-                            <div style="font-size: 12px; font-weight: bold; color: white;"><span id="val-pro">0</span><span style="font-size: 11px; color: #8e8e93; font-weight: 500; margin-left: 2px;">/<span id="tar-pro">120</span>g</span></div>
-                        </div>
-                        
-                        <!-- Fat -->
-                        <div style="flex: 1; text-align: center;">
-                            <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">脂肪</div>
-                            <div style="background: rgba(167, 139, 250, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
-                                <div id="bar-fat" style="background: var(--fat-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
+                            
+                            <!-- Fat -->
+                            <div style="flex: 1; text-align: center; cursor: pointer;" onclick="showInfo('macros')">
+                                <div style="font-size: 13px; color: white; margin-bottom: 8px; font-weight: 600;">脂肪</div>
+                                <div style="background: rgba(167, 139, 250, 0.2); height: 12px; border-radius: 6px; margin-bottom: 10px; position: relative; overflow: hidden;">
+                                    <div id="bar-fat" style="background: var(--fat-color); height: 100%; border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
+                                </div>
+                                <div style="font-size: 12px; font-weight: bold; color: white;"><span id="val-fat">0</span><span style="font-size: 11px; color: #8e8e93; font-weight: 500; margin-left: 2px;">/<span id="tar-fat">65</span>g</span></div>
                             </div>
-                            <div style="font-size: 12px; font-weight: bold; color: white;"><span id="val-fat">0</span><span style="font-size: 11px; color: #8e8e93; font-weight: 500; margin-left: 2px;">/<span id="tar-fat">65</span>g</span></div>
-                        </div>
                         </div>
                     </div>
                 </div>
@@ -490,7 +490,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.141 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.142 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -1135,12 +1135,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.141"></script>
-    <script src="food_db.js?v=3.141"></script>
-    <script src="templates.js?v=3.141"></script>
-    <script src="routine.js?v=3.141"></script>
-    <script src="app.js?v=3.141"></script>
-    <script src="scanner_live.js?v=3.141"></script>
+    <script src="exercise_db.js?v=3.142"></script>
+    <script src="food_db.js?v=3.142"></script>
+    <script src="templates.js?v=3.142"></script>
+    <script src="routine.js?v=3.142"></script>
+    <script src="app.js?v=3.142"></script>
+    <script src="scanner_live.js?v=3.142"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
