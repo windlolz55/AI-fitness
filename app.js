@@ -3253,6 +3253,13 @@ function showInfo(type) {
             `;
         }
 
+        const uWeight = userProfile.weight || 70;
+        const pro16 = Math.round(uWeight * 1.6);
+        const pro18 = Math.round(uWeight * 1.8);
+        const pro21 = Math.round(uWeight * 2.1);
+        const pro12 = Math.round(uWeight * 1.2);
+        const pro10 = Math.round(uWeight * 1.0);
+
         title.innerHTML = `
             <div style="display: flex; flex-direction: column;">
                 <div><i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明</div>
@@ -3278,6 +3285,54 @@ function showInfo(type) {
                     <p style="margin-bottom: 4px; font-size: 11px;">(${displayCals} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * <span style="color: var(--carb-color); font-weight: 600;">(${userProfile.weight ? (displayCarb / userProfile.weight).toFixed(1) : 0})</span></p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${displayCarb} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayCarb * 4} kcal)</span></p>
+                </div>
+
+                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 12px;">
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>蛋白質安全底線表 (${uWeight} kg)</p>
+                    <p style="color: var(--text-muted); font-size: 11px; margin-bottom: 8px; line-height: 1.4;">放假、休息日或少吃一餐時，依此對照肌肉保護與生長狀態：</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="background: rgba(29, 209, 161, 0.08); border-left: 3px solid #1dd1a1; padding: 6px 10px; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                <span style="font-weight: 600; color: #1dd1a1; font-size: 12px;">🟢 完美達標區 (1.8~2.1g)</span>
+                                <strong style="color: var(--text-main); font-size: 13px;">${pro18}g ~ ${pro21}g</strong>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">100% 滿分修復，肌肉合成最大化，飽足感極佳。</p>
+                        </div>
+
+                        <div style="background: rgba(251, 191, 36, 0.08); border-left: 3px solid #f59e0b; padding: 6px 10px; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                <span style="font-weight: 600; color: #f59e0b; font-size: 12px;">🟡 安全緩衝區 (1.6~1.8g) ★</span>
+                                <strong style="color: var(--text-main); font-size: 13px;">${pro16}g ~ ${pro18}g</strong>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">黃金及格線！只要達到 <strong>${pro16}g</strong>，肌肉完全不掉（約 90% 效果）。</p>
+                        </div>
+
+                        <div style="background: rgba(255, 159, 67, 0.08); border-left: 3px solid #ff9f43; padding: 6px 10px; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                <span style="font-weight: 600; color: #ff9f43; font-size: 12px;">🟠 微幅打折區 (1.2~1.5g)</span>
+                                <strong style="color: var(--text-main); font-size: 13px;">${pro12}g ~ ${pro16 - 1}g</strong>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">足夠基本機能不掉肉，但沒享受到昨天重訓增肌紅利，晚上較易餓。</p>
+                        </div>
+
+                        <div style="background: rgba(255, 107, 129, 0.08); border-left: 3px solid #ff6b81; padding: 6px 10px; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                <span style="font-weight: 600; color: #ff6b81; font-size: 12px;">🔴 肌肉流失警戒區 (&lt;1.0g)</span>
+                                <strong style="color: #ff6b81; font-size: 13px;">&lt; ${pro10}g</strong>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">赤字下可能開始分解肌肉當能量，代謝下降，務必用乳清或豆漿補足！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 12px;">
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 4px;"></i>練後肌肉合成（MPS）生理週期</p>
+                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                        <div>⚡ <strong>0 ～ 24 小時</strong>：最高峰期 (+50%~100%)，蛋白質吸收修復主力。</div>
+                        <div>📉 <strong>24 ～ 36 小時</strong>：收尾緩降期 (+20%~30%)，仍高於平日基準線。</div>
+                        <div>💤 <strong>36 ～ 48 小時</strong>：修復週期完成，回歸平日平靜基線。</div>
+                    </div>
                 </div>
             </div>
         `;
