@@ -663,6 +663,134 @@ function calculateTargets() {
 }
 
 // ========================
+// 碳循環 / 休息日計算 (Day Type Logic)
+// ========================
+function getDayType(dateStr) {
+    if (!dateStr) dateStr = getTodayDateStr();
+    if (dailyData[dateStr] && dailyData[dateStr].dayType) {
+        return dailyData[dateStr].dayType;
+    }
+    return 'training';
+}
+
+function getDayTargets(dateStr) {
+    if (!dateStr) dateStr = getTodayDateStr();
+    const type = getDayType(dateStr);
+    
+    // 預設為訓練日數值（遵從個人設定目標）
+    const baseCals = TARGET_CALS;
+    const basePro = TARGET_PRO;
+    const baseFat = TARGET_FAT;
+    const baseCarb = TARGET_CARB;
+
+    if (type !== 'rest') {
+        return {
+            type: 'training',
+            isRest: false,
+            cals: baseCals,
+            pro: basePro,
+            fat: baseFat,
+            carb: baseCarb
+        };
+    }
+
+    // 休息日公式：TDEE - 15%，蛋白質與脂肪維持不變以保護肌肉，扣減差額全由碳水化合物減少
+    const tdee = calcTDEE() || 2000;
+    let restCals = Math.round(tdee * 0.85);
+
+    // 最低安全熱量防護 (女性 1200 / 男性 1500)
+    const minCals = (userProfile && userProfile.gender === 'female') ? 1200 : 1500;
+    if (restCals < minCals) restCals = minCals;
+
+    const restPro = basePro;
+    const restFat = baseFat;
+    const remainingCals = restCals - (restPro * 4) - (restFat * 9);
+    const restCarb = Math.max(0, Math.round(remainingCals / 4));
+
+    return {
+        type: 'rest',
+        isRest: true,
+        cals: restCals,
+        pro: restPro,
+        fat: restFat,
+        carb: restCarb
+    };
+}
+
+function setDayType(type, targetDate) {
+    const d = targetDate || getTodayDateStr();
+    if (!dailyData[d]) {
+        dailyData[d] = { water: 0, weight: userProfile.weight || '' };
+    }
+    dailyData[d].dayType = type;
+    setAndSync('fitness_daily', JSON.stringify(dailyData));
+    if (typeof triggerAutoSync === 'function') triggerAutoSync();
+    
+    updateDashboard();
+    if (typeof renderLogs === 'function') renderLogs();
+    if (typeof renderDateStrip === 'function') renderDateStrip();
+    if (typeof renderOverview === 'function') renderOverview();
+}
+
+function toggleCurrentDayType() {
+    const current = getDayType(getTodayDateStr());
+    setDayType(current === 'rest' ? 'training' : 'rest', getTodayDateStr());
+}
+
+function toggleLogDayType() {
+    const current = getDayType(selectedLogDate);
+    setDayType(current === 'rest' ? 'training' : 'rest', selectedLogDate);
+}
+
+function updateDayTypeUI() {
+    const todayType = getDayType(getTodayDateStr());
+    const btnTraining = document.getElementById('btn-day-training');
+    const btnRest = document.getElementById('btn-day-rest');
+    const badge = document.getElementById('dashboard-daytype-badge');
+
+    if (btnTraining && btnRest) {
+        if (todayType === 'rest') {
+            btnTraining.style.background = 'transparent';
+            btnTraining.style.color = 'var(--text-muted)';
+            btnTraining.style.boxShadow = 'none';
+
+            btnRest.style.background = '#ff9f43';
+            btnRest.style.color = '#fff';
+            btnRest.style.boxShadow = '0 2px 8px rgba(255, 159, 67, 0.35)';
+        } else {
+            btnTraining.style.background = 'var(--accent-primary)';
+            btnTraining.style.color = '#fff';
+            btnTraining.style.boxShadow = '0 2px 8px rgba(29, 209, 161, 0.3)';
+
+            btnRest.style.background = 'transparent';
+            btnRest.style.color = 'var(--text-muted)';
+            btnRest.style.boxShadow = 'none';
+        }
+    }
+
+    if (badge) {
+        if (todayType === 'rest') {
+            badge.innerHTML = `<i class="fa-solid fa-bed"></i> 休息日 (TDEE-15%)`;
+            badge.style.background = 'rgba(255, 159, 67, 0.18)';
+            badge.style.color = '#ff9f43';
+            badge.title = '點擊切換為訓練日';
+        } else {
+            badge.innerHTML = `<i class="fa-solid fa-dumbbell"></i> 訓練日模式`;
+            badge.style.background = 'rgba(29, 209, 161, 0.15)';
+            badge.style.color = 'var(--accent-primary)';
+            badge.title = '點擊切換為休息日';
+        }
+    }
+}
+
+window.getDayType = getDayType;
+window.getDayTargets = getDayTargets;
+window.setDayType = setDayType;
+window.toggleCurrentDayType = toggleCurrentDayType;
+window.toggleLogDayType = toggleLogDayType;
+window.updateDayTypeUI = updateDayTypeUI;
+
+// ========================
 // Workout Logic
 // ========================
 
@@ -1906,7 +2034,9 @@ function updateDashboard() {
         }
     });
 
-    let remaining = TARGET_CALS - todayEaten;
+    const todayTargets = getDayTargets(getTodayDateStr());
+
+    let remaining = todayTargets.cals - todayEaten;
     if (remaining < 0) remaining = 0;
 
     document.getElementById('cal-eaten').innerText = Math.round(todayEaten);
@@ -1915,22 +2045,24 @@ function updateDashboard() {
     // Arc Math (half-circle circumference = 188.5)
     const arcFill = document.getElementById('cal-arc');
     if (arcFill) {
-        let percent = Math.min(todayEaten / TARGET_CALS, 1);
+        let percent = Math.min(todayEaten / todayTargets.cals, 1);
         arcFill.style.strokeDashoffset = 188.5 * percent;
     }
 
     // Macros Text
     document.getElementById('val-carb').innerText = Math.round(todayCarb * 10) / 10;
-    document.getElementById('tar-carb').innerText = TARGET_CARB;
+    document.getElementById('tar-carb').innerText = todayTargets.carb;
     document.getElementById('val-pro').innerText = Math.round(todayPro * 10) / 10;
-    document.getElementById('tar-pro').innerText = TARGET_PRO;
+    document.getElementById('tar-pro').innerText = todayTargets.pro;
     document.getElementById('val-fat').innerText = Math.round(todayFat * 10) / 10;
-    document.getElementById('tar-fat').innerText = TARGET_FAT;
+    document.getElementById('tar-fat').innerText = todayTargets.fat;
 
     // Macro Bars
-    document.getElementById('bar-carb').style.width = Math.min((todayCarb / TARGET_CARB) * 100, 100) + '%';
-    document.getElementById('bar-pro').style.width = Math.min((todayPro / TARGET_PRO) * 100, 100) + '%';
-    document.getElementById('bar-fat').style.width = Math.min((todayFat / TARGET_FAT) * 100, 100) + '%';
+    document.getElementById('bar-carb').style.width = Math.min((todayCarb / todayTargets.carb) * 100, 100) + '%';
+    document.getElementById('bar-pro').style.width = Math.min((todayPro / todayTargets.pro) * 100, 100) + '%';
+    document.getElementById('bar-fat').style.width = Math.min((todayFat / todayTargets.fat) * 100, 100) + '%';
+
+    updateDayTypeUI();
 }
 
 // Food DB Logic
@@ -3052,9 +3184,24 @@ function showInfo(type) {
             targetCalText += ` <br><span style="color:#ff6b6b; font-size:11px;">(已觸發最低安全熱量防護 ${minCals} kcal)</span>`;
         }
 
+        const activeDate = selectedLogDate || getTodayDateStr();
+        const activeDayTar = getDayTargets(activeDate);
+        let restSection = '';
+        if (activeDayTar.isRest) {
+            restSection = `
+                <div style="background: rgba(255, 159, 67, 0.12); border: 1px solid rgba(255, 159, 67, 0.3); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
+                    <p style="margin-bottom: 6px; color: #ff9f43; font-weight: 600;"><i class="fa-solid fa-bed"></i> 🛌 當前模式：休息日 (碳循環)</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">休息日依據 TDEE 扣除 15% 熱量赤字，蛋白質與脂肪維持不變以保護肌肉，差額全數從碳水化合物減少：</p>
+                    <p>${Math.round(tdee)} × 0.85 = <strong>${activeDayTar.cals} kcal</strong></p>
+                    ${activeDayTar.cals === minCals ? `<p style="color:#ff6b6b; font-size:11px; margin-top:2px;">(已觸發最低安全熱量防護 ${minCals} kcal)</p>` : ''}
+                </div>
+            `;
+        }
+
         title.innerHTML = '<i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標熱量說明';
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
+                ${restSection}
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
                     <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 1: 基礎代謝率 (BMR)</p>
                     <p style="color: var(--text-muted); margin-bottom: 4px;">維持生命所需的最低熱量消耗。使用 Mifflin-St Jeor 公式：</p>
@@ -3068,7 +3215,7 @@ function showInfo(type) {
                 </div>
 
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: 目標熱量</p>
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">STEP 3: 訓練日目標熱量</p>
                     <p style="color: var(--text-muted); margin-bottom: 4px;">根據目標調整總熱量：${goalText}</p>
                     <p>${targetCalText}</p>
                 </div>
@@ -3096,6 +3243,31 @@ function showInfo(type) {
         proMultiplier = cfg.defaultPro;
         if (userProfile.customProMultiplier) proMultiplier = userProfile.customProMultiplier;
 
+        const activeDate = selectedLogDate || getTodayDateStr();
+        const activeDayTar = getDayTargets(activeDate);
+        let restMacroNote = '';
+        let displayCals = TARGET_CALS;
+        let displayPro = TARGET_PRO;
+        let displayFat = TARGET_FAT;
+        let displayCarb = TARGET_CARB;
+
+        if (activeDayTar.isRest) {
+            displayCals = activeDayTar.cals;
+            displayPro = activeDayTar.pro;
+            displayFat = activeDayTar.fat;
+            displayCarb = activeDayTar.carb;
+            const carbDiff = TARGET_CARB - activeDayTar.carb;
+            restMacroNote = `
+                <div style="background: rgba(255, 159, 67, 0.12); border: 1px solid rgba(255, 159, 67, 0.3); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 12px;">
+                    <span style="color: #ff9f43; font-weight: 600;"><i class="fa-solid fa-bed"></i> 休息日碳循環生效中</span>
+                    <p style="color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+                        總熱量降至 <strong>${activeDayTar.cals} kcal</strong> (TDEE − 15%)。<br>
+                        蛋白質與脂肪維持不變，減少的熱量全數由碳水化合物扣除（碳水減少約 <strong>${carbDiff}g</strong>）。
+                    </p>
+                </div>
+            `;
+        }
+
         title.innerHTML = `
             <div style="display: flex; flex-direction: column;">
                 <div><i class="fa-solid fa-calculator" style="color: var(--accent-primary); margin-right: 8px;"></i>目標營養素說明</div>
@@ -3104,22 +3276,23 @@ function showInfo(type) {
         `;
         content.innerHTML = `
             <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
+                ${restMacroNote}
                 <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
                     <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
                     <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準計算蛋白質與脂肪，並用碳水填滿剩餘熱量。</p>
                     
                     <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}</p>
-                    <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${TARGET_PRO} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_PRO * 4} kcal)</span></p>
+                    <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${displayPro} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayPro * 4} kcal)</span></p>
                     
                     <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 9 kcal)</span></p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${fatMultiplier}</p>
-                    <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${TARGET_FAT} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_FAT * 9} kcal)</span></p>
+                    <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${displayFat} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayFat * 9} kcal)</span></p>
                     
                     <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
-                    <p style="margin-bottom: 4px; font-size: 11px;">(${TARGET_CALS} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
-                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * <span style="color: var(--carb-color); font-weight: 600;">(${(TARGET_CARB / userProfile.weight).toFixed(1)})</span></p>
-                    <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${TARGET_CARB} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${TARGET_CARB * 4} kcal)</span></p>
+                    <p style="margin-bottom: 4px; font-size: 11px;">(${displayCals} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
+                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * <span style="color: var(--carb-color); font-weight: 600;">(${userProfile.weight ? (displayCarb / userProfile.weight).toFixed(1) : 0})</span></p>
+                    <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${displayCarb} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayCarb * 4} kcal)</span></p>
                 </div>
             </div>
         `;
@@ -3141,7 +3314,8 @@ function getDayStatus(dateStr) {
     if (dayLogs.length === 0) return 'none';
     const dayCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
     if (dayCals === 0) return 'none';
-    const ratio = dayCals / TARGET_CALS;
+    const dayTar = getDayTargets(dateStr);
+    const ratio = dayTar.cals > 0 ? (dayCals / dayTar.cals) : 0;
     if (ratio >= 0.90 && ratio <= 1.10) return 'ok';
     if (ratio > 1.15) return 'severe_over';
     if (ratio > 1.10) return 'over';
@@ -3255,6 +3429,7 @@ function renderLogs() {
 
 
 
+    const curDayTargets = getDayTargets(selectedLogDate);
     const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === selectedLogDate);
     const dayTotalCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
     const summaryText = document.getElementById('logs-summary-text');
@@ -3262,11 +3437,26 @@ function renderLogs() {
     const isToday = (selectedLogDate === getTodayDateStr());
     
     if (summaryText) {
-        summaryText.innerHTML = `總攝取：${dayTotalCals.toLocaleString()} <span style="font-size:12px;font-weight:normal;color:var(--text-muted);">/ ${TARGET_CALS.toLocaleString()} kcal</span>`;
+        summaryText.innerHTML = `總攝取：${dayTotalCals.toLocaleString()} <span style="font-size:12px;font-weight:normal;color:var(--text-muted);">/ ${curDayTargets.cals.toLocaleString()} kcal</span>`;
+    }
+
+    const logDayTag = document.getElementById('log-daytype-tag');
+    if (logDayTag) {
+        if (curDayTargets.isRest) {
+            logDayTag.innerHTML = `🛌 休息日 <i class="fa-solid fa-arrows-rotate" style="font-size:10px;opacity:0.7;"></i>`;
+            logDayTag.style.background = 'rgba(255, 159, 67, 0.18)';
+            logDayTag.style.color = '#ff9f43';
+            logDayTag.title = '點擊切換為訓練日';
+        } else {
+            logDayTag.innerHTML = `🏋️ 訓練日 <i class="fa-solid fa-arrows-rotate" style="font-size:10px;opacity:0.7;"></i>`;
+            logDayTag.style.background = 'rgba(29, 209, 161, 0.15)';
+            logDayTag.style.color = 'var(--accent-primary)';
+            logDayTag.title = '點擊切換為休息日';
+        }
     }
     
     if (statusBadge) {
-        const ratio = TARGET_CALS > 0 ? (dayTotalCals / TARGET_CALS) : 0;
+        const ratio = curDayTargets.cals > 0 ? (dayTotalCals / curDayTargets.cals) : 0;
         if (dayLogs.length === 0) {
             statusBadge.style.background = 'rgba(128,128,128,0.1)';
             statusBadge.style.color = 'var(--text-muted)';
@@ -3276,12 +3466,12 @@ function renderLogs() {
             statusBadge.style.color = 'var(--accent-primary)';
             statusBadge.innerHTML = `<i class="fa-solid fa-circle-check" style="font-size:12px;"></i> <span>${isToday ? '今日已達標' : '已達標'}</span>`;
         } else if (ratio < 0.90) {
-            const diff = TARGET_CALS - dayTotalCals;
+            const diff = curDayTargets.cals - dayTotalCals;
             statusBadge.style.background = 'rgba(251, 191, 36, 0.15)';
             statusBadge.style.color = '#f59e0b';
             statusBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size:12px;"></i> <span>${isToday ? '熱量未達標' : '未達標'} (-${diff}k)</span>`;
         } else {
-            const diff = dayTotalCals - TARGET_CALS;
+            const diff = dayTotalCals - curDayTargets.cals;
             statusBadge.style.background = 'rgba(255, 107, 129, 0.15)';
             statusBadge.style.color = '#ff6b81';
             statusBadge.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="font-size:12px;"></i> <span>${isToday ? '熱量已超標' : '已超標'} (+${diff}k)</span>`;
@@ -3405,9 +3595,9 @@ function renderLogs() {
                 
             let suggestStr = '';
             if(meal === 'breakfast' || meal === 'dinner') {
-                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.25)} - ${Math.round(TARGET_CALS * 0.35)} kcal`;
+                suggestStr = `建議 ${Math.round(curDayTargets.cals * 0.25)} - ${Math.round(curDayTargets.cals * 0.35)} kcal`;
             } else if(meal === 'lunch') {
-                suggestStr = `建議 ${Math.round(TARGET_CALS * 0.35)} - ${Math.round(TARGET_CALS * 0.45)} kcal`;
+                suggestStr = `建議 ${Math.round(curDayTargets.cals * 0.35)} - ${Math.round(curDayTargets.cals * 0.45)} kcal`;
             }
             
             html += `
@@ -4059,6 +4249,7 @@ function renderOverview() {
         weeklyNutrition.push({
             label: dayLabelsShort[i],
             date: `${d.getMonth()+1}/${d.getDate()}`,
+            fullDate: dStr,
             isFuture,
             hasData: dayCals > 0,
             cals: Math.round(dayCals), pro: Math.round(dayPro),
@@ -4285,10 +4476,11 @@ function renderOverview() {
                 </div>`;
                 return;
             }
-            const calPct = Math.min(day.cals / TARGET_CALS, 1.2);
-            const proPct = Math.min(day.pro / TARGET_PRO, 1.2);
-            const carbPct = Math.min(day.carb / TARGET_CARB, 1.2);
-            const fatPct = Math.min(day.fat / TARGET_FAT, 1.2);
+            const dayTar = getDayTargets(day.fullDate || getTodayDateStr());
+            const calPct = Math.min(day.cals / dayTar.cals, 1.2);
+            const proPct = Math.min(day.pro / dayTar.pro, 1.2);
+            const carbPct = Math.min(day.carb / dayTar.carb, 1.2);
+            const fatPct = Math.min(day.fat / dayTar.fat, 1.2);
 
             const getStatusColor = (val, target) => {
                 if (!target || target <= 0) return '#E5E7EB';
@@ -4300,41 +4492,42 @@ function renderOverview() {
                 return '#f6e58d';
             };
 
-            const calColor = getStatusColor(day.cals, TARGET_CALS);
-            const carbColor = getStatusColor(day.carb, TARGET_CARB);
-            const proColor = getStatusColor(day.pro, TARGET_PRO);
-            const fatColor = getStatusColor(day.fat, TARGET_FAT);
+            const calColor = getStatusColor(day.cals, dayTar.cals);
+            const carbColor = getStatusColor(day.carb, dayTar.carb);
+            const proColor = getStatusColor(day.pro, dayTar.pro);
+            const fatColor = getStatusColor(day.fat, dayTar.fat);
 
             const bar = (pct, color) => `<div style="flex:1;height:5px;background:rgba(128,128,128,0.15);border-radius:4px;overflow:hidden;">
                 <div style="height:100%;width:${Math.min(Math.round(pct*100), 100)}%;background:${color};border-radius:4px;transition:width .3s;"></div>
             </div>`;
+            const restBadge = dayTar.isRest ? '<span style="font-size:9px;background:rgba(255,159,67,0.18);color:#ff9f43;padding:1px 5px;border-radius:4px;font-weight:600;margin-left:4px;">休</span>' : '';
             rows += `<div style="padding:8px 0;border-bottom:1px solid var(--card-border);">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
                     <span style="width:28px;font-size:12px;font-weight:700;">${day.label}</span>
-                    <span style="font-size:11px;color:var(--text-muted);">${day.date}</span>
+                    <span style="font-size:11px;color:var(--text-muted);">${day.date}${restBadge}</span>
                     <span style="margin-left:auto;font-size:12px;font-weight:600;color:${calColor};">${day.cals} kcal</span>
-                    <span style="font-size:10px;color:#6B7280;">/ ${TARGET_CALS}</span>
+                    <span style="font-size:10px;color:#6B7280;">/ ${dayTar.cals}</span>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:3px;">
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">碳</span>
                         ${bar(carbPct, 'var(--carb-color)')}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
-                            <strong style="color:${carbColor};">${day.carb}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_CARB}g</span>
+                            <strong style="color:${carbColor};">${day.carb}g</strong><span style="font-size:9px;color:#6B7280;"> / ${dayTar.carb}g</span>
                         </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">蛋</span>
                         ${bar(proPct, 'var(--pro-color)')}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
-                            <strong style="color:${proColor};">${day.pro}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_PRO}g</span>
+                            <strong style="color:${proColor};">${day.pro}g</strong><span style="font-size:9px;color:#6B7280;"> / ${dayTar.pro}g</span>
                         </span>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;">
                         <span style="font-size:10px;color:var(--text-muted);width:14px;">脂</span>
                         ${bar(fatPct, 'var(--fat-color)')}
                         <span style="font-size:10px;min-width:76px;text-align:right;white-space:nowrap;">
-                            <strong style="color:${fatColor};">${day.fat}g</strong><span style="font-size:9px;color:#6B7280;"> / ${TARGET_FAT}g</span>
+                            <strong style="color:${fatColor};">${day.fat}g</strong><span style="font-size:9px;color:#6B7280;"> / ${dayTar.fat}g</span>
                         </span>
                     </div>
                 </div>

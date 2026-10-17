@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.138</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.139</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -69,9 +69,19 @@
             <!-- Dashboard View -->
         <div id="view-dashboard" class="view active">
             <header class="dashboard-header">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px; flex-wrap: wrap;">
                     <p id="date-display" style="font-size: 14px; color: var(--text-muted); margin: 0; padding-left: 8px; font-weight: 500;">載入中...</p>
-                    <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div id="day-type-switch" style="display: inline-flex; background: #2c2c2e; padding: 2px; border-radius: 12px; border: 1px solid var(--card-border);">
+                            <button type="button" id="btn-day-training" onclick="setDayType('training')" style="border: none; background: var(--accent-primary); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease;">
+                                🏋️ 訓練日
+                            </button>
+                            <button type="button" id="btn-day-rest" onclick="setDayType('rest')" style="border: none; background: transparent; color: var(--text-muted); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease;">
+                                🛌 休息日
+                            </button>
+                        </div>
+                        <button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 6px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button>
+                    </div>
                 </div>
                 
                 <!-- Hero Dashboard Card -->
@@ -98,6 +108,7 @@
                             </svg>
                             <div id="cal-remaining" style="position: relative; z-index: 10; font-size: 34px; font-weight: 800; color: white; line-height: 1; margin-bottom: 2px;">0</div>
                             <div style="position: relative; z-index: 10; font-size: 13px; font-weight: 500; color: #8e8e93; display: flex; align-items: center; cursor: pointer;" onclick="showInfo('cals')">剩餘 kcal <i class="fa-solid fa-circle-info" style="margin-left: 4px; font-size: 11px;"></i></div>
+                            <div id="dashboard-daytype-badge" style="position: relative; z-index: 10; font-size: 10px; margin-top: 4px; padding: 2px 8px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap;" onclick="toggleCurrentDayType()"></div>
                         </div>
 
                         <!-- Right: Burned -->
@@ -235,7 +246,10 @@
 
             <!-- Logs Status / Achievement Header Bar -->
             <div id="logs-header-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; min-height: 32px; gap: 8px;">
-                <span id="logs-summary-text" style="font-weight: bold; color: var(--text-main); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">總攝取：0 / 2,000 kcal</span>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span id="logs-summary-text" style="font-weight: bold; color: var(--text-main); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">總攝取：0 / 2,000 kcal</span>
+                    <button type="button" id="log-daytype-tag" onclick="toggleLogDayType()" style="border: none; border-radius: 8px; font-size: 11px; font-weight: 600; padding: 3px 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;"></button>
+                </div>
                 <div id="logs-status-badge" style="background: rgba(29, 209, 161, 0.15); color: var(--accent-primary); border-radius: 12px; font-size: 12px; padding: 6px 12px; display: inline-flex; gap: 6px; align-items: center; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
                     <i class="fa-regular fa-circle" style="font-size: 12px;"></i> <span>今日尚未記錄</span>
                 </div>
@@ -477,7 +491,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.138 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.139 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -1122,12 +1136,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.138"></script>
-    <script src="food_db.js?v=3.138"></script>
-    <script src="templates.js?v=3.138"></script>
-    <script src="routine.js?v=3.138"></script>
-    <script src="app.js?v=3.138"></script>
-    <script src="scanner_live.js?v=3.138"></script>
+    <script src="exercise_db.js?v=3.139"></script>
+    <script src="food_db.js?v=3.139"></script>
+    <script src="templates.js?v=3.139"></script>
+    <script src="routine.js?v=3.139"></script>
+    <script src="app.js?v=3.139"></script>
+    <script src="scanner_live.js?v=3.139"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
