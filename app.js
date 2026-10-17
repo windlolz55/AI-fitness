@@ -746,7 +746,6 @@ function updateDayTypeUI() {
     const todayType = getDayType(getTodayDateStr());
     const btnTraining = document.getElementById('btn-day-training');
     const btnRest = document.getElementById('btn-day-rest');
-    const badge = document.getElementById('dashboard-daytype-badge');
 
     if (btnTraining && btnRest) {
         if (todayType === 'rest') {
@@ -765,20 +764,6 @@ function updateDayTypeUI() {
             btnRest.style.background = 'transparent';
             btnRest.style.color = 'var(--text-muted)';
             btnRest.style.boxShadow = 'none';
-        }
-    }
-
-    if (badge) {
-        if (todayType === 'rest') {
-            badge.innerHTML = `<i class="fa-solid fa-bed"></i> 休息日 (TDEE-15%)`;
-            badge.style.background = 'rgba(255, 159, 67, 0.18)';
-            badge.style.color = '#ff9f43';
-            badge.title = '點擊切換為訓練日';
-        } else {
-            badge.innerHTML = `<i class="fa-solid fa-dumbbell"></i> 訓練日模式`;
-            badge.style.background = 'rgba(29, 209, 161, 0.15)';
-            badge.style.color = 'var(--accent-primary)';
-            badge.title = '點擊切換為休息日';
         }
     }
 }
