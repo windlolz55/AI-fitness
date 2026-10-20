@@ -670,6 +670,17 @@ function getDayType(dateStr) {
     if (dailyData[dateStr] && dailyData[dateStr].dayType) {
         return dailyData[dateStr].dayType;
     }
+    // 若當天有實際訓練動作紀錄，優先視為訓練日
+    if (dailyData[dateStr] && Array.isArray(dailyData[dateStr].workouts) && dailyData[dateStr].workouts.length > 0) {
+        return 'training';
+    }
+    // 否則遵從分化訓練課表的排程判定
+    if (typeof getTodayRoutineInfo === 'function') {
+        const routineInfo = getTodayRoutineInfo(dateStr);
+        if (routineInfo && routineInfo.isRestDay) {
+            return 'rest';
+        }
+    }
     return 'training';
 }
 
@@ -989,6 +1000,10 @@ function renderWorkout() {
     const container = document.getElementById('workout-list-container');
     if (!container) return;
 
+    if (typeof checkAndAutoApplyRoutine === 'function') {
+        checkAndAutoApplyRoutine(selectedLogDate);
+    }
+
     const d = new Date(selectedLogDate);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
@@ -1304,6 +1319,7 @@ function confirmWorkoutEdit() {
     if (!dailyData[selectedLogDate].workouts) {
         dailyData[selectedLogDate].workouts = [];
     }
+    dailyData[selectedLogDate].manualCleared = false;
     
     let workouts = dailyData[selectedLogDate].workouts;
     const existingIdx = workouts.findIndex(w => w.name === name);
@@ -3696,8 +3712,10 @@ const btnClearWorkout = document.getElementById('btn-clear-workout');
 if (btnClearWorkout) {
     btnClearWorkout.addEventListener('click', () => {
         if(confirm('確定要清空今天的運動紀錄嗎？')) {
-            if (dailyData[selectedLogDate] && dailyData[selectedLogDate].workouts) {
+            if (dailyData[selectedLogDate]) {
                 dailyData[selectedLogDate].workouts = [];
+                dailyData[selectedLogDate].routineName = '';
+                dailyData[selectedLogDate].manualCleared = true;
                 setAndSync('fitness_daily', JSON.stringify(dailyData));
                 renderWorkout();
                 if (typeof updateDashboard === 'function') updateDashboard();

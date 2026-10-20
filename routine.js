@@ -32,6 +32,20 @@ window.closeRoutinePlanManager = function() {
     });
 };
 
+function getAutoApplyCheckboxHtml(isChecked) {
+    return `
+        <div style="margin-top: 16px; padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="const cb = document.getElementById('routine-auto-apply'); if (cb && event.target !== cb) { cb.checked = !cb.checked; }">
+            <div>
+                <div style="font-weight: 600; font-size: 14px; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-bolt" style="color: var(--accent-primary);"></i> 每日自動帶入課表
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">每天進入運動分頁時，自動填入當日課表，不用手動點選</div>
+            </div>
+            <input type="checkbox" id="routine-auto-apply" ${isChecked ? 'checked' : ''} style="width: 22px; height: 22px; accent-color: var(--accent-primary); cursor: pointer;">
+        </div>
+    `;
+}
+
 function getTemplateOptionsHtml(selectedValue) {
     let options = `<option value="">-- 請選擇範本 --</option>`;
     if (window.FITNESS_TEMPLATES) {
@@ -47,6 +61,7 @@ window.renderRoutinePlanSetup = function() {
     const mode = document.getElementById('routine-plan-mode').value;
     const container = document.getElementById('routine-plan-setup-container');
     const schedule = fitnessRoutinePlan.schedule || {};
+    const autoApply = fitnessRoutinePlan.autoApply !== false;
     
     let html = '';
     
@@ -61,9 +76,10 @@ window.renderRoutinePlanSetup = function() {
                 <h3 style="margin-bottom: 8px; color: var(--accent-primary);">全身訓練 (週一、三、五)</h3>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">適合新手，高頻率刺激全身肌肉，週二、四、六、日固定休息。</p>
                 <label style="font-size: 12px; color: var(--text-muted);">選擇全身課表範本</label>
-                <select id="routine-tpl-1" class="input-field">
+                <select id="routine-tpl-1" class="input-field" style="margin-bottom: 8px;">
                     ${getTemplateOptionsHtml(schedule['1'])}
                 </select>
+                ${getAutoApplyCheckboxHtml(autoApply)}
             </div>
         `;
     }
@@ -80,12 +96,13 @@ window.renderRoutinePlanSetup = function() {
                     </select>
                 </div>
                 
-                <div>
+                <div style="margin-bottom: 8px;">
                     <label style="font-size: 12px; color: var(--text-muted);">訓練 B (週二、週五)</label>
                     <select id="routine-tpl-B" class="input-field">
                         ${getTemplateOptionsHtml(schedule['B'])}
                     </select>
                 </div>
+                ${getAutoApplyCheckboxHtml(autoApply)}
             </div>
         `;
     }
@@ -121,16 +138,17 @@ window.renderRoutinePlanSetup = function() {
                     </select>
                 </div>
                 
-                <div>
+                <div style="margin-bottom: 16px;">
                     <label style="font-size: 12px; color: var(--text-muted);">第 3 天 (例如：腿部)</label>
                     <select id="routine-tpl-3" class="input-field">
                         ${getTemplateOptionsHtml(schedule['3'])}
                     </select>
                 </div>
                 
-                <div style="margin-top: 16px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 14px;">
+                <div style="margin-top: 16px; margin-bottom: 8px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 14px;">
                     第 4 天：固定休息 🎉
                 </div>
+                ${getAutoApplyCheckboxHtml(autoApply)}
             </div>
         `;
     }
@@ -142,6 +160,11 @@ window.saveRoutinePlan = function() {
     const mode = document.getElementById('routine-plan-mode').value;
     const schedule = {};
     let cycleStartDate = null;
+    let autoApply = true;
+    const autoApplyEl = document.getElementById('routine-auto-apply');
+    if (autoApplyEl) {
+        autoApply = autoApplyEl.checked;
+    }
     
     if (mode === 'non-split') {
         const val = document.getElementById('routine-tpl-1').value;
@@ -170,11 +193,20 @@ window.saveRoutinePlan = function() {
     fitnessRoutinePlan = {
         mode: mode,
         schedule: schedule,
-        cycleStartDate: cycleStartDate
+        cycleStartDate: cycleStartDate,
+        autoApply: autoApply
     };
     
     if (typeof setAndSync === 'function') {
         setAndSync('fitness_routine_plan', JSON.stringify(fitnessRoutinePlan));
+    }
+
+    // 若啟用自動套入，且當前所選日期無紀錄且非休息日，立即自動帶入
+    if (autoApply && typeof checkAndAutoApplyRoutine === 'function') {
+        const curDate = (typeof selectedLogDate !== 'undefined') ? selectedLogDate : (typeof getTodayDateStr === 'function' ? getTodayDateStr() : '');
+        if (curDate) {
+            checkAndAutoApplyRoutine(curDate);
+        }
     }
     
     alert('分化訓練計畫儲存成功！');
@@ -183,12 +215,21 @@ window.saveRoutinePlan = function() {
     if (typeof renderWorkout === 'function') {
         renderWorkout();
     }
+    if (typeof updateDashboard === 'function') {
+        updateDashboard();
+    }
 };
 
 window.getTodayRoutineInfo = function(targetDateStr) {
     if (!fitnessRoutinePlan || fitnessRoutinePlan.mode === 'none') return null;
     
-    const d = new Date(targetDateStr);
+    let d;
+    if (typeof targetDateStr === 'string' && targetDateStr.includes('-')) {
+        const parts = targetDateStr.split('-');
+        d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    } else {
+        d = new Date(targetDateStr);
+    }
     const dayOfWeek = d.getDay();
     const mode = fitnessRoutinePlan.mode;
     const schedule = fitnessRoutinePlan.schedule || {};
@@ -210,13 +251,19 @@ window.getTodayRoutineInfo = function(targetDateStr) {
     else if (mode === 'three-split') {
         if (!fitnessRoutinePlan.cycleStartDate) return null;
         
-        const start = new Date(fitnessRoutinePlan.cycleStartDate);
+        let start;
+        if (typeof fitnessRoutinePlan.cycleStartDate === 'string' && fitnessRoutinePlan.cycleStartDate.includes('-')) {
+            const sp = fitnessRoutinePlan.cycleStartDate.split('-');
+            start = new Date(parseInt(sp[0], 10), parseInt(sp[1], 10) - 1, parseInt(sp[2], 10));
+        } else {
+            start = new Date(fitnessRoutinePlan.cycleStartDate);
+        }
         start.setHours(0,0,0,0);
-        const current = new Date(targetDateStr);
+        const current = new Date(d);
         current.setHours(0,0,0,0);
         
-        const diffTime = current - start;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        const diffTime = current.getTime() - start.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
         
         if (diffDays < 0) {
             return null;
@@ -229,7 +276,7 @@ window.getTodayRoutineInfo = function(targetDateStr) {
         }
     }
     
-    if (templateIdx !== null && window.FITNESS_TEMPLATES && window.FITNESS_TEMPLATES[templateIdx]) {
+    if (templateIdx !== null && templateIdx !== '' && window.FITNESS_TEMPLATES && window.FITNESS_TEMPLATES[templateIdx]) {
         return {
             idx: templateIdx,
             template: window.FITNESS_TEMPLATES[templateIdx],
@@ -238,4 +285,66 @@ window.getTodayRoutineInfo = function(targetDateStr) {
     }
     
     return { isRestDay: true };
+};
+
+window.checkAndAutoApplyRoutine = function(targetDateStr) {
+    if (!targetDateStr) {
+        targetDateStr = (typeof getTodayDateStr === 'function') ? getTodayDateStr() : new Date().toISOString().split('T')[0];
+    }
+    if (!fitnessRoutinePlan || fitnessRoutinePlan.mode === 'none') {
+        return false;
+    }
+    if (fitnessRoutinePlan.autoApply === false) {
+        return false;
+    }
+
+    const dayEntry = (typeof dailyData !== 'undefined') ? dailyData[targetDateStr] : null;
+    // 使用者主動清空過，不重複自動帶入
+    if (dayEntry && dayEntry.manualCleared) {
+        return false;
+    }
+    // 已經有動作紀錄，不覆蓋
+    if (dayEntry && Array.isArray(dayEntry.workouts) && dayEntry.workouts.length > 0) {
+        return false;
+    }
+
+    const info = getTodayRoutineInfo(targetDateStr);
+    if (!info || info.isRestDay || !info.template || !Array.isArray(info.template.exercises) || info.template.exercises.length === 0) {
+        return false;
+    }
+
+    if (typeof dailyData !== 'undefined') {
+        if (!dailyData[targetDateStr]) {
+            const defaultWeight = (typeof userProfile !== 'undefined' && userProfile && userProfile.weight) ? userProfile.weight : 70;
+            dailyData[targetDateStr] = { water: 0, weight: defaultWeight, burned: 0, burnedTime: 0 };
+        }
+        if (!dailyData[targetDateStr].workouts) {
+            dailyData[targetDateStr].workouts = [];
+        }
+
+        dailyData[targetDateStr].routineName = info.template.title;
+        dailyData[targetDateStr].manualCleared = false;
+
+        const newWorkouts = [];
+        info.template.exercises.forEach(ex => {
+            newWorkouts.push({
+                name: ex.name,
+                type: ex.type || 'weight',
+                weight: ex.weight || 0,
+                sets: ex.sets || 0,
+                reps: ex.reps || '',
+                completed: false
+            });
+        });
+        dailyData[targetDateStr].workouts = newWorkouts;
+
+        if (typeof setAndSync === 'function') {
+            setAndSync('fitness_daily', JSON.stringify(dailyData));
+        } else {
+            localStorage.setItem('fitness_daily', JSON.stringify(dailyData));
+        }
+        return true;
+    }
+
+    return false;
 };

@@ -63,6 +63,7 @@ window.applyTemplate = function(idx) {
         if (!dailyData[selectedLogDate].workouts) {
             dailyData[selectedLogDate].workouts = [];
         }
+        dailyData[selectedLogDate].manualCleared = false;
         
         dailyData[selectedLogDate].routineName = tpl.title;
         
@@ -391,6 +392,7 @@ function addExerciseAction(ex) {
             if (!dailyData[selectedLogDate].workouts) {
                 dailyData[selectedLogDate].workouts = [];
             }
+            dailyData[selectedLogDate].manualCleared = false;
             
             const existing = dailyData[selectedLogDate].workouts.find(w => w.name === ex.name);
             if (!existing) {
