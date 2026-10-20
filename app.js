@@ -1028,9 +1028,8 @@ function renderWorkout() {
 
     // ── Empty state ──────────────────────────────────────────────────────────
     if (loggedWorkouts.length === 0) {
-        const toggleBtn = document.getElementById('btn-prev-note-toggle');
-        if (toggleBtn) toggleBtn.style.display = 'none';
-
+        // 注意：不在這裡強制隱藏 btn-prev-note-toggle，
+        // renderPrevNoteAlert（已在上方呼叫）負責控制它的顯示狀態
         container.innerHTML = buildEmptyStateHTML(selectedLogDate);
         const wrapper = document.getElementById('workout-header-wrapper');
         if (wrapper) wrapper.style.display = 'none';
