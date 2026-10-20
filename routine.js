@@ -472,26 +472,51 @@ window.getPreviousRoutineNote = function(targetDateStr) {
         }
     }
 
-    // 若歷史上沒有執行過這個課表，返回 null
+    // 若歷史上沒有執行過這個課表
     if (!lastMatchingDateStr) {
-        return null;
+        return {
+            hasMatch: false,
+            hasNote: false,
+            date: null,
+            formattedDate: '',
+            routineName: currentRoutineName,
+            note: ''
+        };
     }
 
-    // 4. 只檢查「這最近一次執行日」是否有寫註記
+    // 4. 檢查「這最近一次執行日」是否有寫註記
     const lastEntry = dailyData[lastMatchingDateStr];
+    let displayRoutineName = lastEntry?.routineName || currentRoutineName;
+    const formatted = formatPrevNoteDate(lastMatchingDateStr);
+
     if (!lastEntry || !lastEntry.workoutNote || !lastEntry.workoutNote.trim()) {
-        return null; // 上次課表沒寫註記 -> 不提醒
+        return {
+            hasMatch: true,
+            hasNote: false,
+            date: lastMatchingDateStr,
+            formattedDate: formatted,
+            routineName: displayRoutineName,
+            note: ''
+        };
     }
 
     const lastWorkouts = lastEntry.workouts || [];
     if (!hasMeaningfulWorkoutNote(lastEntry.workoutNote, lastWorkouts)) {
-        return null; // 只有空模板，不算有寫註記
+        return {
+            hasMatch: true,
+            hasNote: false,
+            date: lastMatchingDateStr,
+            formattedDate: formatted,
+            routineName: displayRoutineName,
+            note: ''
+        };
     }
 
-    let displayRoutineName = lastEntry.routineName || currentRoutineName;
     return {
+        hasMatch: true,
+        hasNote: true,
         date: lastMatchingDateStr,
-        formattedDate: formatPrevNoteDate(lastMatchingDateStr),
+        formattedDate: formatted,
         routineName: displayRoutineName,
         note: lastEntry.workoutNote.trim()
     };
@@ -501,23 +526,36 @@ window.renderPrevNoteAlert = function(targetDateStr) {
     const toggleBtn = document.getElementById('btn-prev-note-toggle');
     if (!toggleBtn) return;
 
-    const prevInfo = getPreviousRoutineNote(targetDateStr);
-    if (!prevInfo) {
-        toggleBtn.style.display = 'none';
-        return;
-    }
-
-    // 上次有註記：按鈕顯示並高亮！
+    // 不論如何都常駐顯示「上次註記」按鈕
     toggleBtn.style.display = 'inline-flex';
-    toggleBtn.innerHTML = `<i class="fa-solid fa-lightbulb" style="color: #fff;"></i> 上次註記`;
-    toggleBtn.setAttribute('data-prev-date', prevInfo.date);
+
+    const prevInfo = getPreviousRoutineNote(targetDateStr);
+    if (prevInfo && prevInfo.hasNote) {
+        // 上次有註記：高亮提醒 + 燈泡亮起 + 呼吸燈動畫
+        toggleBtn.className = 'prev-note-btn has-note';
+        toggleBtn.innerHTML = `<i class="fa-solid fa-lightbulb" style="color: #fff;"></i> 上次註記`;
+        toggleBtn.title = `上次 (${prevInfo.formattedDate}) 有運動註記，點擊查看`;
+        toggleBtn.setAttribute('data-prev-date', prevInfo.date);
+    } else {
+        // 上次無註記：一般樣式，不發光
+        toggleBtn.className = 'prev-note-btn';
+        toggleBtn.innerHTML = `<i class="fa-regular fa-note-sticky"></i> 上次註記`;
+        toggleBtn.title = prevInfo && prevInfo.hasMatch ? `上次執行此課表 (${prevInfo.formattedDate}) 未填寫註記` : '上次註記';
+        toggleBtn.removeAttribute('data-prev-date');
+    }
 };
 
 window.openPrevNoteModal = function() {
     const curDate = (typeof selectedLogDate !== 'undefined') ? selectedLogDate : (typeof getTodayDateStr === 'function' ? getTodayDateStr() : '');
     const prevInfo = getPreviousRoutineNote(curDate);
-    if (!prevInfo) {
-        alert('上一次此課表沒有紀錄註記');
+
+    if (!prevInfo || !prevInfo.hasMatch) {
+        alert('歷史紀錄中尚未執行過此課表');
+        return;
+    }
+
+    if (!prevInfo.hasNote) {
+        alert(`上次執行此課表（${prevInfo.formattedDate}）未填寫運動註記`);
         return;
     }
 

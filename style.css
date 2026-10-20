@@ -553,6 +553,28 @@ input[type=number] {
   }
 }
 
+.prev-note-btn {
+  background: rgba(128, 128, 128, 0.08);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.prev-note-btn:hover {
+  background: rgba(128, 128, 128, 0.16);
+  color: var(--text-main);
+}
+
+.prev-note-btn.has-note,
 .prev-note-highlight-btn {
   background: linear-gradient(135deg, #ff4757, #ff6b81) !important;
   color: #ffffff !important;
@@ -566,4 +588,5 @@ input[type=number] {
   padding: 5px 11px;
   border-radius: 8px;
   font-size: 11px;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.35);
 }
