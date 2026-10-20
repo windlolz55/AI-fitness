@@ -348,3 +348,219 @@ window.checkAndAutoApplyRoutine = function(targetDateStr) {
 
     return false;
 };
+
+// ─── Previous Routine Note Reminder Logic ────────────────────────────────────
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+window.hasMeaningfulWorkoutNote = function(noteStr, workouts) {
+    if (!noteStr || typeof noteStr !== 'string') return false;
+    let text = noteStr.trim();
+    if (!text) return false;
+    
+    // 若有 workouts，嘗試過濾掉單純系統自動預填的「動作名稱：」或「動作名稱:」字樣
+    if (Array.isArray(workouts) && workouts.length > 0) {
+        let stripped = text;
+        workouts.forEach(w => {
+            if (w && w.name) {
+                const re = new RegExp(escapeRegex(w.name) + '\\s*[:：]?', 'g');
+                stripped = stripped.replace(re, '');
+            }
+        });
+        stripped = stripped.replace(/[\s\r\n:：]+/g, '');
+        return stripped.length > 0;
+    }
+    
+    return text.replace(/[\s\r\n:：]+/g, '').length > 0;
+};
+
+window.formatPrevNoteDate = function(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        const dayName = days[d.getDay()];
+        return `${parseInt(parts[1], 10)}/${parseInt(parts[2], 10)} (週${dayName})`;
+    }
+    return dateStr;
+};
+
+window.getPreviousRoutineNote = function(targetDateStr) {
+    if (typeof dailyData === 'undefined' || !dailyData) return null;
+    if (!targetDateStr) {
+        targetDateStr = (typeof selectedLogDate !== 'undefined') ? selectedLogDate : (typeof getTodayDateStr === 'function' ? getTodayDateStr() : '');
+    }
+    if (!targetDateStr) return null;
+
+    // 取得當天的課表名稱或排定分化課表
+    let currentRoutineName = dailyData[targetDateStr]?.routineName || '';
+    if (!currentRoutineName && typeof getTodayRoutineInfo === 'function') {
+        const rInfo = getTodayRoutineInfo(targetDateStr);
+        if (rInfo && rInfo.template && rInfo.template.title) {
+            currentRoutineName = rInfo.template.title;
+        }
+    }
+
+    const currentWorkouts = dailyData[targetDateStr]?.workouts || [];
+    const currentExNames = new Set(currentWorkouts.map(w => w.name));
+
+    // 當天既無課表名稱又無動作時，不進行比對
+    if (!currentRoutineName && currentExNames.size === 0) {
+        return null;
+    }
+
+    // 取得所有早於 targetDateStr 的歷史日期，由新到舊排序
+    const historyDates = Object.keys(dailyData)
+        .filter(d => d < targetDateStr)
+        .sort((a, b) => b.localeCompare(a));
+
+    for (const dStr of historyDates) {
+        const entry = dailyData[dStr];
+        if (!entry || !entry.workoutNote) continue;
+
+        const histWorkouts = entry.workouts || [];
+        if (!hasMeaningfulWorkoutNote(entry.workoutNote, histWorkouts)) {
+            continue;
+        }
+
+        let isSameRoutine = false;
+        let histRoutineName = entry.routineName || '';
+        if (!histRoutineName && typeof getTodayRoutineInfo === 'function') {
+            const hInfo = getTodayRoutineInfo(dStr);
+            if (hInfo && hInfo.template && hInfo.template.title) {
+                histRoutineName = hInfo.template.title;
+            }
+        }
+
+        // 1. 若課表名稱一致
+        if (currentRoutineName && histRoutineName && currentRoutineName === histRoutineName) {
+            isSameRoutine = true;
+        }
+        // 2. 若無名稱或名稱不同，但動作重疊度高 (>= 50% 且至少2個重疊)
+        else if (currentExNames.size > 0 && histWorkouts.length > 0) {
+            let matchCount = 0;
+            histWorkouts.forEach(hw => {
+                if (currentExNames.has(hw.name)) matchCount++;
+            });
+            if (matchCount >= 2 && (matchCount / Math.min(currentExNames.size, histWorkouts.length)) >= 0.5) {
+                isSameRoutine = true;
+            }
+        }
+
+        if (isSameRoutine) {
+            return {
+                date: dStr,
+                formattedDate: formatPrevNoteDate(dStr),
+                routineName: histRoutineName || currentRoutineName,
+                note: entry.workoutNote.trim()
+            };
+        }
+    }
+
+    return null;
+};
+
+window.renderPrevNoteAlert = function(targetDateStr) {
+    const bannerEl = document.getElementById('workout-prev-note-banner');
+    const toggleBtn = document.getElementById('btn-prev-note-toggle');
+    if (!bannerEl) return;
+
+    const prevInfo = getPreviousRoutineNote(targetDateStr);
+    if (!prevInfo) {
+        bannerEl.style.display = 'none';
+        bannerEl.innerHTML = '';
+        if (toggleBtn) toggleBtn.style.display = 'none';
+        return;
+    }
+
+    if (toggleBtn) {
+        toggleBtn.style.display = 'inline-flex';
+    }
+
+    // 檢查使用者是否在此次瀏覽點擊關閉
+    const isDismissed = sessionStorage.getItem('dismissed_prev_note_' + targetDateStr) === prevInfo.date;
+    if (isDismissed) {
+        bannerEl.style.display = 'none';
+        return;
+    }
+
+    bannerEl.style.display = 'block';
+    bannerEl.innerHTML = `
+        <div class="card" style="padding: 12px 14px; border-radius: 14px; background: rgba(255, 107, 129, 0.08); border: 1px solid rgba(255, 107, 129, 0.28); position: relative;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+                    <i class="fa-solid fa-lightbulb" style="color: var(--accent-primary); font-size: 14px; flex-shrink: 0;"></i>
+                    <span style="font-weight: bold; font-size: 13px; color: var(--accent-primary); white-space: nowrap;">上次此課表註記</span>
+                    <span style="font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prevInfo.formattedDate}</span>
+                </div>
+                <button type="button" onclick="dismissPrevNoteAlert('${targetDateStr}', '${prevInfo.date}')" style="border: none; background: transparent; color: var(--text-muted); cursor: pointer; padding: 2px 6px; font-size: 14px; line-height: 1;" title="收合提醒">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div style="font-size: 13px; color: var(--text-main); white-space: pre-wrap; line-height: 1.5; background: rgba(0,0,0,0.18); padding: 8px 12px; border-radius: 8px; border-left: 3px solid var(--accent-primary); max-height: 140px; overflow-y: auto;">${escapeHtml(prevInfo.note)}</div>
+            <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 8px; gap: 8px;">
+                <button type="button" onclick="copyPrevNoteToToday()" style="border: 1px solid rgba(255, 107, 129, 0.3); background: rgba(255, 107, 129, 0.12); color: var(--text-main); font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-weight: 500;">
+                    <i class="fa-solid fa-paste" style="color: var(--accent-primary);"></i> 帶入今日註記
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+window.dismissPrevNoteAlert = function(targetDateStr, prevDate) {
+    sessionStorage.setItem('dismissed_prev_note_' + targetDateStr, prevDate);
+    const bannerEl = document.getElementById('workout-prev-note-banner');
+    if (bannerEl) bannerEl.style.display = 'none';
+};
+
+window.togglePrevNoteBanner = function() {
+    const bannerEl = document.getElementById('workout-prev-note-banner');
+    if (!bannerEl) return;
+    const curDate = (typeof selectedLogDate !== 'undefined') ? selectedLogDate : (typeof getTodayDateStr === 'function' ? getTodayDateStr() : '');
+    
+    if (bannerEl.style.display === 'none' || !bannerEl.style.display) {
+        sessionStorage.removeItem('dismissed_prev_note_' + curDate);
+        renderPrevNoteAlert(curDate);
+        bannerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        bannerEl.style.display = 'none';
+    }
+};
+
+window.copyPrevNoteToToday = function() {
+    const noteEl = document.getElementById('workout-daily-note');
+    if (!noteEl) return;
+    const curDate = (typeof selectedLogDate !== 'undefined') ? selectedLogDate : (typeof getTodayDateStr === 'function' ? getTodayDateStr() : '');
+    const prevInfo = getPreviousRoutineNote(curDate);
+    if (!prevInfo || !prevInfo.note) return;
+
+    const insertBlock = `【上次註記 (${prevInfo.formattedDate})】\n${prevInfo.note}`;
+    if (noteEl.value.trim().length > 0) {
+        if (noteEl.value.includes(prevInfo.note.trim())) {
+            alert('今日註記中已包含上次筆記內容！');
+            return;
+        }
+        noteEl.value = insertBlock + '\n\n' + noteEl.value;
+    } else {
+        noteEl.value = insertBlock;
+    }
+    
+    if (typeof adjustNoteHeight === 'function') adjustNoteHeight(noteEl);
+    if (typeof handleWorkoutNoteInput === 'function') handleWorkoutNoteInput(noteEl.value);
+    alert('已成功帶入上次課表註記！');
+    noteEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    noteEl.focus();
+};

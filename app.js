@@ -1004,6 +1004,11 @@ function renderWorkout() {
         checkAndAutoApplyRoutine(selectedLogDate);
     }
 
+    // 渲染上次同課表註記提醒
+    if (typeof renderPrevNoteAlert === 'function') {
+        renderPrevNoteAlert(selectedLogDate);
+    }
+
     const d = new Date(selectedLogDate);
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const dt = String(d.getDate()).padStart(2, '0');
@@ -1031,6 +1036,11 @@ function renderWorkout() {
 
     // ── Empty state ──────────────────────────────────────────────────────────
     if (loggedWorkouts.length === 0) {
+        const prevBanner = document.getElementById('workout-prev-note-banner');
+        if (prevBanner) prevBanner.style.display = 'none';
+        const toggleBtn = document.getElementById('btn-prev-note-toggle');
+        if (toggleBtn) toggleBtn.style.display = 'none';
+
         container.innerHTML = buildEmptyStateHTML(selectedLogDate);
         const wrapper = document.getElementById('workout-header-wrapper');
         if (wrapper) wrapper.style.display = 'none';
