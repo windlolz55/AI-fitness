@@ -1022,14 +1022,6 @@ function renderWorkout() {
     // ── Update Daily Workout Note ─────────────────────────────────────────────
     const noteEl = document.getElementById('workout-daily-note');
     if (noteEl && document.activeElement !== noteEl) {
-        if (!dailyDataEntry.workoutNote && loggedWorkouts.length > 0) {
-            dailyDataEntry.workoutNote = loggedWorkouts.map(w => `${w.name}：`).join('\n');
-            if (!dailyData[selectedLogDate]) {
-                dailyData[selectedLogDate] = { water: 0, weight: userProfile.weight || 70, burned: 0, burnedTime: 0, workouts: loggedWorkouts };
-            }
-            dailyData[selectedLogDate].workoutNote = dailyDataEntry.workoutNote;
-            setAndSync('fitness_daily', JSON.stringify(dailyData));
-        }
         noteEl.value = dailyDataEntry.workoutNote || '';
         if (typeof adjustNoteHeight === 'function') adjustNoteHeight(noteEl);
     }

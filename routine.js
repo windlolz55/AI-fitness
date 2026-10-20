@@ -265,11 +265,8 @@ window.getTodayRoutineInfo = function(targetDateStr) {
         const diffTime = current.getTime() - start.getTime();
         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays < 0) {
-            return null;
-        }
-        
-        const dayInCycle = (diffDays % 4) + 1;
+        // 支援歷史日期負數循環 (4天一循環)
+        const dayInCycle = (((diffDays % 4) + 4) % 4) + 1;
         
         if (dayInCycle >= 1 && dayInCycle <= 3) {
             templateIdx = schedule[String(dayInCycle)];
@@ -430,30 +427,34 @@ window.getPreviousRoutineNote = function(targetDateStr) {
     // 3. 找出「上一次輪到這個課表的日子」（嚴格取最近的那一次，不可跳過找更早的）
     let lastMatchingDateStr = null;
 
+    const curRoutineInfo = (typeof getTodayRoutineInfo === 'function') ? getTodayRoutineInfo(targetDateStr) : null;
+
     for (const dStr of historyDates) {
         const entry = dailyData[dStr];
         if (!entry) continue;
 
         let isSameRoutine = false;
         let histRoutineName = entry.routineName || '';
-        if (!histRoutineName && typeof getTodayRoutineInfo === 'function') {
-            const hInfo = getTodayRoutineInfo(dStr);
-            if (hInfo && hInfo.template && hInfo.template.title) {
-                histRoutineName = hInfo.template.title;
-            }
+        const histRoutineInfo = (typeof getTodayRoutineInfo === 'function') ? getTodayRoutineInfo(dStr) : null;
+        if (!histRoutineName && histRoutineInfo && histRoutineInfo.template && histRoutineInfo.template.title) {
+            histRoutineName = histRoutineInfo.template.title;
         }
 
-        // 比對 A: 課表名稱相同
-        if (currentRoutineName && histRoutineName && currentRoutineName === histRoutineName) {
+        // 比對 1: 分化課表範本 index 相同且非休息日
+        if (curRoutineInfo && histRoutineInfo && !curRoutineInfo.isRestDay && !histRoutineInfo.isRestDay && curRoutineInfo.idx !== undefined && curRoutineInfo.idx === histRoutineInfo.idx) {
             isSameRoutine = true;
         }
-        // 比對 B: 動作重疊度高 (>= 50% 且至少2個重疊)
+        // 比對 2: 課表名稱相同 (例如「胸肩三頭推」)
+        else if (currentRoutineName && histRoutineName && currentRoutineName === histRoutineName) {
+            isSameRoutine = true;
+        }
+        // 比對 3: 動作重疊度高 (>= 40% 或至少1個相同動作)
         else if (currentExNames.size > 0 && entry.workouts && entry.workouts.length > 0) {
             let matchCount = 0;
             entry.workouts.forEach(hw => {
                 if (currentExNames.has(hw.name)) matchCount++;
             });
-            if (matchCount >= 2 && (matchCount / Math.min(currentExNames.size, entry.workouts.length)) >= 0.5) {
+            if (matchCount >= 1 && (matchCount / Math.min(currentExNames.size, entry.workouts.length)) >= 0.3) {
                 isSameRoutine = true;
             }
         }

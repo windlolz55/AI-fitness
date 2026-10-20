@@ -537,3 +537,33 @@ input[type=number] {
     width: 85%;
     height: 70%;
 }
+
+@keyframes prevNotePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 71, 87, 0);
+    transform: scale(1.04);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+    transform: scale(1);
+  }
+}
+
+.prev-note-highlight-btn {
+  background: linear-gradient(135deg, #ff4757, #ff6b81) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 700 !important;
+  animation: prevNotePulse 2s infinite ease-in-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 11px;
+}
