@@ -1036,8 +1036,6 @@ function renderWorkout() {
 
     // ── Empty state ──────────────────────────────────────────────────────────
     if (loggedWorkouts.length === 0) {
-        const prevBanner = document.getElementById('workout-prev-note-banner');
-        if (prevBanner) prevBanner.style.display = 'none';
         const toggleBtn = document.getElementById('btn-prev-note-toggle');
         if (toggleBtn) toggleBtn.style.display = 'none';
 

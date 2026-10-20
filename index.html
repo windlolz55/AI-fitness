@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.144</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.145</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -289,9 +289,6 @@
                 </div>
             </div>
 
-            <!-- Previous Routine Note Banner -->
-            <div id="workout-prev-note-banner" style="display: none; margin-bottom: 14px;"></div>
-
             <!-- Workout List Container -->
             <div id="workout-list-container">
                 <!-- Exercises will be injected here via JS -->
@@ -305,7 +302,7 @@
                         <span style="font-weight: 600; font-size: 14px; color: var(--text-main);">今日運動註記</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <button id="btn-prev-note-toggle" style="display: none; border: none; background: rgba(255, 107, 129, 0.12); font-size: 11px; color: var(--accent-primary); cursor: pointer; padding: 4px 8px; border-radius: 8px; align-items: center; gap: 4px; font-weight: 500;" onclick="togglePrevNoteBanner()" title="查看上次同課表註記">
+                        <button id="btn-prev-note-toggle" style="display: none; border: none; background: var(--accent-primary); color: #fff; font-size: 11px; cursor: pointer; padding: 5px 10px; border-radius: 8px; align-items: center; gap: 5px; font-weight: 600; box-shadow: 0 2px 8px rgba(255, 107, 129, 0.45);" onclick="openPrevNoteModal()" title="查看上次該課表註記">
                             <i class="fa-solid fa-lightbulb"></i> 上次註記
                         </button>
                         <button style="border: none; background: rgba(128, 128, 128, 0.08); font-size: 11px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px;" onclick="resetWorkoutNoteToExercises()" title="重新填入今日課表動作">
@@ -496,7 +493,7 @@
 
             
             <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.144 (Cloud Sync + PWA)</p>
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.145 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -887,6 +884,33 @@
             </div>
         </div>
 
+        <!-- Previous Workout Note Modal -->
+        <div id="prev-workout-note-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;" onclick="if(event.target === this) closePrevNoteModal()">
+            <div class="card" style="width: 90%; max-width: 400px; padding: 20px; position: relative; max-height: 85vh; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 32px; height: 32px; border-radius: 10px; background: rgba(255, 107, 129, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 id="prev-note-modal-title" style="margin: 0; font-size: 16px; color: var(--text-main);">上次此課表註記</h3>
+                            <span id="prev-note-modal-date" style="font-size: 11px; color: var(--text-muted);">--</span>
+                        </div>
+                    </div>
+                    <button class="btn-icon" onclick="closePrevNoteModal()" style="border: none; background: var(--bg-main); width: 28px; height: 28px; border-radius: 50%; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <div id="prev-note-modal-content" style="font-size: 13px; line-height: 1.6; color: var(--text-main); background: rgba(0,0,0,0.18); padding: 12px; border-radius: 10px; border-left: 3px solid var(--accent-primary); white-space: pre-wrap; overflow-y: auto; max-height: 50vh; margin-bottom: 16px;">--</div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-secondary" style="flex: 1; padding: 12px; border-radius: 12px; font-size: 13px;" onclick="closePrevNoteModal()">關閉</button>
+                    <button type="button" class="btn-primary" style="flex: 1.4; padding: 12px; border-radius: 12px; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="copyPrevNoteToToday()">
+                        <i class="fa-solid fa-paste"></i> 帶入今日註記
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Goal Adjustments Modal -->
         <div id="goal-adjust-modal" class="modal-overlay hidden" style="background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000;" onclick="if(event.target === this) closeGoalAdjustModal()">
             <div class="card" style="width: 90%; max-width: 400px; padding: 20px; position: relative; max-height: 90vh; overflow-y: auto;">
@@ -1141,12 +1165,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.144"></script>
-    <script src="food_db.js?v=3.144"></script>
-    <script src="templates.js?v=3.144"></script>
-    <script src="routine.js?v=3.144"></script>
-    <script src="app.js?v=3.144"></script>
-    <script src="scanner_live.js?v=3.144"></script>
+    <script src="exercise_db.js?v=3.145"></script>
+    <script src="food_db.js?v=3.145"></script>
+    <script src="templates.js?v=3.145"></script>
+    <script src="routine.js?v=3.145"></script>
+    <script src="app.js?v=3.145"></script>
+    <script src="scanner_live.js?v=3.145"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
