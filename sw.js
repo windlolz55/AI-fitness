@@ -1,11 +1,14 @@
-const CACHE_NAME = 'calicorie-v3.148';
+const CACHE_NAME = 'calicorie-v3.149';
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
+  './exercise_db.js',
   './templates.js',
+  './routine.js',
   './app.js',
   './food_db.js',
+  './scanner_live.js',
   './icon-192.png',
   './icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',

@@ -446,7 +446,7 @@ window.getPreviousRoutineNote = function(targetDateStr) {
         }
 
         // 比對 A: 分化課表範本 index 相同且非休息日
-        if (curRoutineInfo && histRoutineInfo && !curRoutineInfo.isRestDay && !histRoutineInfo.isRestDay && curRoutineInfo.idx !== undefined && curRoutineInfo.idx === histRoutineInfo.idx) {
+        if (curRoutineInfo && histRoutineInfo && !curRoutineInfo.isRestDay && !histRoutineInfo.isRestDay && curRoutineInfo.idx !== undefined && String(curRoutineInfo.idx) === String(histRoutineInfo.idx)) {
             isSameRoutine = true;
         }
         // 比對 B: 課表名稱相同 (例如「全身訓練」或「胸肩三頭推」)
