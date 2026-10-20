@@ -395,6 +395,11 @@ window.formatPrevNoteDate = function(dateStr) {
     return dateStr;
 };
 
+function getCleanExName(name) {
+    if (!name) return '';
+    return name.split('(')[0].split('（')[0].trim();
+}
+
 window.getPreviousRoutineNote = function(targetDateStr) {
     if (typeof dailyData === 'undefined' || !dailyData) return null;
     if (!targetDateStr) {
@@ -404,18 +409,16 @@ window.getPreviousRoutineNote = function(targetDateStr) {
 
     // 1. 取得目標日期的課表名稱或排定分化課表
     let currentRoutineName = dailyData[targetDateStr]?.routineName || '';
-    if (!currentRoutineName && typeof getTodayRoutineInfo === 'function') {
-        const rInfo = getTodayRoutineInfo(targetDateStr);
-        if (rInfo && rInfo.template && rInfo.template.title) {
-            currentRoutineName = rInfo.template.title;
-        }
+    const curRoutineInfo = (typeof getTodayRoutineInfo === 'function') ? getTodayRoutineInfo(targetDateStr) : null;
+    if (!currentRoutineName && curRoutineInfo && curRoutineInfo.template && curRoutineInfo.template.title) {
+        currentRoutineName = curRoutineInfo.template.title;
     }
 
     const currentWorkouts = dailyData[targetDateStr]?.workouts || [];
-    const currentExNames = new Set(currentWorkouts.map(w => w.name));
+    const cleanCurrentNames = new Set(currentWorkouts.map(w => getCleanExName(w.name)));
 
     // 當天既無課表名稱又無動作時，無法比對課表
-    if (!currentRoutineName && currentExNames.size === 0) {
+    if (!currentRoutineName && cleanCurrentNames.size === 0) {
         return null;
     }
 
@@ -424,14 +427,16 @@ window.getPreviousRoutineNote = function(targetDateStr) {
         .filter(d => d < targetDateStr)
         .sort((a, b) => b.localeCompare(a));
 
-    // 3. 找出「上一次輪到這個課表的日子」（嚴格取最近的那一次，不可跳過找更早的）
+    // 3. 找出「上一次真正有執行這個課表的日子」
+    // 關鍵：必須是有運動紀錄（workouts > 0）的日子，跳過純喝水/體重日！
     let lastMatchingDateStr = null;
-
-    const curRoutineInfo = (typeof getTodayRoutineInfo === 'function') ? getTodayRoutineInfo(targetDateStr) : null;
 
     for (const dStr of historyDates) {
         const entry = dailyData[dStr];
-        if (!entry) continue;
+        // 必須實際有運動紀錄，才算課表執行日！
+        if (!entry || !Array.isArray(entry.workouts) || entry.workouts.length === 0) {
+            continue;
+        }
 
         let isSameRoutine = false;
         let histRoutineName = entry.routineName || '';
@@ -440,40 +445,42 @@ window.getPreviousRoutineNote = function(targetDateStr) {
             histRoutineName = histRoutineInfo.template.title;
         }
 
-        // 比對 1: 分化課表範本 index 相同且非休息日
+        // 比對 A: 分化課表範本 index 相同且非休息日
         if (curRoutineInfo && histRoutineInfo && !curRoutineInfo.isRestDay && !histRoutineInfo.isRestDay && curRoutineInfo.idx !== undefined && curRoutineInfo.idx === histRoutineInfo.idx) {
             isSameRoutine = true;
         }
-        // 比對 2: 課表名稱相同 (例如「胸肩三頭推」)
+        // 比對 B: 課表名稱相同 (例如「全身訓練」或「胸肩三頭推」)
         else if (currentRoutineName && histRoutineName && currentRoutineName === histRoutineName) {
             isSameRoutine = true;
         }
-        // 比對 3: 動作重疊度高 (>= 40% 或至少1個相同動作)
-        else if (currentExNames.size > 0 && entry.workouts && entry.workouts.length > 0) {
+        // 比對 C: 動作重疊度 (乾淨動作名稱重疊 >= 40% 或至少1個相同動作)
+        else if (cleanCurrentNames.size > 0 && entry.workouts.length > 0) {
             let matchCount = 0;
             entry.workouts.forEach(hw => {
-                if (currentExNames.has(hw.name)) matchCount++;
+                if (cleanCurrentNames.has(getCleanExName(hw.name))) {
+                    matchCount++;
+                }
             });
-            if (matchCount >= 1 && (matchCount / Math.min(currentExNames.size, entry.workouts.length)) >= 0.3) {
+            if (matchCount >= 1 && (matchCount / Math.min(cleanCurrentNames.size, entry.workouts.length)) >= 0.3) {
                 isSameRoutine = true;
             }
         }
 
         if (isSameRoutine) {
             lastMatchingDateStr = dStr;
-            break; // 關鍵：找到最近的那一次同課表日，立即停止！只看這一次！
+            break; // 鎖定最近一次真正練這個課表的日子！
         }
     }
 
-    // 若歷史上根本沒有做過這個課表，返回 null
+    // 若歷史上沒有執行過這個課表，返回 null
     if (!lastMatchingDateStr) {
         return null;
     }
 
-    // 4. 只檢查「這最近一次同課表日」是否有寫註記
+    // 4. 只檢查「這最近一次執行日」是否有寫註記
     const lastEntry = dailyData[lastMatchingDateStr];
-    if (!lastEntry || !lastEntry.workoutNote) {
-        return null; // 上次課表沒寫註記 -> 不提醒，絕不抓更久以前
+    if (!lastEntry || !lastEntry.workoutNote || !lastEntry.workoutNote.trim()) {
+        return null; // 上次課表沒寫註記 -> 不提醒
     }
 
     const lastWorkouts = lastEntry.workouts || [];
