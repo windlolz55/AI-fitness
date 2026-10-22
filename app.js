@@ -1023,7 +1023,11 @@ function renderWorkout() {
     const noteEl = document.getElementById('workout-daily-note');
     if (noteEl && document.activeElement !== noteEl) {
         noteEl.value = dailyDataEntry.workoutNote || '';
-        if (typeof adjustNoteHeight === 'function') adjustNoteHeight(noteEl);
+        if (typeof adjustNoteHeight === 'function') {
+            adjustNoteHeight(noteEl);
+            setTimeout(() => adjustNoteHeight(noteEl), 60);
+            setTimeout(() => adjustNoteHeight(noteEl), 250);
+        }
     }
 
     // ── Empty state ──────────────────────────────────────────────────────────
@@ -1185,7 +1189,9 @@ window.handleWorkoutNoteInput = handleWorkoutNoteInput;
 function adjustNoteHeight(el) {
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = Math.max(72, el.scrollHeight) + 'px';
+    // 依據內容 scrollHeight 自然撐高，外加緩衝，並設 min-height 為 80px
+    const targetHeight = Math.max(80, (el.scrollHeight || 0) + 4);
+    el.style.height = targetHeight + 'px';
 }
 window.adjustNoteHeight = adjustNoteHeight;
 
