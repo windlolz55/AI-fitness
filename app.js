@@ -1198,11 +1198,13 @@ function resetWorkoutNoteToExercises() {
     }
     const noteEl = document.getElementById('workout-daily-note');
     if (noteEl && noteEl.value.trim().length > 0) {
-        if (!confirm('是否將註記內容替換為今日動作清單？\n（目前已寫的備忘將被覆蓋）')) {
+        if (!confirm('是否將註記內容替換為今日動作與目標清單？\n（目前已寫的備忘將被覆蓋）')) {
             return;
         }
     }
-    const defaultText = loggedWorkouts.map(w => `${w.name}：`).join('\n');
+    const defaultText = (typeof window.buildWorkoutsTargetNotesText === 'function')
+        ? window.buildWorkoutsTargetNotesText(loggedWorkouts)
+        : loggedWorkouts.map(w => `${w.name}：`).join('\n');
     if (noteEl) {
         noteEl.value = defaultText;
         adjustNoteHeight(noteEl);

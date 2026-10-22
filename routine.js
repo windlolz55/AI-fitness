@@ -1,5 +1,40 @@
 // Routine System Logic
 
+window.formatWorkoutTargetNote = function(w) {
+    if (!w || !w.name) return '';
+    const parts = [];
+    
+    // 重量 (若 > 0)
+    if (w.weight !== undefined && w.weight !== null && Number(w.weight) > 0) {
+        parts.push(`${w.weight}kg`);
+    }
+    
+    // 組數 (若 > 0)
+    if (w.sets !== undefined && w.sets !== null && String(w.sets).trim() !== '' && Number(w.sets) > 0) {
+        parts.push(`${w.sets}組`);
+    }
+    
+    // 次數 / 時間
+    if (w.reps !== undefined && w.reps !== null && String(w.reps).trim() !== '') {
+        const repsStr = String(w.reps).trim();
+        if (/[\u4e00-\u9fa5a-zA-Z]$/.test(repsStr)) {
+            parts.push(repsStr);
+        } else {
+            parts.push(`${repsStr}次`);
+        }
+    }
+    
+    if (parts.length > 0) {
+        return `${w.name} (${parts.join(', ')})：`;
+    }
+    return `${w.name}：`;
+};
+
+window.buildWorkoutsTargetNotesText = function(workouts) {
+    if (!Array.isArray(workouts) || workouts.length === 0) return '';
+    return workouts.map(w => window.formatWorkoutTargetNote(w)).filter(Boolean).join('\n');
+};
+
 window.openRoutinePlanManager = function() {
     document.getElementById('routine-plan-mode').value = fitnessRoutinePlan.mode || 'none';
     renderRoutinePlanSetup();
@@ -334,6 +369,11 @@ window.checkAndAutoApplyRoutine = function(targetDateStr) {
             });
         });
         dailyData[targetDateStr].workouts = newWorkouts;
+        if (!dailyData[targetDateStr].workoutNote || !dailyData[targetDateStr].workoutNote.trim()) {
+            if (typeof window.buildWorkoutsTargetNotesText === 'function') {
+                dailyData[targetDateStr].workoutNote = window.buildWorkoutsTargetNotesText(newWorkouts);
+            }
+        }
 
         if (typeof setAndSync === 'function') {
             setAndSync('fitness_daily', JSON.stringify(dailyData));
@@ -367,12 +407,12 @@ window.hasMeaningfulWorkoutNote = function(noteStr, workouts) {
     let text = noteStr.trim();
     if (!text) return false;
     
-    // 若有 workouts，嘗試過濾掉單純系統自動預填的「動作名稱：」或「動作名稱:」字樣
+    // 若有 workouts，過濾掉系統自動預填的「動作名稱 (目標...)：」或「動作名稱：」骨架
     if (Array.isArray(workouts) && workouts.length > 0) {
         let stripped = text;
         workouts.forEach(w => {
             if (w && w.name) {
-                const re = new RegExp(escapeRegex(w.name) + '\\s*[:：]?', 'g');
+                const re = new RegExp(escapeRegex(w.name) + '\\s*(\\([^)]*\\)|（[^）]*）)?\\s*[:：]?', 'g');
                 stripped = stripped.replace(re, '');
             }
         });

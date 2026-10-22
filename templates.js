@@ -83,6 +83,12 @@ window.applyTemplate = function(idx) {
             }
         });
         
+        if (!dailyData[selectedLogDate].workoutNote || !dailyData[selectedLogDate].workoutNote.trim()) {
+            if (typeof window.buildWorkoutsTargetNotesText === 'function') {
+                dailyData[selectedLogDate].workoutNote = window.buildWorkoutsTargetNotesText(dailyData[selectedLogDate].workouts);
+            }
+        }
+        
         setAndSync('fitness_daily', JSON.stringify(dailyData));
         
         if (typeof renderWorkout === 'function') renderWorkout();
