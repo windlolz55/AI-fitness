@@ -305,6 +305,9 @@ function setupFirestoreListener(uid) {
             }
             
             // Re-render UI ONLY if something actually changed from the cloud
+            if (typeof recalcLogsWithFoodDB === 'function' && recalcLogsWithFoodDB(true)) {
+                changed = true;
+            }
             if (changed) {
                 if (typeof calculateTargets === 'function') calculateTargets();
                 if (typeof setupProfile === 'function') setupProfile();
@@ -347,6 +350,7 @@ window.manualSync = async function() {
                 keys.forEach(k => {
                     try { if (data[k]) localStorage.setItem(k, data[k]); } catch(e) {}
                 });
+                if (typeof recalcLogsWithFoodDB === 'function') recalcLogsWithFoodDB(true);
                 
                 if (typeof calculateTargets === 'function') calculateTargets();
                 if (typeof setupProfile === 'function') setupProfile();
@@ -456,9 +460,24 @@ let foodOverrides = JSON.parse(localStorage.getItem('foodOverrides')) || {};
 
 function applyFoodOverrides() {
     if (!foodOverrides || typeof foodOverrides !== 'object') return;
+    let ovUpdated = false;
     foodDatabase.foods.forEach(food => {
         if (foodOverrides[food.id]) {
             const ov = foodOverrides[food.id];
+            const orig = originalBuiltinFoods.find(o => o.id === food.id);
+            // 若內建食物的 override 仍是舊版四捨五入整數快照，升級為小數點後1位精確值
+            if (orig && ov.macros &&
+                Number.isInteger(ov.macros.p) && Number.isInteger(ov.macros.c) && Number.isInteger(ov.macros.f) &&
+                (!Number.isInteger(orig.macros.p) || !Number.isInteger(orig.macros.c) || !Number.isInteger(orig.macros.f)) &&
+                Math.abs(ov.macros.p - orig.macros.p) <= 1.2 &&
+                Math.abs(ov.macros.c - orig.macros.c) <= 1.2 &&
+                Math.abs(ov.macros.f - orig.macros.f) <= 1.2) {
+                ov.macros = { ...orig.macros };
+                if (typeof ov.cals === 'number' && Math.abs(ov.cals - orig.cals) <= 5) {
+                    ov.cals = orig.cals;
+                }
+                ovUpdated = true;
+            }
             if (typeof ov.cals === 'number') food.cals = ov.cals;
             if (ov.macros) {
                 food.macros = {
@@ -475,8 +494,145 @@ function applyFoodOverrides() {
             }
         }
     });
+    if (ovUpdated) {
+        try { localStorage.setItem('foodOverrides', JSON.stringify(foodOverrides)); } catch(e) {}
+    }
 }
 applyFoodOverrides();
+
+function recalcLogsWithFoodDB(shouldSync = true) {
+    if (!Array.isArray(logs) || logs.length === 0) return false;
+    let updated = false;
+
+    const findBestMatch = (itemName, itemCal, foodId) => {
+        if (!itemName) return null;
+        let baseName = itemName;
+        let desc = '';
+        if (itemName.includes('(')) {
+            const allMatches = [...itemName.matchAll(/\(([^)]+)\)/g)];
+            if (allMatches.length > 0) {
+                desc = allMatches[allMatches.length - 1][1].trim();
+            }
+            baseName = itemName.split(' (')[0].trim();
+        }
+        let candidates = [];
+        if (foodId) {
+            candidates = foodDatabase.foods.filter(f => f.id === foodId);
+        }
+        if (candidates.length === 0) {
+            candidates = foodDatabase.foods.filter(f => {
+                const fBase = f.name.split(/\s*\(/)[0].trim();
+                return fBase === baseName || f.name.trim() === baseName;
+            });
+        }
+        if (candidates.length === 0) return null;
+
+        let best = null;
+        let bestDiff = Infinity;
+        const numMatch = desc.match(/^([\d.]+)\s*(.*)$/);
+
+        candidates.forEach(f => {
+            if (!f.macros) return;
+            const multis = [];
+            if (numMatch) {
+                const numVal = parseFloat(numMatch[1]);
+                const unitStr = (numMatch[2] || '').trim().toLowerCase();
+                if (!isNaN(numVal) && numVal > 0) {
+                    if (unitStr === 'g' || unitStr === 'ml') {
+                        if (f.name.toLowerCase().includes('100g') || f.name.toLowerCase().includes('100ml')) {
+                            multis.push(numVal / 100);
+                        }
+                        if (f.weightPerServing) {
+                            multis.push(numVal / f.weightPerServing);
+                        }
+                    } else {
+                        multis.push(numVal);
+                    }
+                }
+            }
+            if (multis.length === 0 && f.cals > 0 && itemCal > 0) {
+                multis.push(itemCal / f.cals);
+            }
+            multis.forEach(m => {
+                const expectedCal = f.cals * m;
+                const diff = Math.abs(expectedCal - (itemCal || 0));
+                const tol = Math.max(3, (itemCal || 0) * 0.04);
+                if (diff <= tol && diff < bestDiff) {
+                    bestDiff = diff;
+                    best = { food: f, multi: m };
+                }
+            });
+        });
+        return best;
+    };
+
+    logs.forEach(item => {
+        if (item.subItems && item.subItems.length > 0) {
+            let sumCal = 0, sumPro = 0, sumCarb = 0, sumFat = 0;
+            item.subItems.forEach(sub => {
+                const sBase = (sub.name || '').split(' (')[0].trim();
+                const sFood = foodDatabase.foods.find(f => f.name.split(/\s*\(/)[0].trim() === sBase || f.name.includes(sBase));
+                if (sFood && sub.grams) {
+                    const baseW = (sFood.name.toLowerCase().includes('100g') || sFood.name.toLowerCase().includes('100ml')) ? 100 : (sFood.weightPerServing || 100);
+                    const m = sub.grams / baseW;
+                    if (Math.abs(sFood.cals * m - (sub.cal || 0)) <= Math.max(5, (sub.cal || 0) * 0.05)) {
+                        const nCal = Math.round(sFood.cals * m * 10) / 10;
+                        const nPro = Math.round(sFood.macros.p * m * 10) / 10;
+                        const nCarb = Math.round(sFood.macros.c * m * 10) / 10;
+                        const nFat = Math.round(sFood.macros.f * m * 10) / 10;
+                        if (sub.cal !== nCal || sub.pro !== nPro || sub.carb !== nCarb || sub.fat !== nFat) {
+                            sub.cal = nCal; sub.pro = nPro; sub.carb = nCarb; sub.fat = nFat;
+                            updated = true;
+                        }
+                    }
+                }
+                sub.cal = Math.round((sub.cal || 0) * 10) / 10;
+                sub.pro = Math.round((sub.pro || 0) * 10) / 10;
+                sub.carb = Math.round((sub.carb || 0) * 10) / 10;
+                sub.fat = Math.round((sub.fat || 0) * 10) / 10;
+                sumCal = Math.round((sumCal + sub.cal) * 10) / 10;
+                sumPro = Math.round((sumPro + sub.pro) * 10) / 10;
+                sumCarb = Math.round((sumCarb + sub.carb) * 10) / 10;
+                sumFat = Math.round((sumFat + sub.fat) * 10) / 10;
+            });
+            if (item.cal !== sumCal || item.pro !== sumPro || item.carb !== sumCarb || item.fat !== sumFat) {
+                item.cal = sumCal; item.pro = sumPro; item.carb = sumCarb; item.fat = sumFat;
+                updated = true;
+            }
+        } else {
+            const match = findBestMatch(item.name, item.cal, item.foodId);
+            if (match) {
+                const { food, multi } = match;
+                const nCal = Math.round(food.cals * multi * 10) / 10;
+                const nPro = Math.round(food.macros.p * multi * 10) / 10;
+                const nCarb = Math.round(food.macros.c * multi * 10) / 10;
+                const nFat = Math.round(food.macros.f * multi * 10) / 10;
+                if (item.cal !== nCal || item.pro !== nPro || item.carb !== nCarb || item.fat !== nFat || item.foodId !== food.id) {
+                    item.cal = nCal;
+                    item.pro = nPro;
+                    item.carb = nCarb;
+                    item.fat = nFat;
+                    item.foodId = food.id;
+                    updated = true;
+                }
+            } else {
+                item.cal = Math.round((item.cal || 0) * 10) / 10;
+                item.pro = Math.round((item.pro || 0) * 10) / 10;
+                item.carb = Math.round((item.carb || 0) * 10) / 10;
+                item.fat = Math.round((item.fat || 0) * 10) / 10;
+            }
+        }
+    });
+
+    if (updated) {
+        try { localStorage.setItem('fitness_logs', JSON.stringify(logs)); } catch(e) {}
+        if (shouldSync && typeof auth !== 'undefined' && auth.currentUser && typeof saveToFirestore === 'function') {
+            saveToFirestore();
+        }
+    }
+    return updated;
+}
+recalcLogsWithFoodDB(false);
 
 // Load Favorite Foods
 let favoriteFoodIds = JSON.parse(localStorage.getItem('favoriteFoodIds')) || [];
@@ -2850,6 +3006,7 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
 
     const newLog = {
         id: Date.now() + Math.random(),
+        foodId: selectedFood.id,
         img: '', 
         time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
         date: window.currentAddingDate || getTodayDateStr(),
@@ -3516,15 +3673,24 @@ function renderLogs() {
 
 
 
+    if (typeof recalcLogsWithFoodDB === 'function') recalcLogsWithFoodDB(false);
     const curDayTargets = getDayTargets(selectedLogDate);
     const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === selectedLogDate);
     const dayTotalCals = Math.round(dayLogs.reduce((s, l) => s + (l.cal || 0), 0) * 10) / 10;
+    const dayTotalCarb = Math.round(dayLogs.reduce((s, l) => s + (l.carb || 0), 0) * 10) / 10;
+    const dayTotalPro = Math.round(dayLogs.reduce((s, l) => s + (l.pro || 0), 0) * 10) / 10;
+    const dayTotalFat = Math.round(dayLogs.reduce((s, l) => s + (l.fat || 0), 0) * 10) / 10;
     const summaryText = document.getElementById('logs-summary-text');
     const statusBadge = document.getElementById('logs-status-badge');
     const isToday = (selectedLogDate === getTodayDateStr());
     
     if (summaryText) {
-        summaryText.innerHTML = `總攝取：${dayTotalCals.toLocaleString()} <span style="font-size:12px;font-weight:normal;color:var(--text-muted);">/ ${curDayTargets.cals.toLocaleString()} kcal</span>`;
+        summaryText.innerHTML = `總攝取：${dayTotalCals.toLocaleString()} <span style="font-size:12px;font-weight:normal;color:var(--text-muted);">/ ${curDayTargets.cals.toLocaleString()} kcal</span>
+            <div style="font-size:11px;font-weight:normal;color:var(--text-muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;">
+                <span><b style="color:var(--carb-color);">碳</b> ${dayTotalCarb} <span style="opacity:0.75;">/ ${curDayTargets.carb}g</span></span>
+                <span><b style="color:var(--pro-color);">蛋</b> ${dayTotalPro} <span style="opacity:0.75;">/ ${curDayTargets.pro}g</span></span>
+                <span><b style="color:var(--fat-color);">脂</b> ${dayTotalFat} <span style="opacity:0.75;">/ ${curDayTargets.fat}g</span></span>
+            </div>`;
     }
 
     const logDayTag = document.getElementById('log-daytype-tag');
@@ -3575,11 +3741,17 @@ function renderLogs() {
 
     ['breakfast', 'lunch', 'dinner', 'snack'].forEach(meal => {
         let mealCal = 0;
+        let mealCarb = 0;
+        let mealPro = 0;
+        let mealFat = 0;
         let itemsHTML = '';
         
         if(grouped[meal].length > 0) {
             grouped[meal].forEach(item => {
-                    mealCal = Math.round((mealCal + item.cal) * 10) / 10;
+                    mealCal = Math.round((mealCal + (item.cal || 0)) * 10) / 10;
+                    mealCarb = Math.round((mealCarb + (item.carb || 0)) * 10) / 10;
+                    mealPro = Math.round((mealPro + (item.pro || 0)) * 10) / 10;
+                    mealFat = Math.round((mealFat + (item.fat || 0)) * 10) / 10;
                     
                     if (item.subItems && item.subItems.length > 0) {
                         let subHTML = '';
@@ -3687,6 +3859,14 @@ function renderLogs() {
                 suggestStr = `建議 ${Math.round(curDayTargets.cals * 0.35)} - ${Math.round(curDayTargets.cals * 0.45)} kcal`;
             }
             
+            const mealMacrosHTML = grouped[meal].length > 0
+                ? `<div style="font-size:11px; color:var(--text-muted); font-weight:normal; margin-top:2px; display:flex; gap:8px; justify-content:flex-end;">
+                    <span><b style="color:var(--carb-color);">碳</b> ${mealCarb}g</span>
+                    <span><b style="color:var(--pro-color);">蛋</b> ${mealPro}g</span>
+                    <span><b style="color:var(--fat-color);">脂</b> ${mealFat}g</span>
+                   </div>`
+                : '';
+
             html += `
                 <div class="meal-group-card">
                     <div class="meal-group-header" onclick="openFoodDB('${meal}', '${selectedLogDate}')" style="cursor: pointer;">
@@ -3694,7 +3874,10 @@ function renderLogs() {
                             <h3>${mealMap[meal]}</h3>
                             <span class="suggestion">${suggestStr}</span>
                         </div>
-                        <div class="total-cal">${Math.round(mealCal * 10) / 10}kcal <i class="fa-solid fa-chevron-right" style="font-size:12px; margin-left:4px;"></i></div>
+                        <div style="text-align:right;">
+                            <div class="total-cal">${Math.round(mealCal * 10) / 10}kcal <i class="fa-solid fa-chevron-right" style="font-size:12px; margin-left:4px;"></i></div>
+                            ${mealMacrosHTML}
+                        </div>
                     </div>
                     ${itemsHTML}
                 </div>
@@ -4342,8 +4525,8 @@ function renderOverview() {
             fullDate: dStr,
             isFuture,
             hasData: dayCals > 0,
-            cals: Math.round(dayCals), pro: Math.round(dayPro),
-            carb: Math.round(dayCarb), fat: Math.round(dayFat)
+            cals: Math.round(dayCals * 10) / 10, pro: Math.round(dayPro * 10) / 10,
+            carb: Math.round(dayCarb * 10) / 10, fat: Math.round(dayFat * 10) / 10
         });
     }
     
