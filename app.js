@@ -1830,11 +1830,11 @@ function renderScanChecklist() {
                 </div>
             </div>
             <div style="text-align: right;">
-                <div style="font-weight: 600; color: var(--text-main);"><span id="scan-cal-${index}">${item.cal || 0}</span> <span style="color: var(--text-muted); font-size: 12px; font-weight: 400;">kcal</span></div>
+                <div style="font-weight: 600; color: var(--text-main);"><span id="scan-cal-${index}">${Math.round((item.cal || 0) * 10) / 10}</span> <span style="color: var(--text-muted); font-size: 12px; font-weight: 400;">kcal</span></div>
                 <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
-                    <span><span style="color: #f59e0b;">碳</span> <span id="scan-carb-${index}">${Math.round(item.carb || 0)}</span>g</span>
-                    <span><span style="color: #38bdf8;">蛋</span> <span id="scan-pro-${index}">${Math.round(item.pro || 0)}</span>g</span>
-                    <span><span style="color: #a855f7;">脂</span> <span id="scan-fat-${index}">${Math.round(item.fat || 0)}</span>g</span>
+                    <span><span style="color: #f59e0b;">碳</span> <span id="scan-carb-${index}">${Math.round((item.carb || 0) * 10) / 10}</span>g</span>
+                    <span><span style="color: #38bdf8;">蛋</span> <span id="scan-pro-${index}">${Math.round((item.pro || 0) * 10) / 10}</span>g</span>
+                    <span><span style="color: #a855f7;">脂</span> <span id="scan-fat-${index}">${Math.round((item.fat || 0) * 10) / 10}</span>g</span>
                 </div>
             </div>
         </div>
@@ -1862,7 +1862,7 @@ function updateScanItemGrams(index, newGrams, source) {
     const ratio = grams / item.baseGrams;
     
     item.grams = grams;
-    item.cal = Math.round(item.baseCal * ratio);
+    item.cal = Math.round((item.baseCal * ratio) * 10) / 10;
     item.pro = Math.round((item.basePro * ratio) * 10) / 10;
     item.carb = Math.round((item.baseCarb * ratio) * 10) / 10;
     item.fat = Math.round((item.baseFat * ratio) * 10) / 10;
@@ -1870,11 +1870,11 @@ function updateScanItemGrams(index, newGrams, source) {
     const calEl = document.getElementById(`scan-cal-${index}`);
     if (calEl) calEl.innerText = item.cal;
     const proEl = document.getElementById(`scan-pro-${index}`);
-    if (proEl) proEl.innerText = Math.round(item.pro);
+    if (proEl) proEl.innerText = item.pro;
     const carbEl = document.getElementById(`scan-carb-${index}`);
-    if (carbEl) carbEl.innerText = Math.round(item.carb);
+    if (carbEl) carbEl.innerText = item.carb;
     const fatEl = document.getElementById(`scan-fat-${index}`);
-    if (fatEl) fatEl.innerText = Math.round(item.fat);
+    if (fatEl) fatEl.innerText = item.fat;
     
     const gramsTextEl = document.getElementById(`scan-grams-text-${index}`);
     if (gramsTextEl) gramsTextEl.innerText = Math.round(item.grams);
@@ -2199,7 +2199,7 @@ function renderDBContent(searchQuery = '') {
                     <div style="margin-right: 12px; width: 44px; height: 44px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">${renderIcon}</div>
                     <div style="min-width: 0; flex: 1;">
                         <h4 style="line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${displayName}${unitName}</h4>
-                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${Math.round(food.cals * 10) / 10}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
                     </div>
                 </div>
                 <button style="background:transparent; border:none; padding:8px 12px; font-size:18px; color: #ff4757; flex-shrink: 0; cursor: pointer;" onclick="deleteFoodDbItem(event, '${food.id}')" title="刪除此項目">
@@ -2214,7 +2214,7 @@ function renderDBContent(searchQuery = '') {
                     <div style="margin-right: 12px; width: 48px; height: 48px; background: ${catColor}20; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${renderIcon}</div>
                     <div>
                         <h4 style="line-height: 1.2;">${displayName}${unitName}</h4>
-                        <p><span style="color: #ff6b6b; font-weight: 600;">${food.cals}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
+                        <p><span style="color: #ff6b6b; font-weight: 600;">${Math.round(food.cals * 10) / 10}</span> ${food.name.includes("100g") ? "kcal / 100g" : "kcal / 份"}</p>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -2799,10 +2799,10 @@ function updateFoodSetup() {
         }
     }
     
-    document.getElementById('setup-cal').innerText = Math.round(selectedFood.cals * multi);
-    document.getElementById('setup-pro').innerText = Math.round(selectedFood.macros.p * multi);
-    document.getElementById('setup-carb').innerText = Math.round(selectedFood.macros.c * multi);
-    document.getElementById('setup-fat').innerText = Math.round(selectedFood.macros.f * multi);
+    document.getElementById('setup-cal').innerText = Math.round(selectedFood.cals * multi * 10) / 10;
+    document.getElementById('setup-pro').innerText = Math.round(selectedFood.macros.p * multi * 10) / 10;
+    document.getElementById('setup-carb').innerText = Math.round(selectedFood.macros.c * multi * 10) / 10;
+    document.getElementById('setup-fat').innerText = Math.round(selectedFood.macros.f * multi * 10) / 10;
 }
 
 document.getElementById('btn-add-food').addEventListener('click', () => {
@@ -2839,7 +2839,7 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
                 const unitWord = countMatch[1];
                 finalDesc = `${inputVal}${unitWord}`;
             } else if (rawSpec.toLowerCase().includes('100g')) {
-                finalDesc = `${Math.round(inputVal * 100)}g`;
+                finalDesc = `${Math.round(inputVal * 100 * 10) / 10}g`;
             } else {
                 finalDesc = `${inputVal}份`;
             }
@@ -2855,10 +2855,10 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         date: window.currentAddingDate || getTodayDateStr(),
         meal: currentAddingMeal,
         name: `${baseName} (${finalDesc})`,
-        cal: Math.round(selectedFood.cals * multi),
-        pro: Math.round(selectedFood.macros.p * multi),
-        carb: Math.round(selectedFood.macros.c * multi),
-        fat: Math.round(selectedFood.macros.f * multi),
+        cal: Math.round(selectedFood.cals * multi * 10) / 10,
+        pro: Math.round(selectedFood.macros.p * multi * 10) / 10,
+        carb: Math.round(selectedFood.macros.c * multi * 10) / 10,
+        fat: Math.round(selectedFood.macros.f * multi * 10) / 10,
     };
 
     currentCart.push(newLog);
@@ -2887,7 +2887,7 @@ function openCartModal() {
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border);">
                 <div>
                     <div style="font-size: 15px; font-weight: 500;">${item.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">${item.cal} ?卡</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">${Math.round(item.cal * 10) / 10} kcal • 碳${Math.round((item.carb || 0) * 10) / 10}g 蛋${Math.round((item.pro || 0) * 10) / 10}g 脂${Math.round((item.fat || 0) * 10) / 10}g</div>
                 </div>
                 <button class="btn-icon" style="color: #ff4757; border:none; width:32px; height:32px;" onclick="removeCartItem(${index})"><i class="fa-solid fa-minus-circle" style="font-size:20px;"></i></button>
             </div>
@@ -3518,7 +3518,7 @@ function renderLogs() {
 
     const curDayTargets = getDayTargets(selectedLogDate);
     const dayLogs = logs.filter(log => (log.date || getTodayDateStr()) === selectedLogDate);
-    const dayTotalCals = dayLogs.reduce((s, l) => s + (l.cal || 0), 0);
+    const dayTotalCals = Math.round(dayLogs.reduce((s, l) => s + (l.cal || 0), 0) * 10) / 10;
     const summaryText = document.getElementById('logs-summary-text');
     const statusBadge = document.getElementById('logs-status-badge');
     const isToday = (selectedLogDate === getTodayDateStr());
@@ -3553,12 +3553,12 @@ function renderLogs() {
             statusBadge.style.color = 'var(--accent-primary)';
             statusBadge.innerHTML = `<i class="fa-solid fa-circle-check" style="font-size:12px;"></i> <span>${isToday ? '今日已達標' : '已達標'}</span>`;
         } else if (ratio < 0.90) {
-            const diff = curDayTargets.cals - dayTotalCals;
+            const diff = Math.round((curDayTargets.cals - dayTotalCals) * 10) / 10;
             statusBadge.style.background = 'rgba(251, 191, 36, 0.15)';
             statusBadge.style.color = '#f59e0b';
             statusBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size:12px;"></i> <span>${isToday ? '熱量未達標' : '未達標'} (-${diff}k)</span>`;
         } else {
-            const diff = dayTotalCals - curDayTargets.cals;
+            const diff = Math.round((dayTotalCals - curDayTargets.cals) * 10) / 10;
             statusBadge.style.background = 'rgba(255, 107, 129, 0.15)';
             statusBadge.style.color = '#ff6b81';
             statusBadge.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="font-size:12px;"></i> <span>${isToday ? '熱量已超標' : '已超標'} (+${diff}k)</span>`;
@@ -3579,7 +3579,7 @@ function renderLogs() {
         
         if(grouped[meal].length > 0) {
             grouped[meal].forEach(item => {
-                    mealCal += item.cal;
+                    mealCal = Math.round((mealCal + item.cal) * 10) / 10;
                     
                     if (item.subItems && item.subItems.length > 0) {
                         let subHTML = '';
@@ -3604,7 +3604,7 @@ function renderLogs() {
                                             <div style="font-size:10px; color:var(--text-muted);">${sub.grams}g • <span style="color: var(--carb-color);">碳</span>${Math.round(sub.carb*10)/10}g <span style="color: var(--pro-color);">蛋</span>${Math.round(sub.pro*10)/10}g <span style="color: var(--fat-color);">脂</span>${Math.round(sub.fat*10)/10}g</div>
                                         </div>
                                     </div>
-                                    <div style="font-size:13px; font-weight:600; color:var(--text-main);">${sub.cal}kcal</div>
+                                    <div style="font-size:13px; font-weight:600; color:var(--text-main);">${Math.round(sub.cal*10)/10}kcal</div>
                                 </div>
                             `;
                         });
@@ -3622,7 +3622,7 @@ function renderLogs() {
                                         </div>
                                     </div>
                                     <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px;">
-                                        <span>${item.cal}kcal</span>
+                                        <span>${Math.round(item.cal*10)/10}kcal</span>
                                         <div style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i id="chevron-${item.id}" class="fa-solid fa-chevron-down" style="transition: transform 0.3s; font-size:12px;"></i></div>
                                         <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="event.stopPropagation(); deleteLogItem(${item.id})">
                                             <i class="fa-solid fa-trash"></i>
@@ -3666,7 +3666,7 @@ function renderLogs() {
                                     </div>
                                 </div>
                                 <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px;">
-                                    <span>${item.cal}kcal</span>
+                                    <span>${Math.round(item.cal*10)/10}kcal</span>
                                     <div style="width:24px; height:24px;"></div>
                                     <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="deleteLogItem(${item.id})">
                                         <i class="fa-solid fa-trash"></i>
@@ -3694,7 +3694,7 @@ function renderLogs() {
                             <h3>${mealMap[meal]}</h3>
                             <span class="suggestion">${suggestStr}</span>
                         </div>
-                        <div class="total-cal">${mealCal}kcal <i class="fa-solid fa-chevron-right" style="font-size:12px; margin-left:4px;"></i></div>
+                        <div class="total-cal">${Math.round(mealCal * 10) / 10}kcal <i class="fa-solid fa-chevron-right" style="font-size:12px; margin-left:4px;"></i></div>
                     </div>
                     ${itemsHTML}
                 </div>
@@ -4102,10 +4102,11 @@ function closeCustomFood() {
 
 function saveCustomFood() {
     const name = document.getElementById('cf-name').value.trim();
-    const cals = parseFloat(document.getElementById('cf-cal').value);
-    const p = parseFloat(document.getElementById('cf-pro').value) || 0;
-    const c = parseFloat(document.getElementById('cf-carb').value) || 0;
-    const f = parseFloat(document.getElementById('cf-fat').value) || 0;
+    const rawCal = parseFloat(document.getElementById('cf-cal').value);
+    const cals = Math.round(rawCal * 10) / 10;
+    const p = Math.round((parseFloat(document.getElementById('cf-pro').value) || 0) * 10) / 10;
+    const c = Math.round((parseFloat(document.getElementById('cf-carb').value) || 0) * 10) / 10;
+    const f = Math.round((parseFloat(document.getElementById('cf-fat').value) || 0) * 10) / 10;
     const chosenCategory = document.getElementById('cf-category')?.value || 'custom';
 
     if (!name) {
