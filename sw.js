@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calicorie-v3.155';
+﻿const CACHE_NAME = 'calicorie-v3.156';
 const urlsToCache = [
   './',
   './index.html',
@@ -32,6 +32,12 @@ self.addEventListener('install', event => {
 
 // Network First, falling back to cache
 self.addEventListener('fetch', event => {
+  // 只處理 GET 且 http(s)；Firestore/Auth 的 POST、串流請求不攔截，避免 cache.put 報錯與干擾同步
+  const url = new URL(event.request.url);
+  if (event.request.method !== 'GET' || !url.protocol.startsWith('http') ||
+      url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('firebaseio.com')) {
+    return;
+  }
   event.respondWith(
     fetch(event.request).then(response => {
       // Network successful, update cache

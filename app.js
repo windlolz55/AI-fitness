@@ -492,6 +492,9 @@ function applyFoodOverrides() {
             if (ov.categoryId) {
                 food.categoryId = ov.categoryId;
             }
+            if (typeof ov.name === 'string' && ov.name.trim()) {
+                food.name = ov.name.trim();
+            }
         }
     });
     if (ovUpdated) {
@@ -567,6 +570,10 @@ function recalcLogsWithFoodDB(shouldSync = true) {
     };
 
     logs.forEach(item => {
+        // 一次性遷移：已處理過 (pv=1) 的紀錄不再重算，避免之後修改食物庫時回頭改寫歷史紀錄
+        if (item.pv === 1) return;
+        item.pv = 1;
+        updated = true;
         if (item.subItems && item.subItems.length > 0) {
             let sumCal = 0, sumPro = 0, sumCarb = 0, sumFat = 0;
             item.subItems.forEach(sub => {
@@ -2708,6 +2715,8 @@ window.toggleFoodNutritionEdit = function(e) {
         }
 
         // 填入當前基準數值
+        const editName = document.getElementById('setup-edit-name');
+        if (editName) editName.value = selectedFood.name || '';
         const editCals = document.getElementById('setup-edit-cals');
         const editCarb = document.getElementById('setup-edit-carb');
         const editPro = document.getElementById('setup-edit-pro');
@@ -2772,6 +2781,17 @@ window.saveFoodNutritionEdit = function() {
         alert('請輸入正確的熱量數值 (kcal)');
         return;
     }
+
+    const nameEl = document.getElementById('setup-edit-name');
+    const newName = nameEl ? nameEl.value.trim().replace(/\s+/g, ' ') : selectedFood.name;
+    if (!newName) {
+        alert('品項名稱不能為空');
+        return;
+    }
+    const nameChanged = newName !== selectedFood.name;
+    if (nameChanged && foodDatabase.foods.some(f => f.id !== selectedFood.id && f.name === newName)) {
+        if (!confirm(`食物庫已有同名品項「${newName}」，確定仍要使用此名稱？`)) return;
+    }
     const safeCarb = isNaN(carbInput) || carbInput < 0 ? 0 : Math.round(carbInput * 10) / 10;
     const safePro = isNaN(proInput) || proInput < 0 ? 0 : Math.round(proInput * 10) / 10;
     const safeFat = isNaN(fatInput) || fatInput < 0 ? 0 : Math.round(fatInput * 10) / 10;
@@ -2792,6 +2812,7 @@ window.saveFoodNutritionEdit = function() {
     const targetCat = catChanged ? foodDatabase.categories.find(c => c.id === newCategory) : null;
     
     // 更新 selectedFood 直接取代原數值與分類
+    selectedFood.name = newName;
     selectedFood.cals = safeCals;
     selectedFood.macros = { p: safePro, c: safeCarb, f: safeFat };
     if (newCategory) selectedFood.categoryId = newCategory;
@@ -2803,6 +2824,7 @@ window.saveFoodNutritionEdit = function() {
     // 更新食物資料庫主列表中的物件
     const dbItem = foodDatabase.foods.find(f => f.id === selectedFood.id);
     if (dbItem) {
+        dbItem.name = newName;
         dbItem.cals = safeCals;
         dbItem.macros = { p: safePro, c: safeCarb, f: safeFat };
         if (newCategory) dbItem.categoryId = newCategory;
@@ -2816,6 +2838,7 @@ window.saveFoodNutritionEdit = function() {
     if (selectedFood.id.startsWith('cf_') || customFoods.some(f => f.id === selectedFood.id)) {
         const cItem = customFoods.find(f => f.id === selectedFood.id);
         if (cItem) {
+            cItem.name = newName;
             cItem.cals = safeCals;
             cItem.macros = { p: safePro, c: safeCarb, f: safeFat };
             if (newCategory) cItem.categoryId = newCategory;
@@ -2830,6 +2853,7 @@ window.saveFoodNutritionEdit = function() {
     // 記錄到 foodOverrides 以持久化取代
     if (!foodOverrides) foodOverrides = {};
     foodOverrides[selectedFood.id] = {
+        ...(nameChanged || (foodOverrides[selectedFood.id] && foodOverrides[selectedFood.id].name) ? { name: newName } : {}),
         cals: safeCals,
         macros: { p: safePro, c: safeCarb, f: safeFat },
         ...(weightPerServing ? { weightPerServing } : {}),
@@ -2837,6 +2861,9 @@ window.saveFoodNutritionEdit = function() {
     };
     setAndSync('foodOverrides', JSON.stringify(foodOverrides));
     if (typeof triggerAutoSync === 'function') triggerAutoSync();
+
+    const setupNameEl = document.getElementById('setup-food-name');
+    if (setupNameEl) setupNameEl.innerText = newName;
     
     // 更新食物清單 UI（直接呈現替換後的新數值）
     renderDBContent(document.getElementById('food-search-input').value);
@@ -3007,6 +3034,7 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
     const newLog = {
         id: Date.now() + Math.random(),
         foodId: selectedFood.id,
+        pv: 1,
         img: '', 
         time: new Date().toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'}),
         date: window.currentAddingDate || getTodayDateStr(),
@@ -3817,7 +3845,7 @@ function renderLogs() {
                             }
                         }
                         const baseName = item.name.split(' (')[0];
-                        const dbFood = foodDatabase.foods.find(f => f.name.includes(baseName));
+                        const dbFood = (item.foodId && foodDatabase.foods.find(f => f.id === item.foodId)) || foodDatabase.foods.find(f => f.name.includes(baseName));
                         if(dbFood) {
                             const cat = foodDatabase.categories.find(c => c.id === dbFood.categoryId) || { icon: 'fluent-emoji-flat:fork-and-knife-with-plate', color: '#ccc' };
                             const catColor = cat.color || 'var(--accent-primary)';
