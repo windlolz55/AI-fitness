@@ -3680,12 +3680,8 @@ function selectLogDate(dateStr) {
 
 function renderLogs() {
     const container = document.getElementById('all-logs');
-    const mealMap = { 
-        breakfast: '<img src="icon-breakfast.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">早餐', 
-        lunch: '<img src="icon-lunch.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">午餐', 
-        dinner: '<img src="icon-dinner.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">晚餐', 
-        snack: '<img src="icon-snack.png" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-right:12px; vertical-align:middle; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">加餐' 
-    };
+    const mealTitleMap = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '加餐' };
+    const mealIconMap = { breakfast: 'icon-breakfast.png', lunch: 'icon-lunch.png', dinner: 'icon-dinner.png', snack: 'icon-snack.png' };
     
     let html = '';
 
@@ -3726,10 +3722,10 @@ function renderLogs() {
     
     if (summaryText) {
         summaryText.innerHTML = `總攝取：${dayTotalCals.toLocaleString()} <span style="font-size:12px;font-weight:normal;color:var(--text-muted);">/ ${curDayTargets.cals.toLocaleString()} kcal</span>
-            <div style="font-size:11px;font-weight:normal;color:var(--text-muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;">
-                <span><b style="color:var(--carb-color);">碳</b> ${dayTotalCarb} <span style="opacity:0.75;">/ ${curDayTargets.carb}g</span></span>
-                <span><b style="color:var(--pro-color);">蛋</b> ${dayTotalPro} <span style="opacity:0.75;">/ ${curDayTargets.pro}g</span></span>
-                <span><b style="color:var(--fat-color);">脂</b> ${dayTotalFat} <span style="opacity:0.75;">/ ${curDayTargets.fat}g</span></span>
+            <div style="font-size:11px;font-weight:normal;color:var(--text-muted);margin-top:4px;display:flex;gap:6px;white-space:nowrap;">
+                <span><b style="color:var(--carb-color);">碳</b> ${dayTotalCarb}<span style="opacity:0.75;">/${curDayTargets.carb}g</span></span>
+                <span><b style="color:var(--pro-color);">蛋</b> ${dayTotalPro}<span style="opacity:0.75;">/${curDayTargets.pro}g</span></span>
+                <span><b style="color:var(--fat-color);">脂</b> ${dayTotalFat}<span style="opacity:0.75;">/${curDayTargets.fat}g</span></span>
             </div>`;
     }
 
@@ -3827,13 +3823,13 @@ function renderLogs() {
                                     <div class="meal-item-icon" style="background: var(--accent-primary); color: var(--bg-main); font-size:16px;"><i class="fa-solid fa-layer-group"></i></div>
                                     <div class="meal-item-info">
                                         <div class="meal-item-name">${item.name}</div>
-                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; white-space: nowrap;">
                                             <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
                                             <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
                                             <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
                                         </div>
                                     </div>
-                                    <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px;">
+                                    <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
                                         <span>${Math.round(item.cal*10)/10}kcal</span>
                                         <div style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i id="chevron-${item.id}" class="fa-solid fa-chevron-down" style="transition: transform 0.3s; font-size:12px;"></i></div>
                                         <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="event.stopPropagation(); deleteLogItem(${item.id})">
@@ -3871,15 +3867,14 @@ function renderLogs() {
                                 <div class="meal-item-info">
                                     <div class="meal-item-name">${baseName}</div>
                                     <div class="meal-item-desc">${desc}</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px;">
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; white-space: nowrap;">
                                         <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
                                         <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
                                         <span><span style="color: var(--fat-color); font-weight: bold;">脂</span> ${Math.round(item.fat*10)/10}g</span>
                                     </div>
                                 </div>
-                                <div class="meal-item-cal" style="display:flex; align-items:center; gap:8px;">
+                                <div class="meal-item-cal" style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
                                     <span>${Math.round(item.cal*10)/10}kcal</span>
-                                    <div style="width:24px; height:24px;"></div>
                                     <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="deleteLogItem(${item.id})">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
@@ -3899,8 +3894,9 @@ function renderLogs() {
                 suggestStr = `建議 ${Math.round(curDayTargets.cals * 0.35)} - ${Math.round(curDayTargets.cals * 0.45)} kcal`;
             }
             
-            const mealMacrosHTML = grouped[meal].length > 0
-                ? `<div style="font-size:11px; color:var(--text-muted); font-weight:normal; margin-top:2px; display:flex; gap:8px; justify-content:flex-end;">
+            const hasItems = grouped[meal].length > 0;
+            const mealMacrosHTML = hasItems
+                ? `<div style="font-size:11px; color:var(--text-muted); font-weight:normal; margin-top:2px; display:flex; gap:6px; justify-content:flex-end; white-space:nowrap;">
                     <span><b style="color:var(--carb-color);">碳</b> ${mealCarb}g</span>
                     <span><b style="color:var(--pro-color);">蛋</b> ${mealPro}g</span>
                     <span><b style="color:var(--fat-color);">脂</b> ${mealFat}g</span>
@@ -3909,12 +3905,15 @@ function renderLogs() {
 
             html += `
                 <div class="meal-group-card">
-                    <div class="meal-group-header" onclick="openFoodDB('${meal}', '${selectedLogDate}')" style="cursor: pointer;">
-                        <div style="display:flex; align-items:baseline;">
-                            <h3>${mealMap[meal]}</h3>
-                            <span class="suggestion">${suggestStr}</span>
+                    <div class="meal-group-header" onclick="openFoodDB('${meal}', '${selectedLogDate}')" style="cursor: pointer; align-items: center; gap: 8px;">
+                        <div style="display:flex; align-items:center; gap: 10px; min-width: 0;">
+                            <img src="${mealIconMap[meal]}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="display:flex; flex-direction:${hasItems ? 'column' : 'row'}; align-items:${hasItems ? 'flex-start' : 'baseline'}; gap:${hasItems ? '2px' : '8px'}; min-width:0;">
+                                <h3 style="margin:0; white-space:nowrap;">${mealTitleMap[meal]}</h3>
+                                ${suggestStr ? `<span class="suggestion" style="margin-left:0; white-space:nowrap; font-size:11px;">${suggestStr}</span>` : ''}
+                            </div>
                         </div>
-                        <div style="text-align:right;">
+                        <div style="text-align:right; flex-shrink:0; white-space:nowrap;">
                             <div class="total-cal">${Math.round(mealCal * 10) / 10}kcal <i class="fa-solid fa-chevron-right" style="font-size:12px; margin-left:4px;"></i></div>
                             ${mealMacrosHTML}
                         </div>
