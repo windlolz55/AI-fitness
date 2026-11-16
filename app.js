@@ -887,7 +887,8 @@ function getDayTargets(dateStr) {
     const minCals = (userProfile && userProfile.gender === 'female') ? 1200 : 1500;
     if (restCals < minCals) restCals = minCals;
 
-    const restPro = basePro;
+    // 休息日蛋白質 -12% (×0.88)，避免浪費；脂肪維持不變，其餘差額由碳水吸收
+    const restPro = Math.round(basePro * 0.88);
     const restFat = baseFat;
     const remainingCals = restCals - (restPro * 4) - (restFat * 9);
     const restCarb = Math.max(0, Math.round(remainingCals / 4));
@@ -3395,7 +3396,7 @@ function showInfo(type) {
             restSection = `
                 <div style="background: rgba(255, 159, 67, 0.12); border: 1px solid rgba(255, 159, 67, 0.3); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
                     <p style="margin-bottom: 6px; color: #ff9f43; font-weight: 600;"><i class="fa-solid fa-bed"></i> 🛌 當前模式：休息日 (碳循環)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">休息日依據目標調整熱量 (${getRestDayPercent(userProfile.goal) > 0 ? '+' : ''}${getRestDayPercent(userProfile.goal)}%)，蛋白質與脂肪維持不變以保護肌肉，差額全數從碳水化合物調整：</p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">休息日依據目標調整熱量 (${getRestDayPercent(userProfile.goal) > 0 ? '+' : ''}${getRestDayPercent(userProfile.goal)}%)，蛋白質降 12% (×0.88)、脂肪維持不變，差額由碳水化合物調整：</p>
                     <p>${Math.round(tdee)} × ${(1 + getRestDayPercent(userProfile.goal) / 100).toFixed(2)} = <strong>${activeDayTar.cals} kcal</strong></p>
                     ${activeDayTar.cals === minCals ? `<p style="color:#ff6b6b; font-size:11px; margin-top:2px;">(已觸發最低安全熱量防護 ${minCals} kcal)</p>` : ''}
                 </div>
@@ -3466,7 +3467,7 @@ function showInfo(type) {
                     <span style="color: #ff9f43; font-weight: 600;"><i class="fa-solid fa-bed"></i> 休息日碳循環生效中</span>
                     <p style="color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
                         總熱量降至 <strong>${activeDayTar.cals} kcal</strong> (TDEE ${getRestDayPercent(userProfile.goal) > 0 ? '+' : (getRestDayPercent(userProfile.goal) < 0 ? '−' : '±')} ${Math.abs(getRestDayPercent(userProfile.goal))}%)。<br>
-                        蛋白質與脂肪維持不變，減少的熱量全數由碳水化合物扣除（碳水減少約 <strong>${carbDiff}g</strong>）。
+                        蛋白質降 12% (${TARGET_PRO}g × 0.88 = <strong>${displayPro}g</strong>)、脂肪維持不變，剩餘熱量差額由碳水化合物調整（碳水減少約 <strong>${carbDiff}g</strong>）。
                     </p>
                 </div>
             `;
@@ -3492,8 +3493,8 @@ function showInfo(type) {
                     <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
                     <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準計算蛋白質與脂肪，並用碳水填滿剩餘熱量。</p>
                     
-                    <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
-                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}</p>
+                    <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g${activeDayTar.isRest ? ' × 0.88' : ''})</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
+                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}${activeDayTar.isRest ? ' * 0.88 (休息日 -12%)' : ''}</p>
                     <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${displayPro} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayPro * 4} kcal)</span></p>
                     
                     <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 9 kcal)</span></p>
