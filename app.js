@@ -847,6 +847,17 @@ function getDayType(dateStr) {
     return 'training';
 }
 
+// 休息日熱量 %：增肌固定 0%（維持熱量），其餘目標為訓練日 % 再 -5%
+function getRestDayPercent(goal) {
+    let g = goal || 'maintain';
+    if (g.startsWith('bulk') || g === 'gain') g = 'bulk';
+    else if (g.startsWith('cut') || g === 'lose') g = 'cut';
+    else if (g.startsWith('recomp')) g = 'recomp';
+    else g = 'maintain';
+    if (g === 'bulk') return 0;
+    return getGoalAdjustmentPercent(g) - 5;
+}
+
 function getDayTargets(dateStr) {
     if (!dateStr) dateStr = getTodayDateStr();
     const type = getDayType(dateStr);
@@ -868,9 +879,9 @@ function getDayTargets(dateStr) {
         };
     }
 
-    // 休息日公式：TDEE - 15%，蛋白質與脂肪維持不變以保護肌肉，扣減差額全由碳水化合物減少
+    // 休息日公式：依目標調整 % 決定，蛋白質與脂肪維持不變以保護肌肉，扣減差額全由碳水化合物減少
     const tdee = calcTDEE() || 2000;
-    let restCals = Math.round(tdee * 0.85);
+    let restCals = Math.round(tdee * (1 + getRestDayPercent(userProfile && userProfile.goal) / 100));
 
     // 最低安全熱量防護 (女性 1200 / 男性 1500)
     const minCals = (userProfile && userProfile.gender === 'female') ? 1200 : 1500;
@@ -3384,8 +3395,8 @@ function showInfo(type) {
             restSection = `
                 <div style="background: rgba(255, 159, 67, 0.12); border: 1px solid rgba(255, 159, 67, 0.3); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
                     <p style="margin-bottom: 6px; color: #ff9f43; font-weight: 600;"><i class="fa-solid fa-bed"></i> 🛌 當前模式：休息日 (碳循環)</p>
-                    <p style="color: var(--text-muted); margin-bottom: 4px;">休息日依據 TDEE 扣除 15% 熱量赤字，蛋白質與脂肪維持不變以保護肌肉，差額全數從碳水化合物減少：</p>
-                    <p>${Math.round(tdee)} × 0.85 = <strong>${activeDayTar.cals} kcal</strong></p>
+                    <p style="color: var(--text-muted); margin-bottom: 4px;">休息日依據目標調整熱量 (${getRestDayPercent(userProfile.goal) > 0 ? '+' : ''}${getRestDayPercent(userProfile.goal)}%)，蛋白質與脂肪維持不變以保護肌肉，差額全數從碳水化合物調整：</p>
+                    <p>${Math.round(tdee)} × ${(1 + getRestDayPercent(userProfile.goal) / 100).toFixed(2)} = <strong>${activeDayTar.cals} kcal</strong></p>
                     ${activeDayTar.cals === minCals ? `<p style="color:#ff6b6b; font-size:11px; margin-top:2px;">(已觸發最低安全熱量防護 ${minCals} kcal)</p>` : ''}
                 </div>
             `;
@@ -3454,7 +3465,7 @@ function showInfo(type) {
                 <div style="background: rgba(255, 159, 67, 0.12); border: 1px solid rgba(255, 159, 67, 0.3); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 12px;">
                     <span style="color: #ff9f43; font-weight: 600;"><i class="fa-solid fa-bed"></i> 休息日碳循環生效中</span>
                     <p style="color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
-                        總熱量降至 <strong>${activeDayTar.cals} kcal</strong> (TDEE − 15%)。<br>
+                        總熱量降至 <strong>${activeDayTar.cals} kcal</strong> (TDEE ${getRestDayPercent(userProfile.goal) > 0 ? '+' : (getRestDayPercent(userProfile.goal) < 0 ? '−' : '±')} ${Math.abs(getRestDayPercent(userProfile.goal))}%)。<br>
                         蛋白質與脂肪維持不變，減少的熱量全數由碳水化合物扣除（碳水減少約 <strong>${carbDiff}g</strong>）。
                     </p>
                 </div>
