@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" href="icon-192.png">
     <title>Calicorie</title>
-    <link rel="stylesheet" href="style.css?v=3.161">
+    <link rel="stylesheet" href="style.css?v=3.162">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -43,7 +43,7 @@
         <div id="view-auth" class="view" style="display: none; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                 <img src="icon-192.png" alt="Calicorie Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.161</span></h1>
+                <h1 style="font-size: 24px; margin: 0; color: var(--text-main);">Calicorie <span style="font-size: 14px; color: var(--text-muted); opacity: 0.7;">v3.162</span></h1>
             </div>
             <p style="color: var(--text-muted); margin-top: 8px;">登入以同步您的專屬紀錄</p>
             
@@ -244,13 +244,15 @@
             </header>
 
             <!-- Logs Status / Achievement Header Bar -->
-            <div id="logs-header-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; min-height: 32px; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div id="logs-header-wrapper" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; min-height: 32px; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
                     <span id="logs-summary-text" style="font-weight: bold; color: var(--text-main); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">總攝取：0 / 2,000 kcal</span>
-                    <button type="button" id="log-daytype-tag" onclick="toggleLogDayType()" style="border: none; border-radius: 8px; font-size: 11px; font-weight: 600; padding: 3px 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;"></button>
                 </div>
-                <div id="logs-status-badge" style="background: rgba(29, 209, 161, 0.15); color: var(--accent-primary); border-radius: 12px; font-size: 12px; padding: 6px 12px; display: inline-flex; gap: 6px; align-items: center; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
-                    <i class="fa-regular fa-circle" style="font-size: 12px;"></i> <span>今日尚未記錄</span>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0;">
+                    <button type="button" id="log-daytype-tag" onclick="toggleLogDayType()" style="border: none; border-radius: 8px; font-size: 11px; font-weight: 600; padding: 3px 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;"></button>
+                    <div id="logs-status-badge" style="background: rgba(29, 209, 161, 0.15); color: var(--accent-primary); border-radius: 12px; font-size: 12px; padding: 6px 12px; display: inline-flex; gap: 6px; align-items: center; font-weight: 600; white-space: nowrap; flex-shrink: 0;">
+                        <i class="fa-regular fa-circle" style="font-size: 12px;"></i> <span>今日尚未記錄</span>
+                    </div>
                 </div>
             </div>
 
@@ -405,95 +407,131 @@
 
         <!-- Profile View -->
         <div id="view-profile" class="view">
-            <header style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+            <header style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="margin: 0;">我的設定</h2>
                 <div style="display: flex; gap: 4px; align-items: center;"><button class="btn-icon" style="color: var(--text-muted); font-size: 16px; border: none; background: transparent; cursor: pointer; padding: 8px;" onclick="const icon = this.querySelector('i'); icon.classList.add('fa-spin'); setTimeout(() => window.location.reload(true), 300);"><i class="fa-solid fa-rotate-right"></i></button></div>
             </header>
 
-            <div class="card" style="padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: 500;">主題模式</span>
-                <select id="theme-select" style="color-scheme: dark; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer;">
-                    <option value="light" class="themed-option">淺色模式</option>
-                    <option value="dark" class="themed-option">深色模式</option>
-                </select>
-            </div>
-
-                        <div style="margin-bottom: 16px;">
-
-                <button class="btn-primary" style="width: 100%; padding: 16px; border-radius: 16px; font-weight: bold; margin-top: 12px;" onclick="openRoutinePlanManager()">
-                    <i class="fa-solid fa-calendar-days"></i> 設定分化訓練計畫
-                </button>
-            </div>
-
-<div class="card" style="padding: 16px;">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">基本資料</h3>
-                <label style="font-size: 12px; color: var(--text-muted);">暱稱</label>
-                <input type="text" id="nickname" class="input-field" placeholder="輸入您的暱稱 (選填)">
-                
-                <label style="font-size: 12px; color: var(--text-muted);">性別</label>
-                <select id="gender" class="input-field">
-                    <option value="male">男性</option>
-                    <option value="female">女性</option>
-                </select>
-                
-                <label style="font-size: 12px; color: var(--text-muted);">年齡</label>
-                <input type="number" id="age" class="input-field" placeholder="年齡">
-                
-                <label style="font-size: 12px; color: var(--text-muted);">身高 (cm)</label>
-                <input type="number" id="height" class="input-field" placeholder="身高 (cm)">
-                
-                <label style="font-size: 12px; color: var(--text-muted);">體重 (kg)</label>
-                <input type="number" id="weight" class="input-field" placeholder="體重 (kg)">
-                <div id="inline-bmi-display" style="display: none; margin-top: -8px; margin-bottom: 16px; font-size: 13px; color: var(--text-muted); align-items: center; justify-content: space-between; padding: 0 4px;">
-                    <span>BMI: <strong id="inline-bmi-val" style="color: var(--accent-primary); font-size: 15px;">--</strong></span>
-                    <button class="btn-icon" style="border: none; background: none; font-size: 16px; padding: 4px; color: var(--accent-primary);" onclick="showInfo('bmi')"><i class="fa-solid fa-circle-info"></i></button>
+            <!-- 1. 基本資料 -->
+            <div class="card" style="padding: 18px 16px; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--card-border);">
+                    <i class="fa-solid fa-user" style="color: var(--accent-primary); font-size: 15px;"></i>
+                    <h3 style="margin: 0; font-size: 16px;">基本資料</h3>
                 </div>
-                
-                <label style="font-size: 12px; color: var(--text-muted);">活動量</label>
-                <select id="activity" class="input-field">
+
+                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">暱稱</label>
+                <input type="text" id="nickname" class="input-field" placeholder="輸入您的暱稱 (選填)" style="margin-bottom: 12px;">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">性別</label>
+                        <select id="gender" class="input-field" style="margin-bottom: 0;">
+                            <option value="male">男性</option>
+                            <option value="female">女性</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">年齡</label>
+                        <input type="number" id="age" class="input-field" placeholder="年齡" style="margin-bottom: 0;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">身高 (cm)</label>
+                        <input type="number" id="height" class="input-field" placeholder="身高 (cm)" style="margin-bottom: 0;">
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">體重 (kg)</label>
+                        <input type="number" id="weight" class="input-field" placeholder="體重 (kg)" style="margin-bottom: 0;">
+                    </div>
+                </div>
+
+                <div id="inline-bmi-display" style="display: none; margin-bottom: 12px; font-size: 13px; color: var(--text-muted); align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg-main); border-radius: 10px;">
+                    <span>目前身體質量指數 (BMI)：<strong id="inline-bmi-val" style="color: var(--accent-primary); font-size: 15px;">--</strong></span>
+                    <button class="btn-icon" style="border: none; background: none; font-size: 16px; padding: 2px 4px; color: var(--accent-primary);" onclick="showInfo('bmi')"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+
+                <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">日常活動量</label>
+                <select id="activity" class="input-field" style="margin-bottom: 0;">
                     <option value="1.2">久坐 (無運動、多數時間坐著) x 1.2</option>
                     <option value="1.375">輕度 (每週1-3次，每次30分微喘) x 1.375</option>
                     <option value="1.55">中度 (每週3-5次，每次30-60分流汗) x 1.55</option>
                     <option value="1.725">高度 (每週6-7天，高強度訓練) x 1.725</option>
                     <option value="1.9">極高 (天天高強度訓練或重勞力工作) x 1.9</option>
                 </select>
+            </div>
 
-                <div style="margin-bottom: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                            <label id="goal-label" style="font-size: 12px; color: var(--text-muted); margin: 0; white-space: nowrap;">你的健身目標？</label>
-                            <button type="button" onclick="openGoalAdjustModal()" style="border: 1px solid var(--card-border); background: var(--bg-main); color: var(--accent-primary); font-size: 11px; padding: 2px 7px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; height: 22px; white-space: nowrap; flex-shrink: 0; font-weight: 500;" title="自訂各目標詳細數值">
-                                <i class="fa-solid fa-sliders"></i> 調整數值
-                            </button>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0;">
-                            攝入蛋白質 <span id="pro-recommend-label" style="color: var(--accent-primary); font-weight: bold;">(建議 1.8)</span>: <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="系統" style="width: 46px; height: 22px; padding: 0 4px; text-align: center; font-size: 11px; border-radius: 4px; min-height: 22px; margin: 0;"> g/kg
-                        </div>
+            <!-- 2. 健身目標 -->
+            <div class="card" style="padding: 18px 16px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--card-border);">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-bullseye" style="color: var(--accent-primary); font-size: 15px;"></i>
+                        <h3 style="margin: 0; font-size: 16px;">健身目標</h3>
                     </div>
+                    <button type="button" onclick="openGoalAdjustModal()" style="border: 1px solid var(--card-border); background: var(--bg-main); color: var(--accent-primary); font-size: 11px; padding: 4px 10px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;" title="自訂各目標詳細數值">
+                        <i class="fa-solid fa-sliders"></i> 調整 % 數值
+                    </button>
+                </div>
 
-                    <div class="custom-select-container" style="position: relative; width: 100%;">
-                        <input type="hidden" id="goal" value="">
-                        <div id="goal-display" class="input-field" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; cursor: pointer; padding: 0 14px; gap: 8px;" onclick="document.getElementById('goal-options').style.display = document.getElementById('goal-options').style.display === 'block' ? 'none' : 'block'">
-                            <div id="goal-display-text" style="flex: 1; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                                請選擇目標...
-                            </div>
-                            <i class="fa-solid fa-caret-down" style="color: var(--text-muted); flex-shrink: 0;"></i>
+                <label id="goal-label" style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">你的健身目標？</label>
+                <div class="custom-select-container" style="position: relative; width: 100%; margin-bottom: 14px;">
+                    <input type="hidden" id="goal" value="">
+                    <div id="goal-display" class="input-field" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; cursor: pointer; padding: 0 14px; gap: 8px; margin-bottom: 0;" onclick="document.getElementById('goal-options').style.display = document.getElementById('goal-options').style.display === 'block' ? 'none' : 'block'">
+                        <div id="goal-display-text" style="flex: 1; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            請選擇目標...
                         </div>
-                        <div id="goal-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-top: 4px; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.15); max-height: 320px; overflow-y: auto;">
-                            <!-- Options populated dynamically -->
-                        </div>
+                        <i class="fa-solid fa-caret-down" style="color: var(--text-muted); flex-shrink: 0;"></i>
+                    </div>
+                    <div id="goal-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-top: 4px; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.15); max-height: 320px; overflow-y: auto;">
+                        <!-- Options populated dynamically -->
                     </div>
                 </div>
 
-                <button id="btn-save-profile" class="btn-primary">儲存資料並計算</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; background: var(--bg-main); border-radius: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div style="font-size: 13px; color: var(--text-main); font-weight: 500;">
+                        每日蛋白質倍率 <span id="pro-recommend-label" style="color: var(--accent-primary); font-weight: 600; font-size: 11px; margin-left: 2px;">(建議: 1.6g ~ 2.0g)</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
+                        <input type="number" id="custom-pro-multiplier" class="input-field" step="0.1" placeholder="預設" style="width: 58px; height: 30px; padding: 0 6px; text-align: center; font-size: 13px; border-radius: 6px; min-height: 30px; margin: 0;">
+                        <span>g/kg</span>
+                    </div>
+                </div>
+
+                <button id="btn-save-profile" class="btn-primary" style="margin-bottom: 10px;">
+                    <i class="fa-solid fa-calculator" style="margin-right: 6px;"></i>儲存資料並計算
+                </button>
+
+                <button class="btn-secondary" style="width: 100%; padding: 12px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--accent-primary); border-color: rgba(29, 209, 161, 0.35); background: rgba(29, 209, 161, 0.06);" onclick="openRoutinePlanManager()">
+                    <i class="fa-solid fa-calendar-days"></i> 設定分化訓練計畫
+                </button>
             </div>
-            
-            <button class="btn-secondary" style="width: 100%; margin-top: 48px; color: #ff4757; border-color: #ff4757;" onclick="handleLogout()">登出帳號</button>
 
+            <!-- 3. App 設定 -->
+            <div class="card" style="padding: 18px 16px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--card-border);">
+                    <i class="fa-solid fa-gear" style="color: var(--accent-primary); font-size: 15px;"></i>
+                    <h3 style="margin: 0; font-size: 16px;">App 設定</h3>
+                </div>
 
-            
-            <div style="text-align: center; margin-top: 32px; margin-bottom: 32px;">
-                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.161 (Cloud Sync + PWA)</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0 14px 0; border-bottom: 1px solid var(--card-border); margin-bottom: 14px;">
+                    <div>
+                        <div style="font-weight: 500; font-size: 14px; color: var(--text-main);">主題模式</div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">切換淺色或深色介面外觀</div>
+                    </div>
+                    <select id="theme-select" style="color-scheme: dark; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-main); color: var(--text-main); font-size: 13px; outline: none; cursor: pointer;">
+                        <option value="light" class="themed-option">淺色模式</option>
+                        <option value="dark" class="themed-option">深色模式</option>
+                    </select>
+                </div>
+
+                <button class="btn-secondary" style="width: 100%; padding: 11px; border-radius: 10px; color: #ff4757; border-color: rgba(255, 71, 87, 0.4); background: rgba(255, 71, 87, 0.06); font-weight: 600;" onclick="handleLogout()">
+                    <i class="fa-solid fa-right-from-bracket" style="margin-right: 6px;"></i>登出帳號
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 16px; margin-bottom: 32px;">
+                <p style="font-size: 12px; color: var(--text-muted); opacity: 0.6; font-family: monospace; padding: 8px;">Calicorie v3.162 (Cloud Sync + PWA)</p>
             </div>
         </div>
 
@@ -1169,12 +1207,12 @@
         </div>
     </div>
 
-    <script src="exercise_db.js?v=3.161"></script>
-    <script src="food_db.js?v=3.161"></script>
-    <script src="templates.js?v=3.161"></script>
-    <script src="routine.js?v=3.161"></script>
-    <script src="app.js?v=3.161"></script>
-    <script src="scanner_live.js?v=3.161"></script>
+    <script src="exercise_db.js?v=3.162"></script>
+    <script src="food_db.js?v=3.162"></script>
+    <script src="templates.js?v=3.162"></script>
+    <script src="routine.js?v=3.162"></script>
+    <script src="app.js?v=3.162"></script>
+    <script src="scanner_live.js?v=3.162"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
