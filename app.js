@@ -3989,10 +3989,10 @@ function setupProfile() {
             goalLabel.innerHTML = `你的健身目標？`;
         }
         
-        let defaultProMultiplier = currentCfg.defaultPro;
+        const PRO_RANGES = { bulk: '1.6g ~ 2.0g', maintain: '1.6g ~ 1.8g', recomp: '1.8g ~ 2.2g', cut: '2.0g ~ 2.2g' };
         const proRecommendLabel = document.getElementById('pro-recommend-label');
         if (proRecommendLabel) {
-            proRecommendLabel.innerHTML = `(建議: ${defaultProMultiplier})`;
+            proRecommendLabel.innerHTML = `(建議: ${PRO_RANGES[currentGoal]})`;
         }
 
         const optionsHTML = GOAL_CONFIGS.map(cfg => {
@@ -4172,7 +4172,7 @@ function renderGoalAdjustInputs() {
         const bmr = (10 * wVal) + (6.25 * hVal) - (5 * aVal) + constant;
         tdee = bmr * actVal;
     }
-    tdee = Math.round(tdee) || 2000;
+    tdee = tdee || 2000;
 
     const currentAdjs = getGoalAdjustments();
 
@@ -4236,7 +4236,7 @@ function resetGoalAdjustments() {
         const bmr = (10 * wVal) + (6.25 * hVal) - (5 * aVal) + constant;
         tdee = bmr * actVal;
     }
-    tdee = Math.round(tdee) || 2000;
+    tdee = tdee || 2000;
     GOAL_CONFIGS.forEach(cfg => {
         updateGoalAdjustPreview(cfg.id, tdee);
     });
