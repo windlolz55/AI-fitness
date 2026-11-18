@@ -3247,7 +3247,7 @@ function setupDashboardMemo() {
             setAndSync('fitness_daily', JSON.stringify(dailyData));
             if (typeof triggerAutoSync === 'function') triggerAutoSync();
             if (statusEl) {
-                statusEl.innerText = '已自動儲存 ✓';
+                statusEl.innerText = '✓ 已儲存';
                 statusEl.style.opacity = '1';
                 setTimeout(() => { statusEl.style.opacity = '0'; }, 1800);
             }
