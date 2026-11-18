@@ -3168,9 +3168,89 @@ function setupDailyTracking() {
             updateDailyData();
         }
     });
+
+    setupDashboardMemo();
+}
+
+let currentMemoMode = 'pinned';
+let memoSaveTimer = null;
+
+function autoResizeMemo(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.max(76, el.scrollHeight) + 'px';
+}
+
+function renderDashboardMemo() {
+    const memoInput = document.getElementById('dashboard-memo-input');
+    if (!memoInput || document.activeElement === memoInput) return;
+    const todayStr = getTodayDateStr();
+    if (!dailyData[todayStr]) dailyData[todayStr] = { water: 0, weight: userProfile.weight || 70 };
+    if (currentMemoMode === 'pinned') {
+        memoInput.value = dailyData._pinnedMemo || '';
+        memoInput.placeholder = '記錄跨日保存的飲食備忘、採買清單、訓練目標...（自動雲端同步）';
+    } else {
+        memoInput.value = dailyData[todayStr].note || '';
+        memoInput.placeholder = `記錄今天 (${todayStr.slice(5)}) 的身體狀態、睡眠或訓練心得...`;
+    }
+    autoResizeMemo(memoInput);
+}
+
+window.switchMemoMode = function(mode) {
+    currentMemoMode = mode === 'daily' ? 'daily' : 'pinned';
+    const btnPinned = document.getElementById('btn-memo-pinned');
+    const btnDaily = document.getElementById('btn-memo-daily');
+    if (btnPinned && btnDaily) {
+        if (currentMemoMode === 'pinned') {
+            btnPinned.style.background = 'var(--accent-primary)';
+            btnPinned.style.color = '#fff';
+            btnDaily.style.background = 'transparent';
+            btnDaily.style.color = 'var(--text-muted)';
+        } else {
+            btnDaily.style.background = 'var(--accent-primary)';
+            btnDaily.style.color = '#fff';
+            btnPinned.style.background = 'transparent';
+            btnPinned.style.color = 'var(--text-muted)';
+        }
+    }
+    const memoInput = document.getElementById('dashboard-memo-input');
+    if (memoInput) memoInput.blur();
+    renderDashboardMemo();
+};
+
+function setupDashboardMemo() {
+    const memoInput = document.getElementById('dashboard-memo-input');
+    if (!memoInput) return;
+    renderDashboardMemo();
+    memoInput.addEventListener('input', () => {
+        autoResizeMemo(memoInput);
+        const todayStr = getTodayDateStr();
+        if (!dailyData[todayStr]) dailyData[todayStr] = { water: 0, weight: userProfile.weight || 70 };
+        if (currentMemoMode === 'pinned') {
+            dailyData._pinnedMemo = memoInput.value;
+        } else {
+            dailyData[todayStr].note = memoInput.value;
+        }
+        const statusEl = document.getElementById('memo-save-status');
+        if (statusEl) {
+            statusEl.innerText = '儲存中...';
+            statusEl.style.opacity = '0.8';
+        }
+        if (memoSaveTimer) clearTimeout(memoSaveTimer);
+        memoSaveTimer = setTimeout(() => {
+            setAndSync('fitness_daily', JSON.stringify(dailyData));
+            if (typeof triggerAutoSync === 'function') triggerAutoSync();
+            if (statusEl) {
+                statusEl.innerText = '已自動儲存 ✓';
+                statusEl.style.opacity = '1';
+                setTimeout(() => { statusEl.style.opacity = '0'; }, 1800);
+            }
+        }, 400);
+    });
 }
 
 function updateDailyData() {
+    renderDashboardMemo();
     document.getElementById('water-val').innerText = dailyData[getTodayDateStr()].water;
     
     const inputDailyWeight = document.getElementById('daily-weight');
