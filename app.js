@@ -23,6 +23,7 @@ function getEstimatedWeight(food) {
         'store': 150,
         'raw': 100,
         'fruit': 150,
+        'drink': 350,
         'supp': 30,
         'cheat': 180
     };
@@ -450,6 +451,7 @@ foodDatabase.foods = [...customFoods, ...foodDatabase.foods];
 // Backup original builtin foods for restoring default
 const originalBuiltinFoods = foodDatabase.foods.map(f => ({
     id: f.id,
+    categoryId: f.categoryId,
     cals: f.cals,
     macros: { ...(f.macros || {}) },
     weightPerServing: f.weightPerServing
@@ -465,6 +467,10 @@ function applyFoodOverrides() {
         if (foodOverrides[food.id]) {
             const ov = foodOverrides[food.id];
             const orig = originalBuiltinFoods.find(o => o.id === food.id);
+            if (orig && orig.categoryId === 'drink' && ['egg', 'breakfast', 'store', 'cheat'].includes(ov.categoryId)) {
+                ov.categoryId = 'drink';
+                ovUpdated = true;
+            }
             // 若內建食物的 override 仍是舊版四捨五入整數快照，升級為小數點後1位精確值
             if (orig && ov.macros &&
                 Number.isInteger(ov.macros.p) && Number.isInteger(ov.macros.c) && Number.isInteger(ov.macros.f) &&
