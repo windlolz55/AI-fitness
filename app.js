@@ -3521,7 +3521,8 @@ function showInfo(type) {
                 </div>
             </div>
         `;
-    } else if (type === 'macros') {
+    } else if (type === 'macros' || type === 'protein_guide' || type === 'protein') {
+        const initialPage = (type === 'protein_guide' || type === 'protein') ? 3 : 1;
         let proMultiplier = 1.8;
         let fatMultiplier = 1.0;
         let bmr = calcBMR();
@@ -3582,121 +3583,143 @@ function showInfo(type) {
             </div>
         `;
         content.innerHTML = `
-            <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
-                ${restMacroNote}
-                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
-                    <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準計算蛋白質與脂肪，並用碳水填滿剩餘熱量。</p>
-                    
-                    <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g${activeDayTar.isRest ? ' × 0.88' : ''})</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
-                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}${activeDayTar.isRest ? ' * 0.88 (休息日 -12%)' : ''}</p>
-                    <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${displayPro} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayPro * 4} kcal)</span></p>
-                    
-                    <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 9 kcal)</span></p>
-                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${fatMultiplier}</p>
-                    <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${displayFat} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayFat * 9} kcal)</span></p>
-                    
-                    <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
-                    <p style="margin-bottom: 4px; font-size: 11px;">(${displayCals} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
-                    <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * <span style="color: var(--carb-color); font-weight: 600;">(${userProfile.weight ? (displayCarb / userProfile.weight).toFixed(1) : 0})</span></p>
-                    <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${displayCarb} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayCarb * 4} kcal)</span></p>
-                </div>
-
-                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 12.5px; margin-top: 12px; line-height: 1.6;">
-                    <p style="margin-bottom: 8px; color: var(--accent-primary); font-weight: 700; font-size: 13px;">【三大營養素設定指南 (g/kg 體重)】</p>
-                    <div style="margin-bottom: 8px;">
-                        <div>• <strong style="color: var(--carb-color);">碳水</strong> <span style="color: var(--text-muted); font-size: 11px;">(4 kcal/g)</span>：增肌 <strong>4.0–6.0</strong>｜維持 <strong>3.0–4.5</strong>｜減脂 <strong>2.0–3.5</strong></div>
-                        <div style="color: #ff6b81; font-size: 11.5px; padding-left: 10px;">(低於 2.0–2.5 易掉力)</div>
-                    </div>
-                    <div style="margin-bottom: 8px;">
-                        <div>• <strong style="color: var(--pro-color);">蛋白質</strong> <span style="color: var(--text-muted); font-size: 11px;">(4 kcal/g)</span>：增肌 <strong>1.6–2.0</strong>｜維持 <strong>1.6–1.8</strong>｜減脂 <strong>2.0–2.2</strong></div>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <div>• <strong style="color: var(--fat-color);">脂肪</strong> <span style="color: var(--text-muted); font-size: 11px;">(9 kcal/g)</span>：增肌/維持 <strong>0.8–1.0</strong>｜減脂 <strong>0.6–0.8</strong></div>
-                        <div style="color: var(--text-muted); font-size: 11.5px; padding-left: 10px;">(底線 &gt;0.5；增肌吃不下澱粉可微調至 1.1–1.3 補熱量)</div>
-                    </div>
-
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 700; font-size: 13px; border-top: 1px solid var(--card-border); padding-top: 10px;">【分配與時機】</p>
-                    <ol style="margin: 0; padding-left: 18px; color: var(--text-main); font-size: 12px; line-height: 1.65;">
-                        <li style="margin-bottom: 4px;"><strong>計算順序</strong>：定總熱量 → 鎖定蛋白質與脂肪 → 剩餘全給碳水。</li>
-                        <li style="margin-bottom: 4px;"><strong>碳水調度</strong>：在目前階段的區間內，訓練日/高活動靠上限，休息日/久坐靠下限。</li>
-                        <li><strong>訓練窗口</strong>：練前 1–2h 補 <strong>0.5–1.0 g/kg</strong> <span style="color:var(--text-muted);">(${Math.round(uWeight * 0.5)}–${Math.round(uWeight * 1.0)}g)</span>、練後 2h 內補 <strong>1.0–1.2 g/kg</strong> <span style="color:var(--text-muted);">(${Math.round(uWeight * 1.0)}–${Math.round(uWeight * 1.2)}g)</span>（減脂期將 60–70% 碳水集中於此以守住力量）。</li>
-                    </ol>
-                </div>
-
-                <div style="margin-top: 14px; text-align: center;">
-                    <button type="button" onclick="showInfo('protein_guide')" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center;">
-                        <i class="fa-solid fa-shield-halved"></i> 查看蛋白質安全底線與 MPS 週期 →
+            <div>
+                <div style="display: flex; background: var(--bg-main); padding: 3px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--card-border); gap: 2px;">
+                    <button type="button" id="macro-tab-btn-1" onclick="switchInfoSubPage(1)" style="flex: 1; border: none; background: var(--accent-primary); color: #fff; font-size: 11.5px; font-weight: 600; padding: 6px 4px; border-radius: 8px; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
+                        1. 目標計算
                     </button>
+                    <button type="button" id="macro-tab-btn-2" onclick="switchInfoSubPage(2)" style="flex: 1; border: none; background: transparent; color: var(--text-muted); font-size: 11.5px; font-weight: 600; padding: 6px 4px; border-radius: 8px; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
+                        2. 設定指南
+                    </button>
+                    <button type="button" id="macro-tab-btn-3" onclick="switchInfoSubPage(3)" style="flex: 1; border: none; background: transparent; color: var(--text-muted); font-size: 11.5px; font-weight: 600; padding: 6px 4px; border-radius: 8px; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
+                        3. 蛋白質底線
+                    </button>
+                </div>
+
+                <!-- Page 1: 三大營養素分配 -->
+                <div id="macro-subpage-1">
+                    ${restMacroNote}
+                    <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
+                        <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;">三大營養素分配</p>
+                        <p style="color: var(--text-muted); margin-bottom: 8px;">以體重為基準計算蛋白質與脂肪，並用碳水填滿剩餘熱量。</p>
+                        
+                        <p style="margin-bottom: 4px;"><strong>蛋白質 (每公斤體重 * ${proMultiplier}g${activeDayTar.isRest ? ' × 0.88' : ''})</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
+                        <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${proMultiplier}${activeDayTar.isRest ? ' * 0.88 (休息日 -12%)' : ''}</p>
+                        <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--pro-color);">${displayPro} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayPro * 4} kcal)</span></p>
+                        
+                        <p style="margin-bottom: 4px;"><strong>脂肪 (每公斤體重 * ${fatMultiplier}g)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 9 kcal)</span></p>
+                        <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * ${fatMultiplier}</p>
+                        <p style="margin-bottom: 8px; text-align: right;">= <strong style="color: var(--fat-color);">${displayFat} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayFat * 9} kcal)</span></p>
+                        
+                        <p style="margin-bottom: 4px;"><strong>碳水 (熱量填滿)</strong> <span style="color:var(--text-muted); font-size:11px; margin-left: 4px;">(1g = 4 kcal)</span></p>
+                        <p style="margin-bottom: 4px; font-size: 11px;">(${displayCals} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
+                        <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * <span style="color: var(--carb-color); font-weight: 600;">(${userProfile.weight ? (displayCarb / userProfile.weight).toFixed(1) : 0})</span></p>
+                        <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${displayCarb} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayCarb * 4} kcal)</span></p>
+                    </div>
+
+                    <div style="margin-top: 12px;">
+                        <button type="button" onclick="switchInfoSubPage(2)" style="background: rgba(29, 209, 161, 0.12); border: 1px solid rgba(29, 209, 161, 0.35); color: var(--accent-primary); font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center;">
+                            <i class="fa-solid fa-book-open"></i> 下一頁：三大營養素設定指南與時機 →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Page 2: 設定指南與時機 -->
+                <div id="macro-subpage-2" style="display: none;">
+                    <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 12.5px; line-height: 1.6;">
+                        <p style="margin-bottom: 8px; color: var(--accent-primary); font-weight: 700; font-size: 13px;">【三大營養素設定指南 (g/kg 體重)】</p>
+                        <div style="margin-bottom: 8px;">
+                            <div>• <strong style="color: var(--carb-color);">碳水</strong> <span style="color: var(--text-muted); font-size: 11px;">(4 kcal/g)</span>：增肌 <strong>4.0–6.0</strong>｜維持 <strong>3.0–4.5</strong>｜減脂 <strong>2.0–3.5</strong></div>
+                            <div style="color: #ff6b81; font-size: 11.5px; padding-left: 10px;">(低於 2.0–2.5 易掉力)</div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <div>• <strong style="color: var(--pro-color);">蛋白質</strong> <span style="color: var(--text-muted); font-size: 11px;">(4 kcal/g)</span>：增肌 <strong>1.6–2.0</strong>｜維持 <strong>1.6–1.8</strong>｜減脂 <strong>2.0–2.2</strong></div>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <div>• <strong style="color: var(--fat-color);">脂肪</strong> <span style="color: var(--text-muted); font-size: 11px;">(9 kcal/g)</span>：增肌/維持 <strong>0.8–1.0</strong>｜減脂 <strong>0.6–0.8</strong></div>
+                            <div style="color: var(--text-muted); font-size: 11.5px; padding-left: 10px;">(底線 &gt;0.5；增肌吃不下澱粉可微調至 1.1–1.3 補熱量)</div>
+                        </div>
+
+                        <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 700; font-size: 13px; border-top: 1px solid var(--card-border); padding-top: 10px;">【分配與時機】</p>
+                        <ol style="margin: 0; padding-left: 18px; color: var(--text-main); font-size: 12px; line-height: 1.65;">
+                            <li style="margin-bottom: 4px;"><strong>計算順序</strong>：定總熱量 → 鎖定蛋白質與脂肪 → 剩餘全給碳水。</li>
+                            <li style="margin-bottom: 4px;"><strong>碳水調度</strong>：在目前階段的區間內，訓練日/高活動靠上限，休息日/久坐靠下限。</li>
+                            <li><strong>訓練窗口</strong>：練前 1–2h 補 <strong>0.5–1.0 g/kg</strong> <span style="color:var(--text-muted);">(${Math.round(uWeight * 0.5)}–${Math.round(uWeight * 1.0)}g)</span>、練後 2h 內補 <strong>1.0–1.2 g/kg</strong> <span style="color:var(--text-muted);">(${Math.round(uWeight * 1.0)}–${Math.round(uWeight * 1.2)}g)</span>（減脂期將 60–70% 碳水集中於此以守住力量）。</li>
+                        </ol>
+                    </div>
+
+                    <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        <button type="button" onclick="switchInfoSubPage(1)" style="flex: 1; background: transparent; border: 1px solid var(--card-border); color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 9px 10px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa-solid fa-arrow-left"></i> 上一頁
+                        </button>
+                        <button type="button" onclick="switchInfoSubPage(3)" style="flex: 1.3; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 12px; font-weight: 600; padding: 9px 10px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            下一頁：蛋白質底線 →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Page 3: 蛋白質底線與合成週期 (不拆分) -->
+                <div id="macro-subpage-3" style="display: none;">
+                    <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
+                        <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>蛋白質安全底線表 (${uWeight} kg)</p>
+                        <p style="color: var(--text-muted); font-size: 11px; margin-bottom: 10px; line-height: 1.4;">放假、休息日或少吃一餐時，依此對照肌肉保護與生長狀態：</p>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="background: rgba(29, 209, 161, 0.08); border-left: 3px solid #1dd1a1; padding: 6px 10px; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-weight: 600; color: #1dd1a1; font-size: 12px;">🟢 完美達標區 (1.8~2.1g)</span>
+                                    <strong style="color: var(--text-main); font-size: 13px;">${pro18}g ~ ${pro21}g</strong>
+                                </div>
+                                <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">100% 滿分修復，肌肉合成最大化，飽足感極佳。</p>
+                            </div>
+
+                            <div style="background: rgba(251, 191, 36, 0.08); border-left: 3px solid #f59e0b; padding: 6px 10px; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-weight: 600; color: #f59e0b; font-size: 12px;">🟡 安全緩衝區 (1.6~1.8g) ★</span>
+                                    <strong style="color: var(--text-main); font-size: 13px;">${pro16}g ~ ${pro18}g</strong>
+                                </div>
+                                <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">黃金及格線！只要達到 <strong>${pro16}g</strong>，肌肉完全不掉（約 90% 效果）。</p>
+                            </div>
+
+                            <div style="background: rgba(255, 159, 67, 0.08); border-left: 3px solid #ff9f43; padding: 6px 10px; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-weight: 600; color: #ff9f43; font-size: 12px;">🟠 微幅打折區 (1.2~1.5g)</span>
+                                    <strong style="color: var(--text-main); font-size: 13px;">${pro12}g ~ ${pro16 - 1}g</strong>
+                                </div>
+                                <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">足夠基本機能不掉肉，但沒享受到昨天重訓增肌紅利，晚上較易餓。</p>
+                            </div>
+
+                            <div style="background: rgba(255, 107, 129, 0.08); border-left: 3px solid #ff6b81; padding: 6px 10px; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                    <span style="font-weight: 600; color: #ff6b81; font-size: 12px;">🔴 肌肉流失警戒區 (&lt;1.0g)</span>
+                                    <strong style="color: #ff6b81; font-size: 13px;">&lt; ${pro10}g</strong>
+                                </div>
+                                <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">赤字下可能開始分解肌肉當能量，代謝下降，務必用乳清或豆漿補足！</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 10px;">
+                        <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 4px;"></i>練後肌肉合成（MPS）生理週期</p>
+                        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                            <div>⚡ <strong>0 ～ 24 小時</strong>：最高峰期 (+50%~100%)，蛋白質吸收修復主力。</div>
+                            <div>📉 <strong>24 ～ 36 小時</strong>：收尾緩降期 (+20%~30%)，仍高於平日基準線。</div>
+                            <div>💤 <strong>36 ～ 48 小時</strong>：修復週期完成，回歸平日平靜基線。</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 12px; display: flex; gap: 8px;">
+                        <button type="button" onclick="switchInfoSubPage(2)" style="flex: 1; background: transparent; border: 1px solid var(--card-border); color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 9px 10px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa-solid fa-arrow-left"></i> 上一頁：設定指南
+                        </button>
+                        <button type="button" onclick="switchInfoSubPage(1)" style="flex: 1; background: rgba(29, 209, 161, 0.12); border: 1px solid rgba(29, 209, 161, 0.35); color: var(--accent-primary); font-size: 12px; font-weight: 600; padding: 9px 10px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                            回到第 1 頁
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
-    } else if (type === 'protein_guide' || type === 'protein') {
-        const uWeight = userProfile.weight || 70;
-        const pro16 = Math.round(uWeight * 1.6);
-        const pro18 = Math.round(uWeight * 1.8);
-        const pro21 = Math.round(uWeight * 2.1);
-        const pro12 = Math.round(uWeight * 1.2);
-        const pro10 = Math.round(uWeight * 1.0);
-
-        title.innerHTML = '<i class="fa-solid fa-shield-halved" style="color: #38bdf8; margin-right: 8px;"></i>蛋白質底線與合成週期';
-        content.innerHTML = `
-            <div style="max-height: 60vh; overflow-y: auto; padding-right: 4px;">
-                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;"><i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i>蛋白質安全底線表 (${uWeight} kg)</p>
-                    <p style="color: var(--text-muted); font-size: 11px; margin-bottom: 10px; line-height: 1.4;">放假、休息日或少吃一餐時，依此對照肌肉保護與生長狀態：</p>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <div style="background: rgba(29, 209, 161, 0.08); border-left: 3px solid #1dd1a1; padding: 6px 10px; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                                <span style="font-weight: 600; color: #1dd1a1; font-size: 12px;">🟢 完美達標區 (1.8~2.1g)</span>
-                                <strong style="color: var(--text-main); font-size: 13px;">${pro18}g ~ ${pro21}g</strong>
-                            </div>
-                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">100% 滿分修復，肌肉合成最大化，飽足感極佳。</p>
-                        </div>
-
-                        <div style="background: rgba(251, 191, 36, 0.08); border-left: 3px solid #f59e0b; padding: 6px 10px; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                                <span style="font-weight: 600; color: #f59e0b; font-size: 12px;">🟡 安全緩衝區 (1.6~1.8g) ★</span>
-                                <strong style="color: var(--text-main); font-size: 13px;">${pro16}g ~ ${pro18}g</strong>
-                            </div>
-                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">黃金及格線！只要達到 <strong>${pro16}g</strong>，肌肉完全不掉（約 90% 效果）。</p>
-                        </div>
-
-                        <div style="background: rgba(255, 159, 67, 0.08); border-left: 3px solid #ff9f43; padding: 6px 10px; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                                <span style="font-weight: 600; color: #ff9f43; font-size: 12px;">🟠 微幅打折區 (1.2~1.5g)</span>
-                                <strong style="color: var(--text-main); font-size: 13px;">${pro12}g ~ ${pro16 - 1}g</strong>
-                            </div>
-                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">足夠基本機能不掉肉，但沒享受到昨天重訓增肌紅利，晚上較易餓。</p>
-                        </div>
-
-                        <div style="background: rgba(255, 107, 129, 0.08); border-left: 3px solid #ff6b81; padding: 6px 10px; border-radius: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                                <span style="font-weight: 600; color: #ff6b81; font-size: 12px;">🔴 肌肉流失警戒區 (&lt;1.0g)</span>
-                                <strong style="color: #ff6b81; font-size: 13px;">&lt; ${pro10}g</strong>
-                            </div>
-                            <p style="color: var(--text-muted); font-size: 11px; margin: 2px 0 0;">赤字下可能開始分解肌肉當能量，代謝下降，務必用乳清或豆漿補足！</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 12px;">
-                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 600;"><i class="fa-solid fa-clock-rotate-left" style="margin-right: 4px;"></i>練後肌肉合成（MPS）生理週期</p>
-                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
-                        <div>⚡ <strong>0 ～ 24 小時</strong>：最高峰期 (+50%~100%)，蛋白質吸收修復主力。</div>
-                        <div>📉 <strong>24 ～ 36 小時</strong>：收尾緩降期 (+20%~30%)，仍高於平日基準線。</div>
-                        <div>💤 <strong>36 ～ 48 小時</strong>：修復週期完成，回歸平日平靜基線。</div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 14px; text-align: center;">
-                    <button type="button" onclick="showInfo('macros')" style="background: transparent; border: 1px solid var(--card-border); color: var(--text-muted); font-size: 12px; padding: 8px 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-arrow-left"></i> 返回三大營養素說明
-                    </button>
-                </div>
-            </div>
-        `;
+        setTimeout(() => switchInfoSubPage(initialPage), 0);
     }
     
     document.getElementById('info-modal').classList.remove('hidden');
@@ -3705,6 +3728,19 @@ function showInfo(type) {
 function closeInfoModal() {
     document.getElementById('info-modal').classList.add('hidden');
 }
+
+window.switchInfoSubPage = function(pageNum) {
+    [1, 2, 3].forEach(n => {
+        const p = document.getElementById(`macro-subpage-${n}`);
+        const b = document.getElementById(`macro-tab-btn-${n}`);
+        const active = (n === pageNum);
+        if (p) p.style.display = active ? 'block' : 'none';
+        if (b) {
+            b.style.background = active ? 'var(--accent-primary)' : 'transparent';
+            b.style.color = active ? '#fff' : 'var(--text-muted)';
+        }
+    });
+};
 
 // Logs Rendering
 function getDayStatus(dateStr) {
