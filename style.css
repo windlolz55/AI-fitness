@@ -84,7 +84,7 @@ body {
 /* Dashboard UI */
 .dashboard-header {
     text-align: center;
-    padding: 24px 0;
+    padding: 16px 0 14px 0;
 }
 
 /* Circular Progress */
@@ -175,7 +175,7 @@ body {
 .quick-actions {
     display: flex;
     justify-content: space-between;
-    padding: 4px 16px 24px 16px;
+    padding: 0 16px 18px 16px;
 }
 .action-btn {
     display: flex;
