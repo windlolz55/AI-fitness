@@ -2246,6 +2246,15 @@ function updateDashboard() {
     document.getElementById('val-fat').innerText = Math.round(todayFat * 10) / 10;
     document.getElementById('tar-fat').innerText = todayTargets.fat;
 
+    // Macros g/kg (統一依個人基本資料設定的體重計算，確保基準固定)
+    const curWeight = parseFloat(userProfile.weight) || 70;
+    const gkgCarbEl = document.getElementById('gkg-carb');
+    const gkgProEl = document.getElementById('gkg-pro');
+    const gkgFatEl = document.getElementById('gkg-fat');
+    if (gkgCarbEl) gkgCarbEl.innerText = `${(todayCarb / curWeight).toFixed(1)} g/kg`;
+    if (gkgProEl) gkgProEl.innerText = `${(todayPro / curWeight).toFixed(1)} g/kg`;
+    if (gkgFatEl) gkgFatEl.innerText = `${(todayFat / curWeight).toFixed(1)} g/kg`;
+
     // Macro Bars
     document.getElementById('bar-carb').style.width = Math.min((todayCarb / todayTargets.carb) * 100, 100) + '%';
     document.getElementById('bar-pro').style.width = Math.min((todayPro / todayTargets.pro) * 100, 100) + '%';
@@ -3591,6 +3600,28 @@ function showInfo(type) {
                     <p style="margin-bottom: 4px; font-size: 11px;">(${displayCals} - 蛋白質熱量 - 脂肪熱量) ÷ 4</p>
                     <p style="margin-bottom: 4px; color: var(--text-muted); font-size: 12px;">${userProfile.weight} kg * <span style="color: var(--carb-color); font-weight: 600;">(${userProfile.weight ? (displayCarb / userProfile.weight).toFixed(1) : 0})</span></p>
                     <p style="margin-bottom: 4px; text-align: right;">= <strong style="color: var(--carb-color);">${displayCarb} g</strong> <span style="color:var(--text-muted); font-size:11px;">(${displayCarb * 4} kcal)</span></p>
+                </div>
+
+                <div style="background: var(--bg-main); padding: 12px; border-radius: 8px; font-size: 12.5px; margin-top: 12px; line-height: 1.6;">
+                    <p style="margin-bottom: 8px; color: var(--accent-primary); font-weight: 700; font-size: 13px;">【三大營養素設定指南 (g/kg 體重)】</p>
+                    <div style="margin-bottom: 8px;">
+                        <div>• <strong style="color: var(--carb-color);">碳水</strong> <span style="color: var(--text-muted); font-size: 11px;">(4 kcal/g)</span>：增肌 <strong>4.0–6.0</strong>｜維持 <strong>3.0–4.5</strong>｜減脂 <strong>2.0–3.5</strong></div>
+                        <div style="color: #ff6b81; font-size: 11.5px; padding-left: 10px;">(低於 2.0–2.5 易掉力)</div>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <div>• <strong style="color: var(--pro-color);">蛋白質</strong> <span style="color: var(--text-muted); font-size: 11px;">(4 kcal/g)</span>：增肌 <strong>1.6–2.0</strong>｜維持 <strong>1.6–1.8</strong>｜減脂 <strong>2.0–2.2</strong></div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <div>• <strong style="color: var(--fat-color);">脂肪</strong> <span style="color: var(--text-muted); font-size: 11px;">(9 kcal/g)</span>：增肌/維持 <strong>0.8–1.0</strong>｜減脂 <strong>0.6–0.8</strong></div>
+                        <div style="color: var(--text-muted); font-size: 11.5px; padding-left: 10px;">(底線 &gt;0.5；增肌吃不下澱粉可微調至 1.1–1.3 補熱量)</div>
+                    </div>
+
+                    <p style="margin-bottom: 6px; color: var(--accent-primary); font-weight: 700; font-size: 13px; border-top: 1px solid var(--card-border); padding-top: 10px;">【分配與時機】</p>
+                    <ol style="margin: 0; padding-left: 18px; color: var(--text-main); font-size: 12px; line-height: 1.65;">
+                        <li style="margin-bottom: 4px;"><strong>計算順序</strong>：定總熱量 → 鎖定蛋白質與脂肪 → 剩餘全給碳水。</li>
+                        <li style="margin-bottom: 4px;"><strong>碳水調度</strong>：在目前階段的區間內，訓練日/高活動靠上限，休息日/久坐靠下限。</li>
+                        <li><strong>訓練窗口</strong>：練前 1–2h 補 <strong>0.5–1.0 g/kg</strong> <span style="color:var(--text-muted);">(${Math.round(uWeight * 0.5)}–${Math.round(uWeight * 1.0)}g)</span>、練後 2h 內補 <strong>1.0–1.2 g/kg</strong> <span style="color:var(--text-muted);">(${Math.round(uWeight * 1.0)}–${Math.round(uWeight * 1.2)}g)</span>（減脂期將 60–70% 碳水集中於此以守住力量）。</li>
+                    </ol>
                 </div>
 
                 <div style="margin-top: 14px; text-align: center;">
