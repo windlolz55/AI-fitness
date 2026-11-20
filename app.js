@@ -2266,6 +2266,7 @@ function updateDashboard() {
 // Food DB Logic
 let currentAddingMeal = 'snack';
 let selectedFood = null;
+let editingLogItemId = null;
 let currentCart = [];
 let activeCategory = 'favorites';
 
@@ -2691,11 +2692,16 @@ function closeFoodDB() {
 }
 
 function selectFood(foodId) {
+    editingLogItemId = null;
     selectedFood = foodDatabase.foods.find(f => f.id === foodId);
     if (!selectedFood) return;
     
     // 關閉編輯模式並確保顯示一般模式
     closeFoodNutritionEdit(false);
+    const btnToggleEdit = document.getElementById('btn-toggle-edit-nutrition');
+    if (btnToggleEdit) btnToggleEdit.style.display = '';
+    const btnAddFood = document.getElementById('btn-add-food');
+    if (btnAddFood) btnAddFood.innerText = '確認加入';
 
     document.getElementById('setup-food-name').innerText = selectedFood.name;
     
@@ -2968,7 +2974,83 @@ function closeFoodSetup() {
     document.getElementById('food-setup-modal').classList.remove('open');
     closeFoodNutritionEdit(false);
     selectedFood = null;
+    editingLogItemId = null;
+    const btnAddFood = document.getElementById('btn-add-food');
+    if (btnAddFood) btnAddFood.innerText = '確認加入';
+    const btnToggleEdit = document.getElementById('btn-toggle-edit-nutrition');
+    if (btnToggleEdit) btnToggleEdit.style.display = '';
 }
+
+window.openEditLogItem = function(logId) {
+    const logItem = logs.find(l => String(l.id) === String(logId));
+    if (!logItem) return;
+
+    editingLogItemId = logItem.id;
+    closeFoodNutritionEdit(false);
+
+    let desc = '1份';
+    let baseName = logItem.name;
+    if (logItem.name && logItem.name.includes('(')) {
+        const allMatches = [...logItem.name.matchAll(/\(([^)]+)\)/g)];
+        if (allMatches.length > 0) {
+            desc = allMatches[allMatches.length - 1][1].trim();
+        }
+        baseName = logItem.name.split(' (')[0].trim();
+    }
+
+    const numMatch = desc.match(/^([\d.]+)\s*(.*)$/);
+    const curVal = numMatch ? (parseFloat(numMatch[1]) || 1) : 1;
+    const curUnitRaw = numMatch ? (numMatch[2] || '').trim() : '份';
+    const isGramLog = curUnitRaw.toLowerCase() === 'g';
+
+    let dbFood = (logItem.foodId && foodDatabase.foods.find(f => f.id === logItem.foodId)) ||
+                 foodDatabase.foods.find(f => f.name.split(/\s*\(/)[0].trim() === baseName || f.name.trim() === baseName);
+
+    const btnToggleEdit = document.getElementById('btn-toggle-edit-nutrition');
+    if (dbFood) {
+        selectedFood = dbFood;
+        selectedFood.weightPerServing = getEstimatedWeight(selectedFood);
+        if (btnToggleEdit) btnToggleEdit.style.display = '';
+    } else {
+        // 找不到對應資料庫項目時（如 AI 掃描或已刪除的自訂食物），以該筆紀錄反推單份基準
+        const baseFactor = isGramLog ? (curVal / 100 || 1) : (curVal || 1);
+        const unitSuffix = isGramLog ? '100g' : `1${curUnitRaw || '份'}`;
+        selectedFood = {
+            id: logItem.foodId || ('temp_' + logItem.id),
+            name: `${baseName} (${unitSuffix})`,
+            cals: Math.round(((logItem.cal || 0) / baseFactor) * 10) / 10,
+            macros: {
+                p: Math.round(((logItem.pro || 0) / baseFactor) * 10) / 10,
+                c: Math.round(((logItem.carb || 0) / baseFactor) * 10) / 10,
+                f: Math.round(((logItem.fat || 0) / baseFactor) * 10) / 10
+            },
+            weightPerServing: 100
+        };
+        if (btnToggleEdit) btnToggleEdit.style.display = 'none';
+    }
+
+    document.getElementById('setup-food-name').innerText = selectedFood.name;
+
+    const unitSelectEl = document.getElementById('setup-unit-label');
+    const currentUnit = isGramLog ? 'g' : 'serving';
+    if (unitSelectEl) {
+        unitSelectEl.value = currentUnit;
+        const gOption = unitSelectEl.querySelector('option[value="g"]');
+        if (gOption) gOption.disabled = false;
+    }
+
+    let initAmount = curVal;
+    if (!isGramLog && selectedFood.name.toLowerCase().includes('100g') && curUnitRaw.toLowerCase() === 'g') {
+        initAmount = curVal;
+    }
+    document.getElementById('setup-grams').value = initAmount;
+
+    const btnAddFood = document.getElementById('btn-add-food');
+    if (btnAddFood) btnAddFood.innerText = '儲存修改';
+
+    updateFoodSetup();
+    document.getElementById('food-setup-modal').classList.add('open');
+};
 
 // 阻止 food-setup-modal 內部的點擊冒泡到 document
 const setupModalEl = document.getElementById('food-setup-modal');
@@ -2985,7 +3067,7 @@ document.addEventListener('click', (e) => {
         // 若點擊的節點已從 DOM 樹被移除（如點擊後替換的圖示），或點擊在 setupModal 內部，不關閉
         if (!document.contains(e.target) || setupModal.contains(e.target)) return;
         // 若點擊的是打開 setupModal 的食物項目，也不關閉
-        if (e.target.closest('.food-db-item')) return;
+        if (e.target.closest('.food-db-item') || e.target.closest('.meal-item')) return;
         
         closeFoodSetup();
     }
@@ -3056,6 +3138,28 @@ document.getElementById('btn-add-food').addEventListener('click', () => {
         }
     } else {
         finalDesc = `${inputVal}${displayUnit}`;
+    }
+
+    if (editingLogItemId !== null) {
+        const logIdx = logs.findIndex(l => String(l.id) === String(editingLogItemId));
+        if (logIdx >= 0) {
+            logs[logIdx] = {
+                ...logs[logIdx],
+                foodId: selectedFood.id,
+                pv: 1,
+                name: `${baseName} (${finalDesc})`,
+                cal: Math.round(selectedFood.cals * multi * 10) / 10,
+                pro: Math.round(selectedFood.macros.p * multi * 10) / 10,
+                carb: Math.round(selectedFood.macros.c * multi * 10) / 10,
+                fat: Math.round(selectedFood.macros.f * multi * 10) / 10,
+            };
+            setAndSync('fitness_logs', JSON.stringify(logs));
+            if (typeof triggerAutoSync === 'function') triggerAutoSync();
+            renderLogs();
+            updateDashboard();
+        }
+        closeFoodSetup();
+        return;
     }
 
     const newLog = {
@@ -4120,11 +4224,11 @@ function renderLogs() {
                         }
 
                         itemsHTML += `
-                            <div class="meal-item">
+                            <div class="meal-item" style="cursor: pointer;" onclick="openEditLogItem('${item.id}')" title="點擊修改份量">
                                 <div class="meal-item-icon" style="${iconStyle}">${iconHtml}</div>
                                 <div class="meal-item-info">
                                     <div class="meal-item-name">${baseName}</div>
-                                    <div class="meal-item-desc">${desc}</div>
+                                    <div class="meal-item-desc" style="display: inline-flex; align-items: center; gap: 5px;">${desc} <i class="fa-solid fa-pen" style="font-size: 9px; opacity: 0.55; color: var(--accent-primary);"></i></div>
                                     <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; white-space: nowrap;">
                                         <span><span style="color: var(--carb-color); font-weight: bold;">碳</span> ${Math.round(item.carb*10)/10}g</span>
                                         <span><span style="color: var(--pro-color); font-weight: bold;">蛋</span> ${Math.round(item.pro*10)/10}g</span>
@@ -4133,7 +4237,7 @@ function renderLogs() {
                                 </div>
                                 <div class="meal-item-cal" style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
                                     <span>${Math.round(item.cal*10)/10}kcal</span>
-                                    <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="deleteLogItem(${item.id})">
+                                    <button class="btn-icon" style="color: #ff5555; width:28px; height:28px; font-size:14px; background:var(--bg-main);" onclick="event.stopPropagation(); deleteLogItem(${item.id})">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
